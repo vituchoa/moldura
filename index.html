@@ -102,12 +102,23 @@
             background: #f5f5f5;
             padding: 20px;
             border-radius: 10px;
+            position: relative;
+        }
+
+        .canvas-wrapper {
+            display: inline-block;
+            position: relative;
         }
 
         #canvas {
             max-width: 100%;
             height: auto;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: block;
+        }
+
+        #canvas.eyedropper-mode {
+            cursor: crosshair;
         }
 
         .controls {
@@ -138,6 +149,87 @@
             font-size: 14px;
             cursor: pointer;
             background: white;
+        }
+
+        .color-picker-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .color-picker-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .color-input {
+            width: 120px;
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: monospace;
+            text-transform: uppercase;
+            background: white;
+        }
+
+        .color-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .eyedropper-btn {
+            padding: 10px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .eyedropper-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .eyedropper-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .eyedropper-btn.active {
+            background: #10b981;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        }
+
+        .color-display {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .color-display:hover {
+            border-color: #667eea;
+            transform: scale(1.05);
         }
 
         .download-btn {
@@ -203,6 +295,53 @@
             display: block;
         }
 
+        .eyedropper-hint {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .eyedropper-hint.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .color-preview-tooltip {
+            position: fixed;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 10000;
+            display: none;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 2px solid white;
+        }
+
+        .color-preview-tooltip .color-sample {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+            border: 1px solid white;
+            border-radius: 4px;
+        }
+
         @media (max-width: 768px) {
             .upload-section {
                 grid-template-columns: 1fr;
@@ -233,8 +372,17 @@
                 gap: 15px;
             }
             
-            .control-group {
+            .control-group,
+            .color-picker-group {
                 width: 100%;
+            }
+            
+            .color-picker-row {
+                width: 100%;
+            }
+            
+            .color-input {
+                flex: 1;
             }
             
             select, input[type="text"] {
@@ -302,6 +450,15 @@
                 padding: 10px;
                 font-size: 13px;
             }
+            
+            .color-picker-row {
+                flex-wrap: wrap;
+            }
+            
+            .eyedropper-btn {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -340,21 +497,33 @@
                 </div>
                 <div class="control-group">
                     <label>Cor de Fundo</label>
-                    <select id="bgMode" onchange="autoFrame()">
+                    <select id="bgMode" onchange="updateColorPickerVisibility()">
                         <option value="dominant">Automático (cor dominante)</option>
                         <option value="white">Branco</option>
                         <option value="black">Preto</option>
                         <option value="custom">Personalizado</option>
                     </select>
                 </div>
-                <div class="control-group" id="customColorGroup" style="display: none;">
-                    <label>Cor Personalizada</label>
-                    <input type="color" id="customColor" value="#FFFFFF" onchange="autoFrame()" style="width: 60px; height: 40px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer;">
+                <div class="color-picker-group" id="customColorGroup" style="display: none;">
+                    <label>Selecionar Cor</label>
+                    <div class="color-picker-row">
+                        <div class="color-display" id="colorDisplay" onclick="document.getElementById('colorInput').focus()"></div>
+                        <input type="text" id="colorInput" class="color-input" placeholder="#FFFFFF" maxlength="7" value="#FFFFFF">
+                        <button type="button" class="eyedropper-btn" id="eyedropperBtn" onclick="activateEyedropper()">
+                            <span>🎨</span> Conta-gotas
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="canvas-container">
-                <canvas id="canvas"></canvas>
+            <div class="eyedropper-hint" id="eyedropperHint">
+                🎯 Clique na imagem abaixo para capturar uma cor | Pressione <strong>ESC</strong> para cancelar
+            </div>
+
+            <div class="canvas-container" id="canvasContainer">
+                <div class="canvas-wrapper">
+                    <canvas id="canvas"></canvas>
+                </div>
             </div>
             
             <div class="controls">
@@ -383,45 +552,187 @@
         </div>
     </div>
 
+    <!-- Tooltip para preview de cor -->
+    <div class="color-preview-tooltip" id="colorPreviewTooltip">
+        <span class="color-sample" id="tooltipColorSample"></span>
+        <span id="tooltipColorHex">#000000</span>
+    </div>
+
     <script>
         let uploadedImage = null;
         let frameImage = null;
         let transparentArea = null;
-        let imageDirectoryHandle = null;
-        let frameDirectoryHandle = null;
         let dominantColor = '#FFFFFF';
+        let customColor = '#FFFFFF';
+        let isEyedropperActive = false;
+        let canvasCtx = null;
 
-        // Mostrar/ocultar seletor de cor personalizado
-        document.getElementById('bgMode').addEventListener('change', function() {
+        // Inicializar cor personalizada
+        document.getElementById('colorInput').value = customColor;
+        document.getElementById('colorDisplay').style.backgroundColor = customColor;
+
+        // Atualizar visibilidade do seletor de cor
+        function updateColorPickerVisibility() {
+            const bgMode = document.getElementById('bgMode').value;
             const customGroup = document.getElementById('customColorGroup');
-            if (this.value === 'custom') {
+            
+            if (bgMode === 'custom') {
                 customGroup.style.display = 'flex';
             } else {
                 customGroup.style.display = 'none';
             }
-        });
+            autoFrame();
+        }
 
-        // Carregar diretórios salvos ao iniciar
-        async function loadSavedDirectories() {
-            try {
-                const savedDirs = await window.storage.get('directories');
-                if (savedDirs) {
-                    const dirs = JSON.parse(savedDirs.value);
-                    console.log('Diretórios carregados:', dirs);
+        // Atualizar cor a partir do input
+        function updateColorFromInput() {
+            let color = document.getElementById('colorInput').value.trim().toUpperCase();
+            
+            if (!color.startsWith('#')) {
+                color = '#' + color;
+            }
+            
+            const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+            if (hexRegex.test(color)) {
+                if (color.length === 4) {
+                    color = '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3];
                 }
-            } catch (error) {
-                console.log('Nenhum diretório salvo ainda');
+                
+                customColor = color;
+                document.getElementById('colorInput').value = customColor;
+                document.getElementById('colorDisplay').style.backgroundColor = customColor;
+                autoFrame();
+            } else {
+                alert('Por favor, insira um código hexadecimal válido (ex: #FF0000 ou #F00)');
+                document.getElementById('colorInput').value = customColor;
             }
         }
 
-        loadSavedDirectories();
+        // Converter RGB para Hex
+        function rgbToHex(r, g, b) {
+            return "#" + [r, g, b].map(x => {
+                const hex = x.toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('').toUpperCase();
+        }
+
+        // Ativar conta-gotas - CORRIGIDO
+        async function activateEyedropper() {
+            // Tentar usar a EyeDropper API nativa primeiro (Chrome/Edge)
+            if ('EyeDropper' in window) {
+                try {
+                    const eyeDropper = new EyeDropper();
+                    const result = await eyeDropper.open();
+                    
+                    customColor = result.sRGBHex.toUpperCase();
+                    document.getElementById('colorInput').value = customColor;
+                    document.getElementById('colorDisplay').style.backgroundColor = customColor;
+                    autoFrame();
+                    return;
+                } catch (e) {
+                    // Usuário cancelou ou erro - usar fallback
+                    console.log('EyeDropper cancelado ou erro:', e);
+                    return;
+                }
+            }
+
+            // Fallback: usar conta-gotas no canvas
+            if (!uploadedImage && !frameImage) {
+                alert('Primeiro carregue uma imagem ou moldura para usar o conta-gotas.');
+                return;
+            }
+
+            isEyedropperActive = true;
+            document.getElementById('eyedropperBtn').classList.add('active');
+            document.getElementById('eyedropperHint').classList.add('active');
+            document.getElementById('canvas').classList.add('eyedropper-mode');
+
+            // Adicionar event listeners no canvas
+            const canvas = document.getElementById('canvas');
+            canvas.addEventListener('mousemove', handleCanvasMouseMove);
+            canvas.addEventListener('click', handleCanvasClick);
+            document.addEventListener('keydown', handleEyedropperKeydown);
+        }
+
+        function deactivateEyedropper() {
+            isEyedropperActive = false;
+            document.getElementById('eyedropperBtn').classList.remove('active');
+            document.getElementById('eyedropperHint').classList.remove('active');
+            document.getElementById('canvas').classList.remove('eyedropper-mode');
+            document.getElementById('colorPreviewTooltip').style.display = 'none';
+
+            // Remover event listeners
+            const canvas = document.getElementById('canvas');
+            canvas.removeEventListener('mousemove', handleCanvasMouseMove);
+            canvas.removeEventListener('click', handleCanvasClick);
+            document.removeEventListener('keydown', handleEyedropperKeydown);
+        }
+
+        function handleCanvasMouseMove(e) {
+            if (!isEyedropperActive) return;
+
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+            
+            // Calcular posição real no canvas
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = Math.floor((e.clientX - rect.left) * scaleX);
+            const y = Math.floor((e.clientY - rect.top) * scaleY);
+
+            // Garantir que estamos dentro dos limites
+            if (x >= 0 && x < canvas.width && y >= 0 && y < canvas.height) {
+                const ctx = canvas.getContext('2d');
+                const pixelData = ctx.getImageData(x, y, 1, 1).data;
+                const color = rgbToHex(pixelData[0], pixelData[1], pixelData[2]);
+
+                // Atualizar tooltip
+                const tooltip = document.getElementById('colorPreviewTooltip');
+                tooltip.style.display = 'block';
+                tooltip.style.left = (e.clientX + 15) + 'px';
+                tooltip.style.top = (e.clientY + 15) + 'px';
+                document.getElementById('tooltipColorHex').textContent = color;
+                document.getElementById('tooltipColorSample').style.backgroundColor = color;
+            }
+        }
+
+        function handleCanvasClick(e) {
+            if (!isEyedropperActive) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+            
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = Math.floor((e.clientX - rect.left) * scaleX);
+            const y = Math.floor((e.clientY - rect.top) * scaleY);
+
+            if (x >= 0 && x < canvas.width && y >= 0 && y < canvas.height) {
+                const ctx = canvas.getContext('2d');
+                const pixelData = ctx.getImageData(x, y, 1, 1).data;
+                const color = rgbToHex(pixelData[0], pixelData[1], pixelData[2]);
+
+                customColor = color;
+                document.getElementById('colorInput').value = customColor;
+                document.getElementById('colorDisplay').style.backgroundColor = customColor;
+                autoFrame();
+            }
+
+            deactivateEyedropper();
+        }
+
+        function handleEyedropperKeydown(e) {
+            if (e.key === 'Escape') {
+                deactivateEyedropper();
+            }
+        }
 
         document.getElementById('imageUpload').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                // Tentar salvar o caminho do diretório
-                savePath('imagePath', file.webkitRelativePath || file.name);
-                
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const img = new Image();
@@ -430,7 +741,6 @@
                         document.getElementById('imageBox').classList.add('has-file');
                         document.getElementById('imageLabel').textContent = '✓ Imagem Carregada';
                         
-                        // Extrair cor dominante
                         extractDominantColor(img);
                         
                         if (frameImage && transparentArea) {
@@ -446,9 +756,6 @@
         document.getElementById('frameUpload').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                // Tentar salvar o caminho do diretório
-                savePath('framePath', file.webkitRelativePath || file.name);
-                
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const img = new Image();
@@ -495,7 +802,7 @@
                     const index = (y * tempCanvas.width + x) * 4;
                     const alpha = data[index + 3];
                     
-                    if (alpha < 128) {
+                    if (alpha < 180) {
                         if (x < minX) minX = x;
                         if (x > maxX) maxX = x;
                         if (y < minY) minY = y;
@@ -504,11 +811,12 @@
                 }
             }
             
+            const margin = 3;
             transparentArea = {
-                x: minX,
-                y: minY,
-                width: maxX - minX,
-                height: maxY - minY
+                x: Math.max(0, minX - margin),
+                y: Math.max(0, minY - margin),
+                width: Math.min(tempCanvas.width, maxX - minX + (margin * 2)),
+                height: Math.min(tempCanvas.height, maxY - minY + (margin * 2))
             };
             
             console.log('Área transparente detectada:', transparentArea);
@@ -518,7 +826,6 @@
             const tempCanvas = document.createElement('canvas');
             const tempCtx = tempCanvas.getContext('2d');
             
-            // Reduzir tamanho para análise rápida
             const size = 50;
             tempCanvas.width = size;
             tempCanvas.height = size;
@@ -530,7 +837,6 @@
             let r = 0, g = 0, b = 0;
             let count = 0;
             
-            // Calcular média das cores (ignorando pixels muito escuros ou claros nos extremos)
             for (let i = 0; i < data.length; i += 4) {
                 const red = data[i];
                 const green = data[i + 1];
@@ -550,7 +856,7 @@
                 g = Math.floor(g / count);
                 b = Math.floor(b / count);
                 
-                dominantColor = `rgb(${r}, ${g}, ${b})`;
+                dominantColor = rgbToHex(r, g, b);
                 console.log('Cor dominante extraída:', dominantColor);
             }
         }
@@ -567,7 +873,6 @@
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
 
-            // Determinar cor de fundo
             const bgMode = document.getElementById('bgMode').value;
             let bgColor = '#FFFFFF';
             
@@ -575,8 +880,10 @@
                 bgColor = dominantColor;
             } else if (bgMode === 'black') {
                 bgColor = '#000000';
+            } else if (bgMode === 'white') {
+                bgColor = '#FFFFFF';
             } else if (bgMode === 'custom') {
-                bgColor = document.getElementById('customColor').value;
+                bgColor = customColor;
             }
 
             ctx.fillStyle = bgColor;
@@ -618,7 +925,6 @@
             }
 
             ctx.drawImage(uploadedImage, drawX, drawY, drawWidth, drawHeight);
-
             ctx.drawImage(frameImage, 0, 0, canvas.width, canvas.height);
 
             document.getElementById('previewSection').classList.add('active');
@@ -632,7 +938,6 @@
                 fileName = 'imagem-enquadrada';
             }
             
-            // Remove extensão se o usuário digitou
             fileName = fileName.replace(/\.png$/i, '');
             
             canvas.toBlob(function(blob) {
@@ -647,40 +952,18 @@
             }, 'image/png', 1.0);
         }
 
-        // Função para salvar caminho do arquivo
-        async function savePath(key, path) {
-            try {
-                await window.storage.set(key, path);
-                console.log(`Caminho salvo para ${key}:`, path);
-            } catch (error) {
-                console.log('Erro ao salvar caminho:', error);
-            }
-        }
-
-        // Função para carregar caminho salvo
-        async function loadPath(key) {
-            try {
-                const result = await window.storage.get(key);
-                if (result && result.value) {
-                    console.log(`Último caminho de ${key}:`, result.value);
-                    return result.value;
-                }
-            } catch (error) {
-                console.log('Nenhum caminho salvo para', key);
-            }
-            return null;
-        }
-
-        // Função para resetar e gerar nova imagem
         function resetAll() {
             uploadedImage = null;
             frameImage = null;
             transparentArea = null;
             dominantColor = '#FFFFFF';
+            customColor = '#FFFFFF';
             
             document.getElementById('imageUpload').value = '';
             document.getElementById('frameUpload').value = '';
             document.getElementById('fileName').value = '';
+            document.getElementById('colorInput').value = customColor;
+            document.getElementById('colorDisplay').style.backgroundColor = customColor;
             
             document.getElementById('imageBox').classList.remove('has-file');
             document.getElementById('frameBox').classList.remove('has-file');
@@ -696,7 +979,43 @@
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (isEyedropperActive) {
+                deactivateEyedropper();
+            }
         }
+
+        // Event listeners para o input de cor
+        document.getElementById('colorInput').addEventListener('input', function() {
+            let value = this.value;
+            
+            if (value.length <= 7) {
+                if (value.length > 0 && !value.startsWith('#')) {
+                    value = '#' + value;
+                    this.value = value;
+                }
+                
+                this.value = value.toUpperCase();
+            }
+        });
+
+        document.getElementById('colorInput').addEventListener('blur', function() {
+            updateColorFromInput();
+        });
+
+        document.getElementById('colorInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                updateColorFromInput();
+            }
+        });
+
+        document.getElementById('colorDisplay').addEventListener('click', function() {
+            document.getElementById('colorInput').focus();
+            document.getElementById('colorInput').select();
+        });
+
+        // Inicializar
+        updateColorPickerVisibility();
     </script>
 </body>
 </html>
