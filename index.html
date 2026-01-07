@@ -192,6 +192,95 @@
             .upload-section {
                 grid-template-columns: 1fr;
             }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .subtitle {
+                font-size: 1em;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .upload-box {
+                padding: 30px 15px;
+            }
+            
+            .icon {
+                font-size: 36px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .control-group {
+                width: 100%;
+            }
+            
+            select, input[type="text"] {
+                width: 100% !important;
+            }
+            
+            .download-btn {
+                width: 100%;
+                padding: 12px 20px;
+            }
+            
+            .info {
+                font-size: 13px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+                border-radius: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 8px;
+            }
+            
+            .subtitle {
+                font-size: 0.9em;
+                margin-bottom: 20px;
+            }
+            
+            .upload-section {
+                gap: 15px;
+                margin-bottom: 25px;
+            }
+            
+            .upload-box {
+                padding: 25px 10px;
+            }
+            
+            .upload-box h3 {
+                font-size: 1em;
+            }
+            
+            .upload-box p {
+                font-size: 12px;
+            }
+            
+            .canvas-container {
+                padding: 10px;
+            }
+            
+            .status {
+                padding: 10px;
+                font-size: 13px;
+            }
         }
     </style>
 </head>
@@ -234,6 +323,13 @@
                 <canvas id="canvas"></canvas>
             </div>
             
+            <div class="controls">
+                <div class="control-group">
+                    <label>Nome do Arquivo</label>
+                    <input type="text" id="fileName" placeholder="imagem-enquadrada" style="width: 300px; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px;">
+                </div>
+            </div>
+            
             <button class="download-btn" onclick="downloadImage()">
                 ⬇️ Baixar Imagem Enquadrada
             </button>
@@ -252,10 +348,30 @@
         let uploadedImage = null;
         let frameImage = null;
         let transparentArea = null;
+        let imageDirectoryHandle = null;
+        let frameDirectoryHandle = null;
+
+        // Carregar diretórios salvos ao iniciar
+        async function loadSavedDirectories() {
+            try {
+                const savedDirs = await window.storage.get('directories');
+                if (savedDirs) {
+                    const dirs = JSON.parse(savedDirs.value);
+                    console.log('Diretórios carregados:', dirs);
+                }
+            } catch (error) {
+                console.log('Nenhum diretório salvo ainda');
+            }
+        }
+
+        loadSavedDirectories();
 
         document.getElementById('imageUpload').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
+                // Tentar salvar o caminho do diretório
+                savePath('imagePath', file.webkitRelativePath || file.name);
+                
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const img = new Image();
@@ -276,6 +392,9 @@
         document.getElementById('frameUpload').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
+                // Tentar salvar o caminho do diretório
+                savePath('framePath', file.webkitRelativePath || file.name);
+                
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const img = new Image();
@@ -400,17 +519,49 @@
 
         function downloadImage() {
             const canvas = document.getElementById('canvas');
+            let fileName = document.getElementById('fileName').value.trim();
+            
+            if (!fileName) {
+                fileName = 'imagem-enquadrada';
+            }
+            
+            // Remove extensão se o usuário digitou
+            fileName = fileName.replace(/\.png$/i, '');
             
             canvas.toBlob(function(blob) {
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
-                link.download = 'imagem-enquadrada-' + Date.now() + '.png';
+                link.download = fileName + '.png';
                 link.href = url;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
             }, 'image/png', 1.0);
+        }
+
+        // Função para salvar caminho do arquivo
+        async function savePath(key, path) {
+            try {
+                await window.storage.set(key, path);
+                console.log(`Caminho salvo para ${key}:`, path);
+            } catch (error) {
+                console.log('Erro ao salvar caminho:', error);
+            }
+        }
+
+        // Função para carregar caminho salvo
+        async function loadPath(key) {
+            try {
+                const result = await window.storage.get(key);
+                if (result && result.value) {
+                    console.log(`Último caminho de ${key}:`, result.value);
+                    return result.value;
+                }
+            } catch (error) {
+                console.log('Nenhum caminho salvo para', key);
+            }
+            return null;
         }
     </script>
 </body>
