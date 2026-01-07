@@ -258,6 +258,88 @@
             transform: scale(1.05);
         }
 
+        /* Estilos para nomenclatura de arquivo */
+        .filename-section {
+            background: #f8f9ff;
+            border: 2px solid #e0e7ff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .filename-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .filename-inputs {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filename-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filename-group label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .filename-group input {
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .filename-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filename-group input::placeholder {
+            color: #999;
+        }
+
+        .filename-preview {
+            background: white;
+            border: 2px solid #10b981;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .filename-preview label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .filename-preview-text {
+            font-family: monospace;
+            font-size: 16px;
+            color: #10b981;
+            font-weight: bold;
+            word-break: break-all;
+        }
+
+        .filename-preview-text .separator {
+            color: #999;
+        }
+
         .download-btn {
             background: #10b981;
             color: white;
@@ -373,6 +455,10 @@
                 grid-template-columns: 1fr;
             }
             
+            .filename-inputs {
+                grid-template-columns: 1fr;
+            }
+            
             h1 {
                 font-size: 1.8em;
             }
@@ -429,6 +515,10 @@
             .info {
                 font-size: 13px;
             }
+
+            .filename-section {
+                padding: 20px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -484,6 +574,18 @@
             .eyedropper-btn {
                 width: 100%;
                 justify-content: center;
+            }
+
+            .filename-section {
+                padding: 15px;
+            }
+
+            .filename-section h3 {
+                font-size: 16px;
+            }
+
+            .filename-preview-text {
+                font-size: 14px;
             }
         }
     </style>
@@ -552,10 +654,24 @@
                 </div>
             </div>
             
-            <div class="controls">
-                <div class="control-group">
-                    <label>Nome do Arquivo</label>
-                    <input type="text" id="fileName" placeholder="imagem-enquadrada" style="width: 300px; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px;">
+            <!-- Seção de nomenclatura -->
+            <div class="filename-section">
+                <h3>📝 Nomenclatura do Arquivo</h3>
+                <div class="filename-inputs">
+                    <div class="filename-group">
+                        <label>Nome do Artigo</label>
+                        <input type="text" id="filePrefix" placeholder="ex: artigo" oninput="updateFilenamePreview()">
+                    </div>
+                    <div class="filename-group">
+                        <label>Nome do Arquivo</label>
+                        <input type="text" id="articleName" placeholder="ex: titulo-do-meu-artigo" oninput="updateFilenamePreview()">
+                    </div>
+                </div>
+                <div class="filename-preview">
+                    <label>📄 Nome final do arquivo:</label>
+                    <div class="filename-preview-text" id="filenamePreview">
+                        <span class="placeholder">Digite o nome do artigo</span>
+                    </div>
                 </div>
             </div>
             
@@ -573,7 +689,7 @@
             <strong>Como funciona:</strong><br>
             1. Faça upload de sua imagem e moldura PNG (clique ou arraste)<br>
             2. O sistema detecta automaticamente a área transparente da moldura<br>
-            3. A imagem é ajustada para encaixar perfeitamente<br>
+            3. Configure o nome do arquivo com prefixo e nome do artigo<br>
             4. Baixe o resultado final em alta resolução
         </div>
     </div>
@@ -594,10 +710,59 @@
         document.getElementById('colorInput').value = customColor;
         document.getElementById('colorDisplay').style.backgroundColor = customColor;
 
+        // ===== FILENAME PREVIEW =====
+        
+        function updateFilenamePreview() {
+            const prefix = document.getElementById('filePrefix').value.trim();
+            const articleName = document.getElementById('articleName').value.trim();
+            const preview = document.getElementById('filenamePreview');
+            
+            if (!articleName) {
+                preview.innerHTML = '<span class="placeholder" style="color: #999;">Digite o nome do artigo</span>';
+                return;
+            }
+            
+            // Limpar e formatar os nomes
+            const cleanPrefix = prefix.replace(/[^a-zA-Z0-9-_]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+            const cleanArticle = articleName.replace(/[^a-zA-Z0-9-_]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+            
+            let finalName = '';
+            
+            if (cleanPrefix && cleanArticle) {
+                finalName = `${cleanPrefix}<span class="separator">-</span>${cleanArticle}.png`;
+            } else if (cleanArticle) {
+                finalName = `${cleanArticle}.png`;
+            } else {
+                finalName = '<span class="placeholder" style="color: #999;">Digite o nome do artigo</span>';
+            }
+            
+            preview.innerHTML = finalName;
+        }
+
+        function generateFileName() {
+            const prefix = document.getElementById('filePrefix').value.trim();
+            const articleName = document.getElementById('articleName').value.trim();
+            
+            if (!articleName) {
+                return 'imagem-enquadrada';
+            }
+            
+            // Limpar caracteres especiais e espaços
+            const cleanPrefix = prefix.replace(/[^a-zA-Z0-9-_]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+            const cleanArticle = articleName.replace(/[^a-zA-Z0-9-_]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+            
+            if (cleanPrefix && cleanArticle) {
+                return `${cleanPrefix}-${cleanArticle}`;
+            } else if (cleanArticle) {
+                return cleanArticle;
+            } else {
+                return 'imagem-enquadrada';
+            }
+        }
+
         // ===== DRAG AND DROP FUNCTIONALITY =====
         
         function setupDragAndDrop(boxElement, inputElement, isFrame = false) {
-            // Prevenir comportamento padrão do navegador
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 boxElement.addEventListener(eventName, preventDefaults, false);
             });
@@ -607,7 +772,6 @@
                 e.stopPropagation();
             }
 
-            // Feedback visual ao arrastar
             ['dragenter', 'dragover'].forEach(eventName => {
                 boxElement.addEventListener(eventName, () => {
                     boxElement.classList.add('drag-over');
@@ -620,7 +784,6 @@
                 }, false);
             });
 
-            // Processar arquivo ao soltar
             boxElement.addEventListener('drop', (e) => {
                 const dt = e.dataTransfer;
                 const files = dt.files;
@@ -628,7 +791,6 @@
                 if (files.length > 0) {
                     const file = files[0];
                     
-                    // Validar tipo de arquivo
                     if (isFrame) {
                         if (!file.type.match('image/png')) {
                             alert('Por favor, selecione um arquivo PNG para a moldura.');
@@ -641,27 +803,22 @@
                         }
                     }
 
-                    // Criar um novo FileList e atribuir ao input
                     const dataTransfer = new DataTransfer();
                     dataTransfer.items.add(file);
                     inputElement.files = dataTransfer.files;
 
-                    // Disparar evento change
                     const event = new Event('change', { bubbles: true });
                     inputElement.dispatchEvent(event);
                 }
             }, false);
 
-            // Manter funcionalidade de clique
             boxElement.addEventListener('click', (e) => {
-                // Não abrir o seletor se clicar durante drag
                 if (!boxElement.classList.contains('drag-over')) {
                     inputElement.click();
                 }
             });
         }
 
-        // Configurar drag and drop para ambas as áreas
         setupDragAndDrop(document.getElementById('imageBox'), document.getElementById('imageUpload'), false);
         setupDragAndDrop(document.getElementById('frameBox'), document.getElementById('frameUpload'), true);
 
@@ -1022,13 +1179,7 @@
 
         function downloadImage() {
             const canvas = document.getElementById('canvas');
-            let fileName = document.getElementById('fileName').value.trim();
-            
-            if (!fileName) {
-                fileName = 'imagem-enquadrada';
-            }
-            
-            fileName = fileName.replace(/\.png$/i, '');
+            const fileName = generateFileName();
             
             canvas.toBlob(function(blob) {
                 const url = URL.createObjectURL(blob);
@@ -1051,9 +1202,12 @@
             
             document.getElementById('imageUpload').value = '';
             document.getElementById('frameUpload').value = '';
-            document.getElementById('fileName').value = '';
+            document.getElementById('filePrefix').value = '';
+            document.getElementById('articleName').value = '';
             document.getElementById('colorInput').value = customColor;
             document.getElementById('colorDisplay').style.backgroundColor = customColor;
+            
+            updateFilenamePreview();
             
             document.getElementById('imageBox').classList.remove('has-file');
             document.getElementById('frameBox').classList.remove('has-file');
@@ -1106,6 +1260,7 @@
         });
 
         updateColorPickerVisibility();
+        updateFilenamePreview();
     </script>
 </body>
 </html>
