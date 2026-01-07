@@ -150,14 +150,29 @@
             cursor: pointer;
             transition: all 0.3s;
             box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-            display: block;
-            margin: 0 auto;
+            display: inline-block;
+            margin: 10px;
         }
 
         .download-btn:hover {
             background: #059669;
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+        }
+
+        .new-btn {
+            background: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .new-btn:hover {
+            background: #5568d3;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
         }
 
         .info {
@@ -229,6 +244,12 @@
             .download-btn {
                 width: 100%;
                 padding: 12px 20px;
+                margin: 5px 0;
+            }
+            
+            .button-group {
+                display: flex;
+                flex-direction: column;
             }
             
             .info {
@@ -317,6 +338,19 @@
                         <option value="fill">Preencher (esticar)</option>
                     </select>
                 </div>
+                <div class="control-group">
+                    <label>Cor de Fundo</label>
+                    <select id="bgMode" onchange="autoFrame()">
+                        <option value="dominant">Automático (cor dominante)</option>
+                        <option value="white">Branco</option>
+                        <option value="black">Preto</option>
+                        <option value="custom">Personalizado</option>
+                    </select>
+                </div>
+                <div class="control-group" id="customColorGroup" style="display: none;">
+                    <label>Cor Personalizada</label>
+                    <input type="color" id="customColor" value="#FFFFFF" onchange="autoFrame()" style="width: 60px; height: 40px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer;">
+                </div>
             </div>
 
             <div class="canvas-container">
@@ -330,9 +364,14 @@
                 </div>
             </div>
             
-            <button class="download-btn" onclick="downloadImage()">
-                ⬇️ Baixar Imagem Enquadrada
-            </button>
+            <div class="button-group">
+                <button class="download-btn" onclick="downloadImage()">
+                    ⬇️ Baixar Imagem
+                </button>
+                <button class="download-btn new-btn" onclick="resetAll()">
+                    🔄 Gerar Nova Imagem
+                </button>
+            </div>
         </div>
 
         <div class="info">
@@ -350,6 +389,17 @@
         let transparentArea = null;
         let imageDirectoryHandle = null;
         let frameDirectoryHandle = null;
+        let dominantColor = '#FFFFFF';
+
+        // Mostrar/ocultar seletor de cor personalizado
+        document.getElementById('bgMode').addEventListener('change', function() {
+            const customGroup = document.getElementById('customColorGroup');
+            if (this.value === 'custom') {
+                customGroup.style.display = 'flex';
+            } else {
+                customGroup.style.display = 'none';
+            }
+        });
 
         // Carregar diretórios salvos ao iniciar
         async function loadSavedDirectories() {
@@ -379,6 +429,10 @@
                         uploadedImage = img;
                         document.getElementById('imageBox').classList.add('has-file');
                         document.getElementById('imageLabel').textContent = '✓ Imagem Carregada';
+                        
+                        // Extrair cor dominante
+                        extractDominantColor(img);
+                        
                         if (frameImage && transparentArea) {
                             autoFrame();
                         }
@@ -460,6 +514,47 @@
             console.log('Área transparente detectada:', transparentArea);
         }
 
+        function extractDominantColor(img) {
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // Reduzir tamanho para análise rápida
+            const size = 50;
+            tempCanvas.width = size;
+            tempCanvas.height = size;
+            
+            tempCtx.drawImage(img, 0, 0, size, size);
+            const imageData = tempCtx.getImageData(0, 0, size, size);
+            const data = imageData.data;
+            
+            let r = 0, g = 0, b = 0;
+            let count = 0;
+            
+            // Calcular média das cores (ignorando pixels muito escuros ou claros nos extremos)
+            for (let i = 0; i < data.length; i += 4) {
+                const red = data[i];
+                const green = data[i + 1];
+                const blue = data[i + 2];
+                const alpha = data[i + 3];
+                
+                if (alpha > 128) {
+                    r += red;
+                    g += green;
+                    b += blue;
+                    count++;
+                }
+            }
+            
+            if (count > 0) {
+                r = Math.floor(r / count);
+                g = Math.floor(g / count);
+                b = Math.floor(b / count);
+                
+                dominantColor = `rgb(${r}, ${g}, ${b})`;
+                console.log('Cor dominante extraída:', dominantColor);
+            }
+        }
+
         function autoFrame() {
             if (!uploadedImage || !frameImage || !transparentArea) return;
 
@@ -472,7 +567,19 @@
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
 
-            ctx.fillStyle = '#FFFFFF';
+            // Determinar cor de fundo
+            const bgMode = document.getElementById('bgMode').value;
+            let bgColor = '#FFFFFF';
+            
+            if (bgMode === 'dominant') {
+                bgColor = dominantColor;
+            } else if (bgMode === 'black') {
+                bgColor = '#000000';
+            } else if (bgMode === 'custom') {
+                bgColor = document.getElementById('customColor').value;
+            }
+
+            ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             const fitMode = document.getElementById('fitMode').value;
@@ -562,6 +669,33 @@
                 console.log('Nenhum caminho salvo para', key);
             }
             return null;
+        }
+
+        // Função para resetar e gerar nova imagem
+        function resetAll() {
+            uploadedImage = null;
+            frameImage = null;
+            transparentArea = null;
+            dominantColor = '#FFFFFF';
+            
+            document.getElementById('imageUpload').value = '';
+            document.getElementById('frameUpload').value = '';
+            document.getElementById('fileName').value = '';
+            
+            document.getElementById('imageBox').classList.remove('has-file');
+            document.getElementById('frameBox').classList.remove('has-file');
+            document.getElementById('imageLabel').textContent = 'Sua Imagem';
+            document.getElementById('frameLabel').textContent = 'Moldura PNG';
+            
+            document.getElementById('previewSection').classList.remove('active');
+            
+            document.getElementById('fitMode').value = 'cover';
+            document.getElementById('bgMode').value = 'dominant';
+            document.getElementById('customColorGroup').style.display = 'none';
+            
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
     </script>
 </body>
