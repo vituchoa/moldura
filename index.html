@@ -56,12 +56,38 @@
             cursor: pointer;
             transition: all 0.3s;
             background: #f8f9ff;
+            position: relative;
         }
 
         .upload-box:hover {
             border-color: #5568d3;
             background: #f0f2ff;
             transform: translateY(-5px);
+        }
+
+        .upload-box.drag-over {
+            border-color: #10b981;
+            background: #ecfdf5;
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+        }
+
+        .upload-box.drag-over::after {
+            content: '📥 Solte aqui';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #10b981;
+            pointer-events: none;
+            animation: bounce 0.5s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translate(-50%, -50%); }
+            50% { transform: translate(-50%, -60%); }
         }
 
         .upload-box h3 {
@@ -468,17 +494,17 @@
         <p class="subtitle">Enquadramento inteligente com detecção automática</p>
         
         <div class="upload-section">
-            <div class="upload-box" id="imageBox" onclick="document.getElementById('imageUpload').click()">
+            <div class="upload-box" id="imageBox">
                 <div class="icon">📷</div>
                 <h3 id="imageLabel">Sua Imagem</h3>
-                <p>Clique para escolher a imagem</p>
+                <p>Clique ou arraste a imagem aqui</p>
                 <input type="file" id="imageUpload" accept="image/*">
             </div>
 
-            <div class="upload-box" id="frameBox" onclick="document.getElementById('frameUpload').click()">
+            <div class="upload-box" id="frameBox">
                 <div class="icon">🖼️</div>
                 <h3 id="frameLabel">Moldura PNG</h3>
-                <p>Clique para escolher a moldura<br>(PNG com transparência)</p>
+                <p>Clique ou arraste a moldura aqui<br>(PNG com transparência)</p>
                 <input type="file" id="frameUpload" accept="image/png">
             </div>
         </div>
@@ -545,14 +571,13 @@
 
         <div class="info">
             <strong>Como funciona:</strong><br>
-            1. Faça upload de sua imagem e moldura PNG<br>
+            1. Faça upload de sua imagem e moldura PNG (clique ou arraste)<br>
             2. O sistema detecta automaticamente a área transparente da moldura<br>
             3. A imagem é ajustada para encaixar perfeitamente<br>
             4. Baixe o resultado final em alta resolução
         </div>
     </div>
 
-    <!-- Tooltip para preview de cor -->
     <div class="color-preview-tooltip" id="colorPreviewTooltip">
         <span class="color-sample" id="tooltipColorSample"></span>
         <span id="tooltipColorHex">#000000</span>
@@ -565,13 +590,83 @@
         let dominantColor = '#FFFFFF';
         let customColor = '#FFFFFF';
         let isEyedropperActive = false;
-        let canvasCtx = null;
 
-        // Inicializar cor personalizada
         document.getElementById('colorInput').value = customColor;
         document.getElementById('colorDisplay').style.backgroundColor = customColor;
 
-        // Atualizar visibilidade do seletor de cor
+        // ===== DRAG AND DROP FUNCTIONALITY =====
+        
+        function setupDragAndDrop(boxElement, inputElement, isFrame = false) {
+            // Prevenir comportamento padrão do navegador
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                boxElement.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            // Feedback visual ao arrastar
+            ['dragenter', 'dragover'].forEach(eventName => {
+                boxElement.addEventListener(eventName, () => {
+                    boxElement.classList.add('drag-over');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                boxElement.addEventListener(eventName, () => {
+                    boxElement.classList.remove('drag-over');
+                }, false);
+            });
+
+            // Processar arquivo ao soltar
+            boxElement.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+
+                if (files.length > 0) {
+                    const file = files[0];
+                    
+                    // Validar tipo de arquivo
+                    if (isFrame) {
+                        if (!file.type.match('image/png')) {
+                            alert('Por favor, selecione um arquivo PNG para a moldura.');
+                            return;
+                        }
+                    } else {
+                        if (!file.type.match('image.*')) {
+                            alert('Por favor, selecione um arquivo de imagem válido.');
+                            return;
+                        }
+                    }
+
+                    // Criar um novo FileList e atribuir ao input
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    inputElement.files = dataTransfer.files;
+
+                    // Disparar evento change
+                    const event = new Event('change', { bubbles: true });
+                    inputElement.dispatchEvent(event);
+                }
+            }, false);
+
+            // Manter funcionalidade de clique
+            boxElement.addEventListener('click', (e) => {
+                // Não abrir o seletor se clicar durante drag
+                if (!boxElement.classList.contains('drag-over')) {
+                    inputElement.click();
+                }
+            });
+        }
+
+        // Configurar drag and drop para ambas as áreas
+        setupDragAndDrop(document.getElementById('imageBox'), document.getElementById('imageUpload'), false);
+        setupDragAndDrop(document.getElementById('frameBox'), document.getElementById('frameUpload'), true);
+
+        // ===== COLOR PICKER FUNCTIONS =====
+
         function updateColorPickerVisibility() {
             const bgMode = document.getElementById('bgMode').value;
             const customGroup = document.getElementById('customColorGroup');
@@ -584,7 +679,6 @@
             autoFrame();
         }
 
-        // Atualizar cor a partir do input
         function updateColorFromInput() {
             let color = document.getElementById('colorInput').value.trim().toUpperCase();
             
@@ -608,7 +702,6 @@
             }
         }
 
-        // Converter RGB para Hex
         function rgbToHex(r, g, b) {
             return "#" + [r, g, b].map(x => {
                 const hex = x.toString(16);
@@ -616,9 +709,7 @@
             }).join('').toUpperCase();
         }
 
-        // Ativar conta-gotas - CORRIGIDO
         async function activateEyedropper() {
-            // Tentar usar a EyeDropper API nativa primeiro (Chrome/Edge)
             if ('EyeDropper' in window) {
                 try {
                     const eyeDropper = new EyeDropper();
@@ -630,13 +721,11 @@
                     autoFrame();
                     return;
                 } catch (e) {
-                    // Usuário cancelou ou erro - usar fallback
                     console.log('EyeDropper cancelado ou erro:', e);
                     return;
                 }
             }
 
-            // Fallback: usar conta-gotas no canvas
             if (!uploadedImage && !frameImage) {
                 alert('Primeiro carregue uma imagem ou moldura para usar o conta-gotas.');
                 return;
@@ -647,7 +736,6 @@
             document.getElementById('eyedropperHint').classList.add('active');
             document.getElementById('canvas').classList.add('eyedropper-mode');
 
-            // Adicionar event listeners no canvas
             const canvas = document.getElementById('canvas');
             canvas.addEventListener('mousemove', handleCanvasMouseMove);
             canvas.addEventListener('click', handleCanvasClick);
@@ -661,7 +749,6 @@
             document.getElementById('canvas').classList.remove('eyedropper-mode');
             document.getElementById('colorPreviewTooltip').style.display = 'none';
 
-            // Remover event listeners
             const canvas = document.getElementById('canvas');
             canvas.removeEventListener('mousemove', handleCanvasMouseMove);
             canvas.removeEventListener('click', handleCanvasClick);
@@ -674,19 +761,16 @@
             const canvas = document.getElementById('canvas');
             const rect = canvas.getBoundingClientRect();
             
-            // Calcular posição real no canvas
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
             const x = Math.floor((e.clientX - rect.left) * scaleX);
             const y = Math.floor((e.clientY - rect.top) * scaleY);
 
-            // Garantir que estamos dentro dos limites
             if (x >= 0 && x < canvas.width && y >= 0 && y < canvas.height) {
                 const ctx = canvas.getContext('2d');
                 const pixelData = ctx.getImageData(x, y, 1, 1).data;
                 const color = rgbToHex(pixelData[0], pixelData[1], pixelData[2]);
 
-                // Atualizar tooltip
                 const tooltip = document.getElementById('colorPreviewTooltip');
                 tooltip.style.display = 'block';
                 tooltip.style.left = (e.clientX + 15) + 'px';
@@ -729,6 +813,8 @@
                 deactivateEyedropper();
             }
         }
+
+        // ===== IMAGE UPLOAD HANDLERS =====
 
         document.getElementById('imageUpload').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -779,6 +865,8 @@
                 reader.readAsDataURL(file);
             }
         });
+
+        // ===== IMAGE PROCESSING FUNCTIONS =====
 
         function detectTransparentArea() {
             const tempCanvas = document.createElement('canvas');
@@ -930,6 +1018,8 @@
             document.getElementById('previewSection').classList.add('active');
         }
 
+        // ===== DOWNLOAD AND RESET =====
+
         function downloadImage() {
             const canvas = document.getElementById('canvas');
             let fileName = document.getElementById('fileName').value.trim();
@@ -985,7 +1075,8 @@
             }
         }
 
-        // Event listeners para o input de cor
+        // ===== INPUT EVENT LISTENERS =====
+
         document.getElementById('colorInput').addEventListener('input', function() {
             let value = this.value;
             
@@ -1014,7 +1105,6 @@
             document.getElementById('colorInput').select();
         });
 
-        // Inicializar
         updateColorPickerVisibility();
     </script>
 </body>
