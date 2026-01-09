@@ -249,7 +249,7 @@
         let selectedPortal = '', isCustomFrame = false;
         
         const portalFrames = {
-            portal1: { horizontal: 'https://vituchoa.github.io/moldura/src/manualH.png', vertical: 'https://vituchoa.github.io/moldura/src/manualV.png' },
+            portal1: { horizontal: 'https://vituchoa.github.io/moldura/src/manualV.pngh', vertical: 'ttps://vituchoa.github.io/moldura/src/manualH.png' },
             portal2: { horizontal: 'URL_DA_MOLDURA_HORIZONTAL_PORTAL2.png', vertical: 'URL_DA_MOLDURA_VERTICAL_PORTAL2.png' },
             portal3: { horizontal: 'URL_DA_MOLDURA_HORIZONTAL_PORTAL3.png', vertical: 'URL_DA_MOLDURA_VERTICAL_PORTAL3.png' }
         };
@@ -288,11 +288,25 @@
             }
         }
         
+        function detectImageOrientation(img) {
+            const imgWidth = img.naturalWidth || img.width;
+            const imgHeight = img.naturalHeight || img.height;
+            console.log(`Detectando orientação: ${imgWidth} x ${imgHeight}`);
+            return imgWidth > imgHeight;
+        }
+        
         function autoSelectFrame() {
-            if (!uploadedImage || !selectedPortal || selectedPortal === 'custom' || selectedPortal === '') return;
-            const imgWidth = uploadedImage.naturalWidth, imgHeight = uploadedImage.naturalHeight;
-            const isHorizontal = imgWidth > imgHeight;
+            if (!uploadedImage || !selectedPortal || selectedPortal === 'custom' || selectedPortal === '') {
+                console.log('Condições não atendidas para autoSelectFrame');
+                return;
+            }
+            
+            const isHorizontal = detectImageOrientation(uploadedImage);
+            console.log(`Imagem detectada como: ${isHorizontal ? 'Horizontal' : 'Vertical'}`);
+            
             const frameUrl = isHorizontal ? portalFrames[selectedPortal].horizontal : portalFrames[selectedPortal].vertical;
+            console.log(`Carregando moldura: ${frameUrl}`);
+            
             loadFrameFromUrl(frameUrl);
         }
         
@@ -311,6 +325,7 @@
                 }, 500);
             };
             img.onerror = function() {
+                console.error('Erro ao carregar moldura:', url);
                 document.getElementById('status').textContent = 'Erro ao carregar moldura. Verifique as URLs no código.';
                 setTimeout(() => document.getElementById('status').classList.remove('active'), 3000);
             };
