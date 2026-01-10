@@ -468,7 +468,7 @@
             </div>
         </div>
 
-        <div class="upload-section single-column" id="singleUploadSection">
+        <div class="upload-section single-column" id="singleUploadSection" style="display: none;">
             <div class="upload-box" id="imageBox">
                 <div class="icon">📷</div>
                 <h3 id="imageLabel">Sua Imagem</h3>
@@ -603,30 +603,98 @@
         };
 
         function initializeFrames(count) {
+            // Salvar as imagens existentes antes de resetar
+            const existingFrames = [...frames];
             frames = [];
+            
             for (let i = 0; i < count; i++) {
-                frames.push({
-                    uploadedImage: null,
-                    originalImage: null,
-                    frameImage: null,
-                    transparentArea: null,
-                    dominantColor: '#FFFFFF',
-                    imageOffset: { x: 0, y: 0 },
-                    currentCrop: null,
-                    isVertical: false,
-                    fitMode: 'cover',
-                    bgMode: 'dominant',
-                    customColor: '#FFFFFF'
-                });
+                // Se já existia uma frame nessa posição, manter seus dados
+                if (existingFrames[i]) {
+                    frames.push({
+                        uploadedImage: existingFrames[i].uploadedImage,
+                        originalImage: existingFrames[i].originalImage,
+                        frameImage: null, // Resetar frameImage - será recarregado se necessário
+                        transparentArea: null,
+                        dominantColor: existingFrames[i].dominantColor || '#FFFFFF',
+                        imageOffset: existingFrames[i].imageOffset || { x: 0, y: 0 },
+                        currentCrop: existingFrames[i].currentCrop,
+                        isVertical: existingFrames[i].isVertical || false,
+                        fitMode: existingFrames[i].fitMode || 'cover',
+                        bgMode: existingFrames[i].bgMode || 'dominant',
+                        customColor: existingFrames[i].customColor || '#FFFFFF'
+                    });
+                } else {
+                    // Nova frame vazia
+                    frames.push({
+                        uploadedImage: null,
+                        originalImage: null,
+                        frameImage: null,
+                        transparentArea: null,
+                        dominantColor: '#FFFFFF',
+                        imageOffset: { x: 0, y: 0 },
+                        currentCrop: null,
+                        isVertical: false,
+                        fitMode: 'cover',
+                        bgMode: 'dominant',
+                        customColor: '#FFFFFF'
+                    });
+                }
             }
         }
 
         function setFrameCount(count) {
+            const oldCount = frameCount;
             frameCount = count;
+            
+            // Atualizar botões ativos
             document.querySelectorAll('.frame-count-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
+            
+            // Preservar imagens existentes
+            const existingImages = [];
+            for (let i = 0; i < Math.min(oldCount, count); i++) {
+                existingImages.push({
+                    uploadedImage: frames[i]?.uploadedImage,
+                    originalImage: frames[i]?.originalImage,
+                    dominantColor: frames[i]?.dominantColor || '#FFFFFF',
+                    imageOffset: frames[i]?.imageOffset || { x: 0, y: 0 },
+                    currentCrop: frames[i]?.currentCrop,
+                    isVertical: frames[i]?.isVertical || false,
+                    fitMode: frames[i]?.fitMode || 'cover',
+                    bgMode: frames[i]?.bgMode || 'dominant',
+                    customColor: frames[i]?.customColor || '#FFFFFF'
+                });
+            }
+            
+            // Reinicializar frames
             initializeFrames(count);
+            
+            // Restaurar imagens preservadas
+            for (let i = 0; i < Math.min(oldCount, count); i++) {
+                if (existingImages[i]?.uploadedImage) {
+                    frames[i].uploadedImage = existingImages[i].uploadedImage;
+                    frames[i].originalImage = existingImages[i].originalImage;
+                    frames[i].dominantColor = existingImages[i].dominantColor;
+                    frames[i].imageOffset = existingImages[i].imageOffset;
+                    frames[i].currentCrop = existingImages[i].currentCrop;
+                    frames[i].isVertical = existingImages[i].isVertical;
+                    frames[i].fitMode = existingImages[i].fitMode;
+                    frames[i].bgMode = existingImages[i].bgMode;
+                    frames[i].customColor = existingImages[i].customColor;
+                }
+            }
+            
+            // Recriar caixas de upload
             createMultipleUploadBoxes();
+            
+            // Atualizar status das caixas de upload
+            updateUploadBoxesStatus();
+            
+            // Recarregar molduras para as frames que têm imagens
+            reloadFramesForExistingImages();
+            
+            // Se já tivermos todas as imagens e molduras, mostrar preview
+            checkAllImagesReady();
         }
 
         function createMultipleUploadBoxes() {
@@ -637,18 +705,59 @@
                 const box = document.createElement('div');
                 box.className = 'upload-box';
                 box.id = `uploadBox${i}`;
+                const hasImage = frames[i]?.uploadedImage;
                 box.innerHTML = `
-                    <div class="icon">📷</div>
-                    <h3>Moldura ${i + 1}</h3>
-                    <p>Clique ou arraste aqui</p>
+                    <div class="icon">${hasImage ? '✓' : '📷'}</div>
+                    <h3>${hasImage ? `✓ Moldura ${i + 1}` : `Moldura ${i + 1}`}</h3>
+                    <p>${hasImage ? 'Imagem já carregada' : 'Clique ou arraste aqui'}</p>
                     <input type="file" id="imageUpload${i}" accept="image/*">
                 `;
+                if (hasImage) {
+                    box.classList.add('has-file');
+                }
                 box.onclick = () => document.getElementById(`imageUpload${i}`).click();
                 
                 const input = box.querySelector('input');
                 input.addEventListener('change', (e) => handleImageUpload(i, e));
                 
                 container.appendChild(box);
+            }
+        }
+
+        function updateUploadBoxesStatus() {
+            for (let i = 0; i < frameCount; i++) {
+                const box = document.getElementById(`uploadBox${i}`);
+                if (box) {
+                    const hasImage = frames[i]?.uploadedImage;
+                    const icon = box.querySelector('.icon');
+                    const title = box.querySelector('h3');
+                    const text = box.querySelector('p');
+                    
+                    if (hasImage) {
+                        box.classList.add('has-file');
+                        icon.textContent = '✓';
+                        title.textContent = `✓ Moldura ${i + 1}`;
+                        text.textContent = 'Imagem já carregada';
+                    } else {
+                        box.classList.remove('has-file');
+                        icon.textContent = '📷';
+                        title.textContent = `Moldura ${i + 1}`;
+                        text.textContent = 'Clique ou arraste aqui';
+                    }
+                }
+            }
+        }
+
+        function reloadFramesForExistingImages() {
+            for (let i = 0; i < frameCount; i++) {
+                if (frames[i]?.uploadedImage && selectedPortal && selectedPortal !== '' && selectedPortal !== 'custom') {
+                    const isHorizontal = frames[i].isVertical ? false : true;
+                    const frameUrl = isHorizontal 
+                        ? portalFrames[selectedPortal].horizontal 
+                        : portalFrames[selectedPortal].vertical;
+                    
+                    loadFrameForImage(i, frameUrl);
+                }
             }
         }
 
@@ -660,41 +769,56 @@
             const multiUploadSection = document.getElementById('multiImageUploads');
             const frameCountSelector = document.getElementById('frameCountSelector');
             
+            // Esconder todas as seções de upload inicialmente
+            uploadSection.style.display = 'none';
+            multiUploadSection.classList.remove('active');
+            frameCountSelector.classList.remove('active');
+            
             if (selectedPortal === 'custom') {
                 frameBox.style.display = 'block';
                 uploadSection.classList.remove('single-column');
                 uploadSection.style.display = 'grid';
-                multiUploadSection.classList.remove('active');
-                frameCountSelector.classList.remove('active');
                 isCustomFrame = true;
-                initializeFrames(1);
                 
-                // Resetar uploads anteriores
-                document.getElementById('imageBox').classList.remove('has-file');
+                // Resetar apenas a frame atual
+                activeFrameIndex = 0;
+                
+                // Não resetar imagens existentes - só limpar a moldura
+                if (frames.length > 0) {
+                    frames[0].frameImage = null;
+                    frames[0].transparentArea = null;
+                } else {
+                    initializeFrames(1);
+                }
+                
+                // Atualizar UI
                 document.getElementById('frameBox').classList.remove('has-file');
-                document.getElementById('imageLabel').textContent = 'Sua Imagem';
                 document.getElementById('frameLabel').textContent = 'Moldura PNG';
                 document.getElementById('previewSection').classList.remove('active');
+                
             } else if (selectedPortal === '') {
+                // Quando "Selecione um portal" estiver selecionado, esconder tudo
                 frameBox.style.display = 'none';
-                uploadSection.classList.add('single-column');
-                uploadSection.style.display = 'grid';
+                uploadSection.style.display = 'none';
                 multiUploadSection.classList.remove('active');
                 frameCountSelector.classList.remove('active');
                 isCustomFrame = false;
                 
-                // Resetar preview
+                // Esconder preview
                 document.getElementById('previewSection').classList.remove('active');
+                
             } else {
+                // Portal normal selecionado
                 frameBox.style.display = 'none';
-                uploadSection.style.display = 'none';
                 frameCountSelector.classList.add('active');
                 multiUploadSection.classList.add('active');
                 isCustomFrame = false;
+                
+                // Criar caixas de upload múltiplas
                 createMultipleUploadBoxes();
                 
-                // Resetar preview
-                document.getElementById('previewSection').classList.remove('active');
+                // Recarregar molduras para imagens existentes
+                reloadFramesForExistingImages();
             }
         }
 
@@ -716,6 +840,7 @@
                     frames[index].originalImage = new Image();
                     frames[index].originalImage.src = img.src;
                     frames[index].imageOffset = { x: 0, y: 0 };
+                    frames[index].currentCrop = null; // Resetar crop ao fazer novo upload
                     
                     extractDominantColor(img, index);
                     
@@ -723,9 +848,15 @@
                     frames[index].isVertical = !isHorizontal;
                     
                     if (selectedPortal === 'custom') {
-                        // Para moldura personalizada, apenas marcar como carregado
+                        // Para moldura personalizada
                         document.getElementById(`uploadBox${index}`).classList.add('has-file');
                         document.getElementById(`uploadBox${index}`).querySelector('h3').textContent = `✓ Imagem ${index + 1}`;
+                        document.getElementById(`uploadBox${index}`).querySelector('p').textContent = 'Imagem carregada';
+                        
+                        // Mostrar botão resetCropBtn se necessário
+                        if (frames[index].originalImage) {
+                            document.getElementById('resetCropBtn').style.display = 'inline-flex';
+                        }
                         
                         // Verificar se já temos a moldura
                         if (frames[index].frameImage) {
@@ -738,8 +869,16 @@
                         
                         loadFrameForImage(index, frameUrl);
                         
+                        // Atualizar UI da caixa de upload
                         document.getElementById(`uploadBox${index}`).classList.add('has-file');
+                        document.getElementById(`uploadBox${index}`).querySelector('.icon').textContent = '✓';
                         document.getElementById(`uploadBox${index}`).querySelector('h3').textContent = `✓ Moldura ${index + 1}`;
+                        document.getElementById(`uploadBox${index}`).querySelector('p').textContent = 'Imagem carregada';
+                        
+                        // Mostrar botão resetCropBtn se necessário
+                        if (frames[index].originalImage) {
+                            document.getElementById('resetCropBtn').style.display = 'inline-flex';
+                        }
                     }
                 };
                 img.src = e.target.result;
@@ -887,6 +1026,13 @@
                 document.getElementById('colorDisplay').style.backgroundColor = customColor;
                 
                 updateColorPickerVisibility();
+                
+                // Mostrar/esconder botão resetCropBtn
+                if (frame.currentCrop || frame.originalImage) {
+                    document.getElementById('resetCropBtn').style.display = 'inline-flex';
+                } else {
+                    document.getElementById('resetCropBtn').style.display = 'none';
+                }
             }
         }
 
@@ -1088,6 +1234,7 @@
             document.getElementById('cropHint').classList.remove('active');
             document.getElementById('canvas').classList.remove('crop-mode');
             document.getElementById('cropOverlay').classList.remove('active');
+            document.getElementById('cropOverlay').style.display = 'none';
             const canvas = document.getElementById('canvas');
             canvas.removeEventListener('mousedown', startCropSelection);
             canvas.removeEventListener('mousemove', drawCropSelection);
@@ -1167,9 +1314,12 @@
             }
             if (cropSelection.width > 10 && cropSelection.height > 10) {
                 applyCrop();
-            } else {
+                // Remover overlay imediatamente
                 cropSelection = null;
                 document.getElementById('cropOverlay').classList.remove('active');
+                document.getElementById('cropOverlay').style.display = 'none';
+            } else {
+                cancelCropSelection();
             }
         }
 
@@ -1178,6 +1328,7 @@
             isDrawingCrop = false;
             cropSelection = null;
             document.getElementById('cropOverlay').classList.remove('active');
+            document.getElementById('cropOverlay').style.display = 'none';
         }
 
         function updateCropOverlay() {
@@ -1209,9 +1360,11 @@
 
         function applyCrop() {
             const frameIndex = activeFrameIndex;
-            const canvas = document.getElementById('canvas');
-            const ctx = canvas.getContext('2d');
+            const frame = frames[frameIndex];
             
+            if (!frame.uploadedImage || !frame.transparentArea) return;
+            
+            // Calcular offset da moldura ativa
             let frameOffset = 0;
             for (let i = 0; i < frameIndex; i++) {
                 if (frames[i].frameImage) {
@@ -1219,42 +1372,146 @@
                 }
             }
             
-            const croppedImage = document.createElement('canvas');
-            const croppedCtx = croppedImage.getContext('2d');
-            croppedImage.width = cropSelection.width;
-            croppedImage.height = cropSelection.height;
+            // Calcular a posição da imagem dentro da moldura
+            const fitMode = frame.fitMode || 'cover';
+            const targetWidth = frame.transparentArea.width;
+            const targetHeight = frame.transparentArea.height;
+            const imgRatio = frame.uploadedImage.naturalWidth / frame.uploadedImage.naturalHeight;
+            const targetRatio = targetWidth / targetHeight;
             
-            const localCropX = cropSelection.x - frameOffset;
+            let drawWidth, drawHeight, drawX, drawY;
+            
+            if (fitMode === 'cover') {
+                if (imgRatio > targetRatio) {
+                    drawHeight = targetHeight;
+                    drawWidth = drawHeight * imgRatio;
+                } else {
+                    drawWidth = targetWidth;
+                    drawHeight = drawWidth / imgRatio;
+                }
+                drawX = frameOffset + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
+                drawY = frame.transparentArea.y + (targetHeight - drawHeight) / 2;
+            } else if (fitMode === 'contain') {
+                if (imgRatio > targetRatio) {
+                    drawWidth = targetWidth;
+                    drawHeight = drawWidth / imgRatio;
+                } else {
+                    drawHeight = targetHeight;
+                    drawWidth = drawHeight * imgRatio;
+                }
+                drawX = frameOffset + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
+                drawY = frame.transparentArea.y + (targetHeight - drawHeight) / 2;
+            } else {
+                drawWidth = targetWidth;
+                drawHeight = targetHeight;
+                drawX = frameOffset + frame.transparentArea.x;
+                drawY = frame.transparentArea.y;
+            }
+            
+            drawX += frame.imageOffset.x;
+            drawY += frame.imageOffset.y;
+            
+            // Converter coordenadas do canvas para coordenadas da imagem original
+            const scaleX = frame.uploadedImage.naturalWidth / drawWidth;
+            const scaleY = frame.uploadedImage.naturalHeight / drawHeight;
+            
+            // Calcular coordenadas relativas à imagem
+            let imageCropX = (cropSelection.x - drawX) * scaleX;
+            let imageCropY = (cropSelection.y - drawY) * scaleY;
+            let imageCropWidth = cropSelection.width * scaleX;
+            let imageCropHeight = cropSelection.height * scaleY;
+            
+            // CORREÇÃO: Limitar o crop aos limites da imagem (mas sem mensagem de erro)
+            // Se o crop estiver fora da imagem, ajustar para pegar apenas a parte dentro
+            if (imageCropX < 0) {
+                imageCropWidth += imageCropX; // Reduzir largura
+                imageCropX = 0;
+            }
+            if (imageCropY < 0) {
+                imageCropHeight += imageCropY; // Reduzir altura
+                imageCropY = 0;
+            }
+            if (imageCropX + imageCropWidth > frame.uploadedImage.naturalWidth) {
+                imageCropWidth = frame.uploadedImage.naturalWidth - imageCropX;
+            }
+            if (imageCropY + imageCropHeight > frame.uploadedImage.naturalHeight) {
+                imageCropHeight = frame.uploadedImage.naturalHeight - imageCropY;
+            }
+            
+            // Garantir dimensões mínimas
+            if (imageCropWidth < 1 || imageCropHeight < 1) {
+                // Se não houver área válida, cancelar o crop
+                cropSelection = null;
+                document.getElementById('cropOverlay').classList.remove('active');
+                document.getElementById('cropOverlay').style.display = 'none';
+                return;
+            }
+            
+            // Criar canvas temporário para o crop
+            const croppedCanvas = document.createElement('canvas');
+            const croppedCtx = croppedCanvas.getContext('2d');
+            croppedCanvas.width = imageCropWidth;
+            croppedCanvas.height = imageCropHeight;
+            
+            // Desenhar apenas a parte cortada da imagem original
             croppedCtx.drawImage(
-                canvas,
-                cropSelection.x, cropSelection.y,
-                cropSelection.width, cropSelection.height,
+                frame.uploadedImage,
+                imageCropX, imageCropY,
+                imageCropWidth, imageCropHeight,
                 0, 0,
-                cropSelection.width, cropSelection.height
+                imageCropWidth, imageCropHeight
             );
             
+            // Criar nova imagem
             const newImage = new Image();
             newImage.onload = function() {
                 frames[frameIndex].uploadedImage = newImage;
-                frames[frameIndex].currentCrop = cropSelection;
-                cropSelection = null;
-                document.getElementById('cropOverlay').classList.remove('active');
+                frames[frameIndex].currentCrop = {
+                    x: imageCropX,
+                    y: imageCropY,
+                    width: imageCropWidth,
+                    height: imageCropHeight
+                };
                 renderFinalCanvas();
+                
+                // Mostrar botão resetCropBtn
+                document.getElementById('resetCropBtn').style.display = 'inline-flex';
             };
-            newImage.src = croppedImage.toDataURL('image/png');
+            newImage.src = croppedCanvas.toDataURL('image/png');
         }
 
+        // CORREÇÃO: Função resetCrop corrigida
         function resetCrop() {
-            if (!frames[activeFrameIndex].originalImage) return;
+            const frame = frames[activeFrameIndex];
+            if (!frame || !frame.originalImage) {
+                alert('Nenhuma imagem original disponível para restaurar.');
+                return;
+            }
+            
+            // Criar uma cópia da imagem original
             const restoredImage = new Image();
             restoredImage.onload = function() {
+                // Substituir a imagem atual pela original
                 frames[activeFrameIndex].uploadedImage = restoredImage;
                 frames[activeFrameIndex].currentCrop = null;
                 frames[activeFrameIndex].imageOffset = { x: 0, y: 0 };
+                
+                // Esconder botão resetCropBtn
                 document.getElementById('resetCropBtn').style.display = 'none';
+                
+                // Recriar a imagem original (nova referência)
+                frames[activeFrameIndex].originalImage = new Image();
+                frames[activeFrameIndex].originalImage.src = restoredImage.src;
+                
+                // Atualizar o canvas
                 renderFinalCanvas();
             };
-            restoredImage.src = frames[activeFrameIndex].originalImage.src;
+            restoredImage.onerror = function() {
+                alert('Erro ao restaurar a imagem original.');
+            };
+            
+            // Usar a imagem original armazenada
+            restoredImage.src = frame.originalImage.src;
         }
 
         function activateEyedropper() {
@@ -1410,7 +1667,7 @@
             document.getElementById('frameBox').classList.remove('has-file');
             document.getElementById('frameBox').style.display = 'none';
             document.getElementById('singleUploadSection').classList.add('single-column');
-            document.getElementById('singleUploadSection').style.display = 'grid';
+            document.getElementById('singleUploadSection').style.display = 'none';
             document.getElementById('multiImageUploads').classList.remove('active');
             document.getElementById('frameCountSelector').classList.remove('active');
             document.getElementById('imageLabel').textContent = 'Sua Imagem';
@@ -1434,7 +1691,7 @@
             initializeFrames(1);
         }
 
-        // CORREÇÃO: Adicionar event listeners para os upload boxes
+        // Event listeners para os upload boxes
         document.getElementById('imageBox').addEventListener('click', function() {
             document.getElementById('imageUpload').click();
         });
@@ -1480,11 +1737,15 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 if (isEyedropperActive) deactivateEyedropper();
-                if (isCropModeActive) deactivateCropMode();
+                if (isCropModeActive) {
+                    deactivateCropMode();
+                    document.getElementById('cropOverlay').classList.remove('active');
+                    document.getElementById('cropOverlay').style.display = 'none';
+                }
             }
         });
 
-        // CORREÇÃO: Função para upload de imagem (modo single/custom)
+        // Função para upload de imagem (modo single/custom)
         document.getElementById('imageUpload').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -1492,7 +1753,6 @@
                 reader.onload = function(event) {
                     const img = new Image();
                     img.onload = function() {
-                        // Para modo custom, sempre usar índice 0
                         const index = 0;
                         
                         if (frames.length === 0) {
@@ -1503,6 +1763,7 @@
                         frames[index].originalImage = new Image();
                         frames[index].originalImage.src = img.src;
                         frames[index].imageOffset = { x: 0, y: 0 };
+                        frames[index].currentCrop = null;
                         
                         document.getElementById('imageBox').classList.add('has-file');
                         document.getElementById('imageLabel').textContent = '✓ Imagem Carregada';
@@ -1512,19 +1773,16 @@
                         const isHorizontal = detectImageOrientation(img);
                         frames[index].isVertical = !isHorizontal;
                         
+                        // Mostrar botão resetCropBtn
+                        document.getElementById('resetCropBtn').style.display = 'inline-flex';
+                        
                         // Para modo custom, verificar se já temos moldura
                         if (selectedPortal === 'custom') {
                             if (frames[index].frameImage) {
                                 checkAllImagesReady();
                             } else {
-                                // Mostrar mensagem para carregar moldura
                                 alert('Agora faça upload da moldura PNG.');
                             }
-                        } else if (selectedPortal && selectedPortal !== '') {
-                            const frameUrl = isHorizontal 
-                                ? portalFrames[selectedPortal].horizontal 
-                                : portalFrames[selectedPortal].vertical;
-                            loadFrameForImage(index, frameUrl);
                         }
                     };
                     img.src = event.target.result;
@@ -1533,7 +1791,7 @@
             }
         });
 
-        // CORREÇÃO: Função para upload de moldura personalizada
+        // Função para upload de moldura personalizada
         document.getElementById('frameUpload').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -1541,7 +1799,6 @@
                 reader.onload = function(event) {
                     const img = new Image();
                     img.onload = function() {
-                        // Para modo custom, sempre usar índice 0
                         const index = 0;
                         
                         if (frames.length === 0) {
@@ -1560,7 +1817,6 @@
                             if (frames[index].uploadedImage) {
                                 checkAllImagesReady();
                             } else {
-                                // Se não tiver imagem ainda, mostrar preview da moldura
                                 renderFinalCanvas();
                                 document.getElementById('previewSection').classList.add('active');
                                 updateFrameSelector();
