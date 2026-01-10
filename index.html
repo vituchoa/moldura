@@ -6,174 +6,491 @@
     <title>Beframe by Beside Media</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Funnel Display', sans-serif; background: url('https://vituchoa.github.io/moldura/src/fundo.png') center/cover no-repeat fixed; min-height: 100vh; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-        h1 { text-align: center; color: #333; margin-bottom: 10px; font-size: 2.5em; }
-        .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 1.1em; }
-        .portal-selection { text-align: center; margin-bottom: 30px; padding: 20px; background: #f8f9ff; border-radius: 15px; border: 2px solid #e0e7ff; }
-        .portal-selection label { display: block; font-size: 16px; font-weight: 600; color: #191e31; margin-bottom: 10px; }
-        .portal-selection select { width: 100%; max-width: 400px; padding: 12px 20px; border: 2px solid #ddd; border-radius: 10px; font-size: 15px; font-family: inherit; background: white; cursor: pointer; transition: all 0.3s; }
-        .portal-selection select:focus { outline: none; border-color: #191e31; box-shadow: 0 0 0 3px rgba(25, 30, 49, 0.1); }
-        .upload-section { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
-        .upload-section.single-column { grid-template-columns: 1fr; }
-        .upload-section.multiple-frames { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-        .upload-box { border: 3px dashed #191e31; border-radius: 15px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f8f9ff; position: relative; min-height: 200px; }
-        .upload-box:hover { border-color: #5568d3; background: #f0f2ff; transform: translateY(-5px); }
-        .upload-box.drag-over { border-color: #10b981; background: #ecfdf5; transform: translateY(-5px) scale(1.02); box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2); }
-        .upload-box.drag-over::after { content: '📥 Solte aqui'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; font-weight: bold; color: #10b981; pointer-events: none; animation: bounce 0.5s ease infinite; }
-        @keyframes bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -60%); } }
-        .upload-box h3 { color: #191e31; margin-bottom: 15px; }
-        .upload-box p { color: #666; font-size: 14px; }
-        .upload-box.has-file { border-color: #10b981; background: #f0fdf4; }
-        .upload-box.has-file h3 { color: #10b981; }
-        input[type="file"] { display: none; }
-        .frame-quantity { text-align: center; margin: 20px 0; padding: 20px; background: #f0f7ff; border-radius: 10px; display: none; }
-        .frame-quantity.active { display: block; }
-        .frame-quantity label { display: block; margin-bottom: 10px; font-weight: 600; color: #191e31; }
-        .quantity-buttons { display: flex; gap: 10px; justify-content: center; }
-        .quantity-btn { padding: 10px 20px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer; transition: all 0.3s; }
-        .quantity-btn.active { background: #191e31; color: white; border-color: #191e31; }
-        .preview-section { display: none; }
-        .preview-section.active { display: block; }
-        .canvas-container { text-align: center; margin-bottom: 20px; background: #f5f5f5; padding: 20px; border-radius: 10px; position: relative; overflow: hidden; }
-        .canvas-wrapper { display: inline-block; position: relative; }
-        #canvas { max-width: 100%; height: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: block; cursor: move; touch-action: none; }
-        #canvas.eyedropper-mode { cursor: crosshair; }
-        #canvas.crop-mode { cursor: crosshair; }
-        .crop-overlay { position: absolute; border: 2px dashed #FF0000; background: rgba(255, 0, 0, 0.1); pointer-events: none; display: none; }
-        .crop-overlay.active { display: block; }
-        .controls { display: flex; gap: 20px; justify-content: center; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
-        .control-group { display: flex; flex-direction: column; gap: 5px; }
-        .control-group label { font-size: 14px; color: #666; font-weight: 600; }
-        select, button { padding: 10px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; cursor: pointer; background: white; font-family: inherit; }
-        button { display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; font-weight: 600; }
-        button:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .color-picker-group { display: flex; flex-direction: column; gap: 8px; }
-        .color-picker-row { display: flex; gap: 10px; align-items: center; }
-        .color-input { width: 120px; padding: 10px 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; font-family: monospace; text-transform: uppercase; background: white; }
-        .color-input:focus { outline: none; border-color: #191e31; }
-        .eyedropper-btn { background: #191e31; color: white; border: none; }
-        .eyedropper-btn:hover { background: #5568d3; }
-        .eyedropper-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
-        .eyedropper-btn.active { background: #10b981; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } }
-        .color-display { width: 40px; height: 40px; border-radius: 8px; border: 2px solid #ddd; cursor: pointer; flex-shrink: 0; transition: all 0.3s; }
-        .color-display:hover { border-color: #191e31; transform: scale(1.05); }
-        .filename-section { background: #f8f9ff; border: 2px solid #e0e7ff; border-radius: 15px; padding: 25px; margin-bottom: 20px; }
-        .filename-section h3 { color: #191e31; margin-bottom: 15px; font-size: 18px; text-align: center; }
-        .filename-inputs { display: grid; grid-template-columns: 1fr 2fr; gap: 15px; margin-bottom: 15px; }
-        .filename-group { display: flex; flex-direction: column; gap: 8px; }
-        .filename-group label { font-size: 13px; color: #666; font-weight: 600; }
-        .filename-group input { padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; background: white; transition: all 0.3s; }
-        .filename-group input:focus { outline: none; border-color: #191e31; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
-        .filename-group input::placeholder { color: #999; }
-        .filename-preview { background: white; border: 2px solid #10b981; border-radius: 10px; padding: 15px; text-align: center; }
-        .filename-preview label { font-size: 12px; color: #666; font-weight: 600; display: block; margin-bottom: 8px; }
-        .filename-preview-text { font-family: monospace; font-size: 16px; color: #10b981; font-weight: bold; word-break: break-all; }
-        .filename-preview-text .separator { color: #999; }
-        .download-btn { background: #10b981; color: white; padding: 15px 40px; border: none; border-radius: 50px; font-size: 18px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); display: inline-block; margin: 10px; }
-        .download-btn:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6); }
-        .new-btn { background: #191e31; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
-        .new-btn:hover { background: #5568d3; box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6); }
-        .edit-controls { display: flex; gap: 15px; justify-content: center; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
-        .edit-btn { background: #8b5cf6; color: white; border: none; padding: 10px 20px; font-size: 14px; border-radius: 8px; }
-        .edit-btn:hover { background: #7c3aed; }
-        .edit-btn.active { background: #10b981; }
-        .button-group { text-align: center; margin-top: 20px; }
-        .info { text-align: center; color: #666; margin-top: 20px; font-size: 14px; line-height: 1.6; }
-        .icon { font-size: 48px; margin-bottom: 15px; }
-        .status { text-align: center; padding: 15px; margin-bottom: 20px; border-radius: 10px; background: #e0f2fe; color: #0369a1; font-weight: 600; display: none; }
-        .status.active { display: block; }
-        .eyedropper-hint { background: #fef3c7; color: #92400e; padding: 12px 20px; border-radius: 10px; text-align: center; margin-bottom: 15px; display: none; font-weight: 500; }
-        .crop-hint { background: #dbeafe; color: #1e40af; padding: 12px 20px; border-radius: 10px; text-align: center; margin-bottom: 15px; display: none; font-weight: 500; }
-        .eyedropper-hint.active, .crop-hint.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .color-preview-tooltip { position: fixed; padding: 8px 12px; background: rgba(0, 0, 0, 0.9); color: white; border-radius: 8px; font-family: monospace; font-size: 14px; pointer-events: none; z-index: 10000; display: none; white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 2px solid white; }
-        .color-preview-tooltip .color-sample { width: 20px; height: 20px; display: inline-block; vertical-align: middle; margin-right: 8px; border: 1px solid white; border-radius: 4px; }
-        .image-assignment { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0; }
-        .assignment-box { border: 2px solid #ddd; border-radius: 10px; padding: 15px; background: #f9fafb; }
-        .assignment-box h4 { margin-bottom: 10px; color: #191e31; font-size: 14px; }
-        .image-preview-small { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
-        .assignment-select { width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 6px; background: white; }
-        @media (max-width: 768px) {
-            .upload-section { grid-template-columns: 1fr; }
-            .filename-inputs { grid-template-columns: 1fr; }
-            h1 { font-size: 1.8em; }
-            .subtitle { font-size: 1em; }
-            .container { padding: 20px; }
-            .upload-box { padding: 30px 15px; }
-            .icon { font-size: 36px; }
-            .controls, .edit-controls { flex-direction: column; gap: 15px; }
-            .control-group, .color-picker-group { width: 100%; }
-            .color-picker-row { width: 100%; }
-            .color-input { flex: 1; }
-            select, input[type="text"] { width: 100% !important; }
-            .download-btn { width: 100%; padding: 12px 20px; margin: 5px 0; }
-            .button-group { display: flex; flex-direction: column; }
-            .info { font-size: 13px; }
-            .filename-section { padding: 20px; }
-            .image-assignment { grid-template-columns: 1fr; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        @media (max-width: 480px) {
-            body { padding: 10px; }
-            .container { padding: 15px; border-radius: 15px; }
-            h1 { font-size: 1.5em; margin-bottom: 8px; }
-            .subtitle { font-size: 0.9em; margin-bottom: 20px; }
-            .upload-section { gap: 15px; margin-bottom: 25px; }
-            .upload-box { padding: 25px 10px; }
-            .upload-box h3 { font-size: 1em; }
-            .upload-box p { font-size: 12px; }
-            .canvas-container { padding: 10px; }
-            .status { padding: 10px; font-size: 13px; }
-            .color-picker-row { flex-wrap: wrap; }
-            .eyedropper-btn { width: 100%; justify-content: center; }
-            .filename-section { padding: 15px; }
-            .filename-section h3 { font-size: 16px; }
-            .filename-preview-text { font-size: 14px; }
-            .edit-btn { width: 100%; padding: 12px; }
+        body {
+            font-family: 'Funnel Display', sans-serif;
+            background: url('https://vituchoa.github.io/moldura/src/fundo.png') center/cover no-repeat fixed;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .portal-selection {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 15px;
+            border: 2px solid #e0e7ff;
+        }
+        .portal-selection label {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+            color: #191e31;
+            margin-bottom: 10px;
+        }
+        .portal-selection select {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .frame-count-selector {
+            margin-top: 15px;
+            display: none;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #e0e7ff;
+        }
+        .frame-count-selector.active {
+            display: block;
+        }
+        .frame-count-selector label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #191e31;
+            margin-bottom: 10px;
+        }
+        .frame-count-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .frame-count-btn {
+            padding: 10px 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        .frame-count-btn:hover {
+            border-color: #191e31;
+        }
+        .frame-count-btn.active {
+            background: #191e31;
+            color: white;
+            border-color: #191e31;
+        }
+        .upload-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .upload-section.single-column {
+            grid-template-columns: 1fr;
+        }
+        .multi-image-uploads {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .multi-image-uploads.active {
+            display: grid;
+        }
+        .upload-box {
+            border: 3px dashed #191e31;
+            border-radius: 15px;
+            padding: 30px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9ff;
+            position: relative;
+        }
+        .upload-box:hover {
+            border-color: #5568d3;
+            background: #f0f2ff;
+            transform: translateY(-5px);
+        }
+        .upload-box.has-file {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        .upload-box.has-file h3 {
+            color: #10b981;
+        }
+        .upload-box h3 {
+            color: #191e31;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+        .upload-box p {
+            color: #666;
+            font-size: 12px;
+        }
+        .icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .preview-section {
+            display: none;
+        }
+        .preview-section.active {
+            display: block;
+        }
+        .canvas-container {
+            text-align: center;
+            margin-bottom: 20px;
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            position: relative;
+            overflow-x: auto;
+        }
+        .canvas-wrapper {
+            display: inline-block;
+            position: relative;
+        }
+        #canvas {
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: block;
+            cursor: move;
+            touch-action: none;
+        }
+        #canvas.eyedropper-mode {
+            cursor: crosshair;
+        }
+        #canvas.crop-mode {
+            cursor: crosshair;
+        }
+        .crop-overlay {
+            position: absolute;
+            border: 2px dashed #FF0000;
+            background: rgba(255, 0, 0, 0.1);
+            pointer-events: none;
+            display: none;
+        }
+        .crop-overlay.active {
+            display: block;
+        }
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+        }
+        select, button {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+            font-family: inherit;
+        }
+        button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .color-picker-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .color-picker-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .color-input {
+            width: 120px;
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: monospace;
+            text-transform: uppercase;
+            background: white;
+        }
+        .color-display {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+        .eyedropper-btn {
+            background: #191e31;
+            color: white;
+            border: none;
+        }
+        .eyedropper-btn:hover {
+            background: #5568d3;
+        }
+        .eyedropper-btn.active {
+            background: #10b981;
+        }
+        .filename-section {
+            background: #f8f9ff;
+            border: 2px solid #e0e7ff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .filename-section h3 {
+            color: #191e31;
+            margin-bottom: 15px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .filename-inputs {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .filename-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .filename-group label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 600;
+        }
+        .filename-group input {
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            transition: all 0.3s;
+        }
+        .filename-preview {
+            background: white;
+            border: 2px solid #10b981;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        .filename-preview-text {
+            font-family: monospace;
+            font-size: 16px;
+            color: #10b981;
+            font-weight: bold;
+        }
+        .download-btn {
+            background: #10b981;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            display: inline-block;
+            margin: 10px;
+        }
+        .download-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+        }
+        .new-btn {
+            background: #191e31;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .new-btn:hover {
+            background: #5568d3;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        .edit-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .frame-selector {
+            padding: 8px 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background: #f0f2ff;
+            font-weight: 600;
+            color: #191e31;
+        }
+        .edit-btn {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 8px;
+        }
+        .edit-btn:hover {
+            background: #7c3aed;
+        }
+        .edit-btn.active {
+            background: #10b981;
+        }
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .info {
+            text-align: center;
+            color: #666;
+            margin-top: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .status {
+            text-align: center;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            background: #e0f2fe;
+            color: #0369a1;
+            font-weight: 600;
+            display: none;
+        }
+        .status.active {
+            display: block;
+        }
+        .eyedropper-hint, .crop-hint {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            display: none;
+            font-weight: 500;
+        }
+        .crop-hint {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .eyedropper-hint.active, .crop-hint.active {
+            display: block;
+        }
+        @media (max-width: 768px) {
+            .upload-section {
+                grid-template-columns: 1fr;
+            }
+            .filename-inputs {
+                grid-template-columns: 1fr;
+            }
+            .multi-image-uploads {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <img src="https://vituchoa.github.io/moldura/src/logo_beframe.png" style="width: 25%; height: auto; display: block; margin: 0 auto 30px auto;">
-        
+
         <div class="portal-selection">
             <label for="portalSelect">Selecione o Portal:</label>
             <select id="portalSelect" onchange="updatePortalSelection()">
-                <option value="">-- Selecione um portal --</option>
+                <option value="" selected>-- Selecione um portal --</option>
                 <option value="portal1">Manual da Web</option>
                 <option value="portal2">Portal 2</option>
                 <option value="portal3">Portal 3</option>
                 <option value="custom">Moldura Personalizada</option>
             </select>
-        </div>
-
-        <!-- Controle de quantidade de molduras (só aparece para vertical) -->
-        <div class="frame-quantity" id="frameQuantity">
-            <label>Quantidade de Molduras na Imagem:</label>
-            <div class="quantity-buttons">
-                <button class="quantity-btn active" onclick="setFrameQuantity(1)">1 Moldura</button>
-                <button class="quantity-btn" onclick="setFrameQuantity(2)">2 Molduras</button>
-                <button class="quantity-btn" onclick="setFrameQuantity(3)">3 Molduras</button>
-                <button class="quantity-btn" onclick="setFrameQuantity(4)">4 Molduras</button>
+            
+            <div class="frame-count-selector" id="frameCountSelector">
+                <label>Quantidade de Molduras na Imagem Final (apenas para verticais):</label>
+                <div class="frame-count-buttons">
+                    <button class="frame-count-btn active" onclick="setFrameCount(1)">1</button>
+                    <button class="frame-count-btn" onclick="setFrameCount(2)">2</button>
+                    <button class="frame-count-btn" onclick="setFrameCount(3)">3</button>
+                    <button class="frame-count-btn" onclick="setFrameCount(4)">4</button>
+                </div>
             </div>
         </div>
 
-        <div class="upload-section single-column" id="uploadSection">
-            <!-- Caixas de upload dinâmicas serão geradas aqui -->
+        <div class="upload-section single-column" id="singleUploadSection">
+            <div class="upload-box" id="imageBox">
+                <div class="icon">📷</div>
+                <h3 id="imageLabel">Sua Imagem</h3>
+                <p>Clique ou arraste a imagem aqui</p>
+                <input type="file" id="imageUpload" accept="image/*">
+            </div>
+
+            <div class="upload-box" id="frameBox" style="display: none;">
+                <div class="icon">🖼️</div>
+                <h3 id="frameLabel">Moldura PNG</h3>
+                <p>Clique ou arraste a moldura aqui<br>(PNG com transparência)</p>
+                <input type="file" id="frameUpload" accept="image/png">
+            </div>
         </div>
 
-        <!-- Área para atribuir imagens às molduras -->
-        <div class="image-assignment" id="imageAssignment" style="display: none;">
-            <!-- As caixas de atribuição serão geradas dinamicamente -->
-        </div>
+        <div class="multi-image-uploads" id="multiImageUploads"></div>
 
-        <div class="status" id="status">Analisando moldura e enquadrando automaticamente...</div>
+        <div class="status" id="status">Processando imagens...</div>
 
         <div class="preview-section" id="previewSection">
             <div class="edit-controls">
+                <div class="frame-selector" id="frameSelector">Editando: Moldura 1</div>
                 <button class="edit-btn" id="moveBtn" onclick="activateMoveMode()">✋ Mover Imagem</button>
                 <button class="edit-btn" id="cropBtn" onclick="activateCropMode()">✂️ Cortar Imagem</button>
                 <button class="edit-btn" id="resetCropBtn" onclick="resetCrop()" style="display: none;">↩️ Redefinir Crop</button>
@@ -184,7 +501,7 @@
             <div class="controls">
                 <div class="control-group">
                     <label>Modo de Ajuste</label>
-                    <select id="fitMode" onchange="autoFrame()">
+                    <select id="fitMode" onchange="updateFrameSettings()">
                         <option value="cover">Cobrir (sem bordas brancas)</option>
                         <option value="contain">Conter (imagem completa)</option>
                         <option value="fill">Preencher (esticar)</option>
@@ -192,7 +509,7 @@
                 </div>
                 <div class="control-group">
                     <label>Cor de Fundo</label>
-                    <select id="bgMode" onchange="updateColorPickerVisibility()">
+                    <select id="bgMode" onchange="updateFrameSettings()">
                         <option value="dominant">Automático (cor dominante)</option>
                         <option value="white">Branco</option>
                         <option value="black">Preto</option>
@@ -202,16 +519,16 @@
                 <div class="color-picker-group" id="customColorGroup" style="display: none;">
                     <label>Selecionar Cor</label>
                     <div class="color-picker-row">
-                        <div class="color-display" id="colorDisplay" onclick="document.getElementById('colorInput').focus()"></div>
+                        <div class="color-display" id="colorDisplay"></div>
                         <input type="text" id="colorInput" class="color-input" placeholder="#FFFFFF" maxlength="7" value="#FFFFFF">
-                        <button type="button" class="eyedropper-btn" id="eyedropperBtn" onclick="activateEyedropper()"><span>🎨</span> Conta-gotas</button>
+                        <button type="button" class="eyedropper-btn" id="eyedropperBtn" onclick="activateEyedropper()">🎨 Conta-gotas</button>
                     </div>
                 </div>
             </div>
 
             <div class="eyedropper-hint" id="eyedropperHint">🎯 Clique na imagem abaixo para capturar uma cor | Pressione <strong>ESC</strong> para cancelar</div>
 
-            <div class="canvas-container" id="canvasContainer">
+            <div class="canvas-container">
                 <div class="canvas-wrapper">
                     <canvas id="canvas"></canvas>
                     <div class="crop-overlay" id="cropOverlay"></div>
@@ -244,606 +561,790 @@
 
         <div class="info">
             <strong>Como funciona:</strong><br>
-            1. Selecione o portal desejado (o sistema detectará automaticamente a orientação da imagem)<br>
-            2. Para molduras verticais, escolha a quantidade de molduras desejada (1 a 4)<br>
-            3. Faça upload das imagens (pode fazer upload de várias imagens ao mesmo tempo)<br>
-            4. Atribua cada imagem a uma moldura específica<br>
-            5. Para moldura personalizada, selecione a opção correspondente e faça upload da moldura PNG<br>
-            6. Use os controles para mover ou cortar as imagens conforme necessário<br>
-            7. Configure o nome do arquivo com prefixo e nome do artigo<br>
-            8. Baixe o resultado final em alta resolução
+            1. Selecione o portal desejado<br>
+            2. Para molduras verticais, escolha quantas molduras aparecerão na imagem final (1 a 4, lado a lado)<br>
+            3. Faça upload das imagens - o sistema detecta automaticamente se é horizontal ou vertical<br>
+            4. Use os controles para ajustar cada moldura individualmente<br>
+            5. Baixe a imagem final com todas as molduras combinadas em uma única imagem
             <br><br><strong>Beframe by Beside Media - 2026</strong>
         </div>
     </div>
 
-    <div class="color-preview-tooltip" id="colorPreviewTooltip">
-        <span class="color-sample" id="tooltipColorSample"></span>
-        <span id="tooltipColorHex">#000000</span>
-    </div>
-
     <script>
-        let uploadedImage = null, originalImage = null, frameImage = null, transparentArea = null;
-        let uploadedImages = []; // Array para múltiplas imagens
-        let frameImages = []; // Array para múltiplas molduras (para vertical)
-        let dominantColor = '#FFFFFF', customColor = '#FFFFFF';
-        let isEyedropperActive = false, isMoveModeActive = false, isCropModeActive = false;
-        let selectedPortal = '', isCustomFrame = false, isVerticalFrame = false;
-        let frameQuantity = 1; // Quantidade de molduras (1-4)
-        let imageAssignments = {}; // Mapeia qual imagem vai em qual moldura
+        let frameCount = 1;
+        let frames = [];
+        let selectedPortal = '';
+        let isCustomFrame = false;
+        let customColor = '#FFFFFF';
+        let activeFrameIndex = 0;
+        let isMoveModeActive = false;
+        let isCropModeActive = false;
+        let isEyedropperActive = false;
+        let isDragging = false;
+        let dragStart = { x: 0, y: 0 };
+        let currentDragOffset = { x: 0, y: 0 };
+        let isDrawingCrop = false;
+        let cropStart = { x: 0, y: 0 };
+        let cropSelection = null;
         
         const portalFrames = {
-            portal1: { horizontal: 'https://vituchoa.github.io/moldura/src/manualH.png', vertical: 'https://vituchoa.github.io/moldura/src/manualV.png' },
-            portal2: { horizontal: 'URL_DA_MOLDURA_HORIZONTAL_PORTAL2.png', vertical: 'URL_DA_MOLDURA_VERTICAL_PORTAL2.png' },
-            portal3: { horizontal: 'URL_DA_MOLDURA_HORIZONTAL_PORTAL3.png', vertical: 'URL_DA_MOLDURA_VERTICAL_PORTAL3.png' }
+            portal1: { 
+                horizontal: 'https://vituchoa.github.io/moldura/src/manualV.png', 
+                vertical: 'https://vituchoa.github.io/moldura/src/manualH.png' 
+            },
+            portal2: { 
+                horizontal: 'URL_DA_MOLDURA_VERTICAL_PORTAL2.png', 
+                vertical: 'URL_DA_MOLDURA_HORIZONTAL_PORTAL2.png' 
+            },
+            portal3: { 
+                horizontal: 'URL_DA_MOLDURA_VERTICAL_PORTAL3.png', 
+                vertical: 'URL_DA_MOLDURA_HORIZONTAL_PORTAL3.png' 
+            }
         };
-        
-        let imageOffset = { x: 0, y: 0 }, isDragging = false, dragStart = { x: 0, y: 0 }, currentDragOffset = { x: 0, y: 0 };
-        let cropSelection = null, isDrawingCrop = false, cropStart = { x: 0, y: 0 }, currentCrop = null;
-        let currentDrawInfo = { x: 0, y: 0, width: 0, height: 0, scale: 1 };
 
-        document.getElementById('colorInput').value = customColor;
-        document.getElementById('colorDisplay').style.backgroundColor = customColor;
+        function initializeFrames(count) {
+            frames = [];
+            for (let i = 0; i < count; i++) {
+                frames.push({
+                    uploadedImage: null,
+                    originalImage: null,
+                    frameImage: null,
+                    transparentArea: null,
+                    dominantColor: '#FFFFFF',
+                    imageOffset: { x: 0, y: 0 },
+                    currentCrop: null,
+                    isVertical: false,
+                    fitMode: 'cover',
+                    bgMode: 'dominant',
+                    customColor: '#FFFFFF'
+                });
+            }
+        }
+
+        function setFrameCount(count) {
+            frameCount = count;
+            document.querySelectorAll('.frame-count-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            initializeFrames(count);
+            createMultipleUploadBoxes();
+        }
+
+        function createMultipleUploadBoxes() {
+            const container = document.getElementById('multiImageUploads');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < frameCount; i++) {
+                const box = document.createElement('div');
+                box.className = 'upload-box';
+                box.id = `uploadBox${i}`;
+                box.innerHTML = `
+                    <div class="icon">📷</div>
+                    <h3>Moldura ${i + 1}</h3>
+                    <p>Clique ou arraste aqui</p>
+                    <input type="file" id="imageUpload${i}" accept="image/*">
+                `;
+                box.onclick = () => document.getElementById(`imageUpload${i}`).click();
+                
+                const input = box.querySelector('input');
+                input.addEventListener('change', (e) => handleImageUpload(i, e));
+                
+                container.appendChild(box);
+            }
+        }
 
         function updatePortalSelection() {
             const portalSelect = document.getElementById('portalSelect');
             selectedPortal = portalSelect.value;
-            const uploadSection = document.getElementById('uploadSection');
-            const frameQuantityDiv = document.getElementById('frameQuantity');
-            const imageAssignmentDiv = document.getElementById('imageAssignment');
-            
-            // Resetar variáveis
-            uploadedImages = [];
-            frameImages = [];
-            imageAssignments = {};
+            const frameBox = document.getElementById('frameBox');
+            const uploadSection = document.getElementById('singleUploadSection');
+            const multiUploadSection = document.getElementById('multiImageUploads');
+            const frameCountSelector = document.getElementById('frameCountSelector');
             
             if (selectedPortal === 'custom') {
-                isCustomFrame = true;
-                isVerticalFrame = false;
-                frameQuantityDiv.classList.remove('active');
-                imageAssignmentDiv.style.display = 'none';
-                createUploadBoxes(1, true); // Apenas 1 caixa para moldura personalizada
-            } else if (selectedPortal === '') {
-                isCustomFrame = false;
-                isVerticalFrame = false;
-                frameQuantityDiv.classList.remove('active');
-                imageAssignmentDiv.style.display = 'none';
-                createUploadBoxes(1, false); // Apenas 1 caixa para imagem
-            } else {
-                isCustomFrame = false;
-                // Para portais predefinidos, vamos detectar a orientação depois que a imagem for carregada
-                frameQuantityDiv.classList.remove('active');
-                imageAssignmentDiv.style.display = 'none';
-                createUploadBoxes(1, false); // Inicialmente 1 caixa
-            }
-        }
-        
-        function createUploadBoxes(count, isFrameBox) {
-            const uploadSection = document.getElementById('uploadSection');
-            uploadSection.innerHTML = '';
-            
-            if (isFrameBox) {
-                // Para moldura personalizada
+                frameBox.style.display = 'block';
                 uploadSection.classList.remove('single-column');
-                uploadSection.classList.remove('multiple-frames');
+                uploadSection.style.display = 'grid';
+                multiUploadSection.classList.remove('active');
+                frameCountSelector.classList.remove('active');
+                isCustomFrame = true;
+                initializeFrames(1);
                 
-                const box = document.createElement('div');
-                box.className = 'upload-box';
-                box.id = 'frameBox';
-                box.innerHTML = `
-                    <div class="icon">🖼️</div>
-                    <h3 id="frameLabel">Moldura PNG</h3>
-                    <p>Clique ou arraste a moldura aqui<br>(PNG com transparência)</p>
-                    <input type="file" id="frameUpload" accept="image/png" multiple="${count > 1}">
-                `;
-                uploadSection.appendChild(box);
-                setupDragAndDrop(box, box.querySelector('input'), true);
+                // Resetar uploads anteriores
+                document.getElementById('imageBox').classList.remove('has-file');
+                document.getElementById('frameBox').classList.remove('has-file');
+                document.getElementById('imageLabel').textContent = 'Sua Imagem';
+                document.getElementById('frameLabel').textContent = 'Moldura PNG';
+                document.getElementById('previewSection').classList.remove('active');
+            } else if (selectedPortal === '') {
+                frameBox.style.display = 'none';
+                uploadSection.classList.add('single-column');
+                uploadSection.style.display = 'grid';
+                multiUploadSection.classList.remove('active');
+                frameCountSelector.classList.remove('active');
+                isCustomFrame = false;
                 
-                // Configurar evento de change para múltiplos arquivos
-                const input = box.querySelector('input');
-                input.addEventListener('change', function(e) {
-                    handleFrameUpload(e, 0);
-                });
+                // Resetar preview
+                document.getElementById('previewSection').classList.remove('active');
             } else {
-                // Para imagens
-                if (count === 1) {
-                    uploadSection.classList.add('single-column');
-                    uploadSection.classList.remove('multiple-frames');
-                } else {
-                    uploadSection.classList.remove('single-column');
-                    uploadSection.classList.add('multiple-frames');
-                }
+                frameBox.style.display = 'none';
+                uploadSection.style.display = 'none';
+                frameCountSelector.classList.add('active');
+                multiUploadSection.classList.add('active');
+                isCustomFrame = false;
+                createMultipleUploadBoxes();
                 
-                for (let i = 0; i < count; i++) {
-                    const box = document.createElement('div');
-                    box.className = 'upload-box';
-                    box.id = `imageBox${i}`;
-                    box.innerHTML = `
-                        <div class="icon">📷</div>
-                        <h3 id="imageLabel${i}">${count === 1 ? 'Sua Imagem' : `Imagem ${i + 1}`}</h3>
-                        <p>Clique ou arraste a imagem aqui</p>
-                        <input type="file" id="imageUpload${i}" accept="image/*" multiple="${count > 1}">
-                    `;
-                    uploadSection.appendChild(box);
-                    setupDragAndDrop(box, box.querySelector('input'), false);
-                    
-                    // Configurar evento de change para múltiplos arquivos
-                    const input = box.querySelector('input');
-                    input.addEventListener('change', function(e) {
-                        handleImageUpload(e, i);
-                    });
-                }
+                // Resetar preview
+                document.getElementById('previewSection').classList.remove('active');
             }
         }
-        
-        function setFrameQuantity(quantity) {
-            frameQuantity = quantity;
-            
-            // Atualizar botões ativos
-            document.querySelectorAll('.quantity-btn').forEach((btn, index) => {
-                if (index + 1 === quantity) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-            
-            // Criar caixas de upload para múltiplas imagens
-            createUploadBoxes(quantity, false);
-            
-            // Criar interface para atribuição de imagens
-            createImageAssignmentInterface();
-        }
-        
-        function createImageAssignmentInterface() {
-            const imageAssignmentDiv = document.getElementById('imageAssignment');
-            imageAssignmentDiv.innerHTML = '';
-            imageAssignmentDiv.style.display = 'grid';
-            
-            for (let i = 0; i < frameQuantity; i++) {
-                const box = document.createElement('div');
-                box.className = 'assignment-box';
-                box.innerHTML = `
-                    <h4>Moldura ${i + 1}</h4>
-                    <img src="" class="image-preview-small" id="preview${i}" style="display: none;">
-                    <select class="assignment-select" id="assign${i}" onchange="updateImageAssignment(${i})">
-                        <option value="-1">Selecione uma imagem</option>
-                    </select>
-                `;
-                imageAssignmentDiv.appendChild(box);
-            }
-            
-            updateAssignmentDropdowns();
-        }
-        
-        function updateAssignmentDropdowns() {
-            for (let i = 0; i < frameQuantity; i++) {
-                const select = document.getElementById(`assign${i}`);
-                select.innerHTML = '<option value="-1">Selecione uma imagem</option>';
-                
-                uploadedImages.forEach((img, index) => {
-                    const option = document.createElement('option');
-                    option.value = index;
-                    option.textContent = `Imagem ${index + 1}`;
-                    if (imageAssignments[i] === index) {
-                        option.selected = true;
-                    }
-                    select.appendChild(option);
-                });
-                
-                // Atualizar pré-visualização
-                const assignedIndex = imageAssignments[i];
-                const preview = document.getElementById(`preview${i}`);
-                if (assignedIndex !== undefined && assignedIndex !== -1 && uploadedImages[assignedIndex]) {
-                    preview.src = uploadedImages[assignedIndex].src;
-                    preview.style.display = 'block';
-                } else {
-                    preview.style.display = 'none';
-                }
-            }
-        }
-        
-        function updateImageAssignment(frameIndex) {
-            const select = document.getElementById(`assign${frameIndex}`);
-            const imageIndex = parseInt(select.value);
-            imageAssignments[frameIndex] = imageIndex;
-            
-            // Atualizar pré-visualização
-            const preview = document.getElementById(`preview${frameIndex}`);
-            if (imageIndex !== -1 && uploadedImages[imageIndex]) {
-                preview.src = uploadedImages[imageIndex].src;
-                preview.style.display = 'block';
-            } else {
-                preview.style.display = 'none';
-            }
-            
-            // Se temos imagens e molduras, atualizar a visualização
-            if (frameImages.length > 0 && uploadedImages.length > 0) {
-                autoFrame();
-            }
-        }
-        
+
         function detectImageOrientation(img) {
             const imgWidth = img.naturalWidth || img.width;
             const imgHeight = img.naturalHeight || img.height;
-            console.log(`Detectando orientação: ${imgWidth} x ${imgHeight}`);
-            
-            // CORREÇÃO: Agora está correto - imagens horizontais são mais largas que altas
-            const isHorizontal = imgWidth > imgHeight;
-            console.log(`Imagem detectada como: ${isHorizontal ? 'Horizontal' : 'Vertical'}`);
-            
-            return isHorizontal;
+            return imgWidth > imgHeight; // true = horizontal, false = vertical
         }
-        
-        function autoSelectFrame() {
-            if (!uploadedImages[0] || !selectedPortal || selectedPortal === 'custom' || selectedPortal === '') {
-                console.log('Condições não atendidas para autoSelectFrame');
-                return;
-            }
+
+        function handleImageUpload(index, event) {
+            const file = event.target.files[0];
+            if (!file) return;
             
-            const isHorizontal = detectImageOrientation(uploadedImages[0]);
-            console.log(`Imagem detectada como: ${isHorizontal ? 'Horizontal' : 'Vertical'}`);
-            
-            // Atualizar interface baseada na orientação
-            const frameQuantityDiv = document.getElementById('frameQuantity');
-            if (isHorizontal) {
-                // Moldura horizontal - quantidade fixa 1
-                isVerticalFrame = false;
-                frameQuantityDiv.classList.remove('active');
-                imageAssignments = { 0: 0 }; // Apenas uma moldura
-                createUploadBoxes(1, false);
-            } else {
-                // Moldura vertical - mostrar opções de quantidade
-                isVerticalFrame = true;
-                frameQuantityDiv.classList.add('active');
-                // Por padrão, usar 1 moldura
-                frameQuantity = 1;
-                setFrameQuantity(1);
-            }
-            
-            // Carregar moldura apropriada
-            const frameUrl = isHorizontal ? portalFrames[selectedPortal].horizontal : portalFrames[selectedPortal].vertical;
-            console.log(`Carregando moldura: ${frameUrl}`);
-            
-            loadFrameFromUrl(frameUrl, isHorizontal);
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    frames[index].uploadedImage = img;
+                    frames[index].originalImage = new Image();
+                    frames[index].originalImage.src = img.src;
+                    frames[index].imageOffset = { x: 0, y: 0 };
+                    
+                    extractDominantColor(img, index);
+                    
+                    const isHorizontal = detectImageOrientation(img);
+                    frames[index].isVertical = !isHorizontal;
+                    
+                    if (selectedPortal === 'custom') {
+                        // Para moldura personalizada, apenas marcar como carregado
+                        document.getElementById(`uploadBox${index}`).classList.add('has-file');
+                        document.getElementById(`uploadBox${index}`).querySelector('h3').textContent = `✓ Imagem ${index + 1}`;
+                        
+                        // Verificar se já temos a moldura
+                        if (frames[index].frameImage) {
+                            checkAllImagesReady();
+                        }
+                    } else if (selectedPortal && selectedPortal !== '') {
+                        const frameUrl = isHorizontal 
+                            ? portalFrames[selectedPortal].horizontal 
+                            : portalFrames[selectedPortal].vertical;
+                        
+                        loadFrameForImage(index, frameUrl);
+                        
+                        document.getElementById(`uploadBox${index}`).classList.add('has-file');
+                        document.getElementById(`uploadBox${index}`).querySelector('h3').textContent = `✓ Moldura ${index + 1}`;
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         }
-        
-        function loadFrameFromUrl(url, isHorizontal = true) {
-            document.getElementById('status').classList.add('active');
-            document.getElementById('status').textContent = 'Carregando moldura automaticamente...';
-            
-            frameImages = []; // Resetar array de molduras
-            
+
+        function loadFrameForImage(index, url) {
             const img = new Image();
             img.crossOrigin = 'anonymous';
             img.onload = function() {
-                if (isHorizontal || frameQuantity === 1) {
-                    // Para horizontal ou vertical com 1 moldura
-                    frameImages = [img];
-                } else {
-                    // Para vertical com múltiplas molduras, carregar a mesma moldura múltiplas vezes
-                    for (let i = 0; i < frameQuantity; i++) {
-                        frameImages.push(img);
-                    }
-                }
-                
-                document.getElementById('status').textContent = 'Analisando moldura(s) e enquadrando automaticamente...';
-                setTimeout(() => {
-                    detectTransparentArea();
-                    if (uploadedImages.length > 0) autoFrame();
-                    document.getElementById('status').classList.remove('active');
-                }, 500);
+                frames[index].frameImage = img;
+                detectTransparentArea(index);
+                checkAllImagesReady();
             };
             img.onerror = function() {
                 console.error('Erro ao carregar moldura:', url);
-                document.getElementById('status').textContent = 'Erro ao carregar moldura. Verifique as URLs no código.';
-                setTimeout(() => document.getElementById('status').classList.remove('active'), 3000);
+                alert('Erro ao carregar a moldura. Verifique a URL da moldura.');
             };
             img.src = url;
         }
-        
-        function handleImageUpload(e, boxIndex) {
-            const files = e.target.files;
-            if (files.length === 0) return;
+
+        function detectTransparentArea(index) {
+            const frameImage = frames[index].frameImage;
+            if (!frameImage) return;
             
-            // Limpar array de imagens se estamos em modo de única imagem
-            if (frameQuantity === 1 && !isVerticalFrame) {
-                uploadedImages = [];
-            }
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = frameImage.naturalWidth || frameImage.width;
+            tempCanvas.height = frameImage.naturalHeight || frameImage.height;
+            tempCtx.drawImage(frameImage, 0, 0);
             
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const index = uploadedImages.length;
-                        uploadedImages.push(img);
-                        
-                        // Atualizar interface
-                        if (frameQuantity === 1 && !isVerticalFrame) {
-                            // Modo simples: uma imagem
-                            document.getElementById(`imageBox${boxIndex}`).classList.add('has-file');
-                            document.getElementById(`imageLabel${boxIndex}`).textContent = '✓ Imagem Carregada';
-                            imageOffset = { x: 0, y: 0 };
-                            currentCrop = null;
-                            
-                            // Salvar como original se for a primeira
-                            if (index === 0) {
-                                originalImage = new Image();
-                                originalImage.src = img.src;
-                            }
-                            
-                            extractDominantColor(img);
-                            if (selectedPortal && selectedPortal !== 'custom' && selectedPortal !== '') {
-                                autoSelectFrame();
-                            } else if (frameImages.length > 0) {
-                                autoFrame();
-                            }
-                        } else {
-                            // Modo múltiplas imagens
-                            document.getElementById(`imageBox${boxIndex}`).classList.add('has-file');
-                            document.getElementById(`imageLabel${boxIndex}`).textContent = `✓ ${files.length > 1 ? files.length : ''} Imagem(ns) Carregada(s)`;
-                            
-                            // Atualizar dropdowns de atribuição
-                            updateAssignmentDropdowns();
-                            
-                            // Se já temos molduras carregadas, processar
-                            if (frameImages.length > 0) {
-                                // Atribuir automaticamente se não estiver atribuído
-                                for (let j = 0; j < frameQuantity; j++) {
-                                    if (imageAssignments[j] === undefined && j < uploadedImages.length) {
-                                        imageAssignments[j] = j;
-                                    }
-                                }
-                                updateAssignmentDropdowns();
-                                autoFrame();
-                            }
-                        }
-                    };
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-        
-        function handleFrameUpload(e, boxIndex) {
-            const files = e.target.files;
-            if (files.length === 0) return;
+            const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+            const data = imageData.data;
+            let minX = tempCanvas.width, minY = tempCanvas.height, maxX = 0, maxY = 0;
             
-            frameImages = []; // Resetar array de molduras
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const img = new Image();
-                    img.onload = function() {
-                        frameImages.push(img);
-                        
-                        // Atualizar interface
-                        document.getElementById('frameBox').classList.add('has-file');
-                        document.getElementById('frameLabel').textContent = `✓ ${files.length > 1 ? files.length : ''} Moldura(s) Carregada(s)`;
-                        document.getElementById('status').classList.add('active');
-                        
-                        if (i === files.length - 1) {
-                            setTimeout(() => {
-                                detectTransparentArea();
-                                if (uploadedImages.length > 0) autoFrame();
-                                document.getElementById('status').classList.remove('active');
-                            }, 500);
-                        }
-                    };
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-        
-        function detectTransparentArea() {
-            if (frameImages.length === 0) return;
-            
-            transparentArea = [];
-            
-            frameImages.forEach((frameImg, index) => {
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-                tempCanvas.width = frameImg.naturalWidth;
-                tempCanvas.height = frameImg.naturalHeight;
-                tempCtx.drawImage(frameImg, 0, 0);
-                const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-                const data = imageData.data;
-                let minX = tempCanvas.width, minY = tempCanvas.height, maxX = 0, maxY = 0;
-                for (let y = 0; y < tempCanvas.height; y++) {
-                    for (let x = 0; x < tempCanvas.width; x++) {
-                        const idx = (y * tempCanvas.width + x) * 4;
-                        const alpha = data[idx + 3];
-                        if (alpha < 180) {
-                            if (x < minX) minX = x;
-                            if (x > maxX) maxX = x;
-                            if (y < minY) minY = y;
-                            if (y > maxY) maxY = y;
-                        }
+            for (let y = 0; y < tempCanvas.height; y++) {
+                for (let x = 0; x < tempCanvas.width; x++) {
+                    const idx = (y * tempCanvas.width + x) * 4;
+                    const alpha = data[idx + 3];
+                    if (alpha < 180) {
+                        if (x < minX) minX = x;
+                        if (x > maxX) maxX = x;
+                        if (y < minY) minY = y;
+                        if (y > maxY) maxY = y;
                     }
                 }
-                const margin = 3;
-                transparentArea[index] = {
-                    x: Math.max(0, minX - margin),
-                    y: Math.max(0, minY - margin),
-                    width: Math.min(tempCanvas.width, maxX - minX + (margin * 2)),
-                    height: Math.min(tempCanvas.height, maxY - minY + (margin * 2))
-                };
-            });
-        }
-        
-        function autoFrame() {
-            if (uploadedImages.length === 0 || frameImages.length === 0 || transparentArea.length === 0) return;
-            
-            const canvas = document.getElementById('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Calcular dimensões totais do canvas
-            let totalWidth = 0, totalHeight = 0, maxHeight = 0;
-            
-            if (isVerticalFrame && frameQuantity > 1) {
-                // Para múltiplas molduras verticais, dispor horizontalmente
-                frameImages.forEach((frame, index) => {
-                    totalWidth += frame.naturalWidth;
-                    maxHeight = Math.max(maxHeight, frame.naturalHeight);
-                });
-                totalHeight = maxHeight;
-            } else {
-                // Para molduras únicas
-                totalWidth = frameImages[0].naturalWidth;
-                totalHeight = frameImages[0].naturalHeight;
             }
             
-            canvas.width = totalWidth;
-            canvas.height = totalHeight;
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-            
-            const bgMode = document.getElementById('bgMode').value;
-            let bgColor = '#FFFFFF';
-            if (bgMode === 'dominant' && uploadedImages[0]) bgColor = dominantColor;
-            else if (bgMode === 'black') bgColor = '#000000';
-            else if (bgMode === 'white') bgColor = '#FFFFFF';
-            else if (bgMode === 'custom') bgColor = customColor;
-            
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            const fitMode = document.getElementById('fitMode').value;
-            let currentX = 0;
-            
-            for (let i = 0; i < Math.min(frameImages.length, frameQuantity); i++) {
-                const frameImg = frameImages[i];
-                const area = transparentArea[i];
-                
-                // Determinar qual imagem usar para esta moldura
-                const imageIndex = imageAssignments[i];
-                const imageToUse = (imageIndex !== undefined && imageIndex !== -1 && uploadedImages[imageIndex]) ? 
-                                  uploadedImages[imageIndex] : uploadedImages[0];
-                
-                if (!imageToUse) continue;
-                
-                const targetWidth = area.width, targetHeight = area.height;
-                const imgRatio = imageToUse.naturalWidth / imageToUse.naturalHeight;
-                const targetRatio = targetWidth / targetHeight;
-                
-                let drawWidth, drawHeight, drawX, drawY;
-                
-                if (fitMode === 'cover') {
-                    if (imgRatio > targetRatio) {
-                        drawHeight = targetHeight;
-                        drawWidth = drawHeight * imgRatio;
-                    } else {
-                        drawWidth = targetWidth;
-                        drawHeight = drawWidth / imgRatio;
-                    }
-                    drawX = currentX + area.x + (targetWidth - drawWidth) / 2;
-                    drawY = area.y + (targetHeight - drawHeight) / 2;
-                } else if (fitMode === 'contain') {
-                    if (imgRatio > targetRatio) {
-                        drawWidth = targetWidth;
-                        drawHeight = drawWidth / imgRatio;
-                    } else {
-                        drawHeight = targetHeight;
-                        drawWidth = drawHeight * imgRatio;
-                    }
-                    drawX = currentX + area.x + (targetWidth - drawWidth) / 2;
-                    drawY = area.y + (targetHeight - drawHeight) / 2;
-                } else {
-                    drawWidth = targetWidth;
-                    drawHeight = targetHeight;
-                    drawX = currentX + area.x;
-                    drawY = area.y;
-                }
-                
-                drawX += imageOffset.x;
-                drawY += imageOffset.y;
-                
-                ctx.drawImage(imageToUse, drawX, drawY, drawWidth, drawHeight);
-                ctx.drawImage(frameImg, currentX, 0, frameImg.naturalWidth, frameImg.naturalHeight);
-                
-                currentX += frameImg.naturalWidth;
-            }
-            
-            document.getElementById('previewSection').classList.add('active');
+            const margin = 3;
+            frames[index].transparentArea = {
+                x: Math.max(0, minX - margin),
+                y: Math.max(0, minY - margin),
+                width: Math.min(tempCanvas.width, maxX - minX + (margin * 2)),
+                height: Math.min(tempCanvas.height, maxY - minY + (margin * 2))
+            };
         }
 
-        // Restante do código permanece similar (funções de movimentação, crop, etc.)
-        // ... [mantenha as funções restantes como estão, apenas ajustando onde referenciam uploadedImage para uploadedImages[0]]
-
-        // As funções extractDominantColor, activateEyedropper, activateMoveMode, activateCropMode, etc.
-        // devem ser ajustadas para trabalhar com o array uploadedImages quando necessário
-
-        function extractDominantColor(img) {
-            // ... mantida igual
+        function extractDominantColor(img, index) {
             const tempCanvas = document.createElement('canvas');
             const tempCtx = tempCanvas.getContext('2d');
             const size = 50;
             tempCanvas.width = size;
             tempCanvas.height = size;
             tempCtx.drawImage(img, 0, 0, size, size);
+            
             const imageData = tempCtx.getImageData(0, 0, size, size);
             const data = imageData.data;
             let r = 0, g = 0, b = 0, count = 0;
+            
             for (let i = 0; i < data.length; i += 4) {
-                const red = data[i], green = data[i + 1], blue = data[i + 2], alpha = data[i + 3];
+                const alpha = data[i + 3];
                 if (alpha > 128) {
-                    r += red;
-                    g += green;
-                    b += blue;
+                    r += data[i];
+                    g += data[i + 1];
+                    b += data[i + 2];
                     count++;
                 }
             }
+            
             if (count > 0) {
                 r = Math.floor(r / count);
                 g = Math.floor(g / count);
                 b = Math.floor(b / count);
-                dominantColor = rgbToHex(r, g, b);
+                frames[index].dominantColor = rgbToHex(r, g, b);
             }
         }
 
-        // As funções de setupDragAndDrop, updateFilenamePreview, generateFileName, etc.
-        // devem ser mantidas conforme o código original
+        function rgbToHex(r, g, b) {
+            return "#" + [r, g, b].map(x => {
+                const hex = x.toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('').toUpperCase();
+        }
 
-        function setupDragAndDrop(boxElement, inputElement, isFrame = false) {
-            // ... mantida igual
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                boxElement.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
-            });
-            ['dragenter', 'dragover'].forEach(eventName => {
-                boxElement.addEventListener(eventName, () => boxElement.classList.add('drag-over'), false);
-            });
-            ['dragleave', 'drop'].forEach(eventName => {
-                boxElement.addEventListener(eventName, () => boxElement.classList.remove('drag-over'), false);
-            });
-            boxElement.addEventListener('drop', (e) => {
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    const file = files[0];
-                    if (isFrame && !file.type.match('image/png')) {
-                        alert('Por favor, selecione um arquivo PNG para a moldura.');
-                        return;
-                    }
-                    if (!isFrame && !file.type.match('image.*')) {
-                        alert('Por favor, selecione um arquivo de imagem válido.');
-                        return;
-                    }
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(file);
-                    inputElement.files = dataTransfer.files;
-                    inputElement.dispatchEvent(new Event('change', { bubbles: true }));
+        function checkAllImagesReady() {
+            let allReady = true;
+            for (let i = 0; i < frameCount; i++) {
+                if (!frames[i].uploadedImage || !frames[i].frameImage) {
+                    allReady = false;
+                    break;
                 }
-            }, false);
-            boxElement.addEventListener('click', (e) => {
-                if (!boxElement.classList.contains('drag-over')) inputElement.click();
-            });
+            }
+            
+            if (allReady) {
+                // Garantir que todas as áreas transparentes sejam detectadas
+                for (let i = 0; i < frameCount; i++) {
+                    if (frames[i].frameImage && !frames[i].transparentArea) {
+                        detectTransparentArea(i);
+                    }
+                }
+                
+                renderFinalCanvas();
+                document.getElementById('previewSection').classList.add('active');
+                updateFrameSelector();
+                loadFrameSettings();
+            }
+        }
+
+        function updateFrameSelector() {
+            const selector = document.getElementById('frameSelector');
+            if (frameCount > 1) {
+                selector.textContent = `Editando: Moldura ${activeFrameIndex + 1}`;
+                selector.style.display = 'block';
+                selector.onclick = () => {
+                    activeFrameIndex = (activeFrameIndex + 1) % frameCount;
+                    updateFrameSelector();
+                    loadFrameSettings();
+                    renderFinalCanvas();
+                };
+            } else {
+                selector.style.display = 'none';
+            }
+        }
+
+        function loadFrameSettings() {
+            if (frames[activeFrameIndex]) {
+                const frame = frames[activeFrameIndex];
+                
+                document.getElementById('fitMode').value = frame.fitMode || 'cover';
+                document.getElementById('bgMode').value = frame.bgMode || 'dominant';
+                
+                customColor = frame.customColor || '#FFFFFF';
+                document.getElementById('colorInput').value = customColor;
+                document.getElementById('colorDisplay').style.backgroundColor = customColor;
+                
+                updateColorPickerVisibility();
+            }
+        }
+
+        function updateFrameSettings() {
+            if (frames[activeFrameIndex]) {
+                frames[activeFrameIndex].fitMode = document.getElementById('fitMode').value;
+                frames[activeFrameIndex].bgMode = document.getElementById('bgMode').value;
+                frames[activeFrameIndex].customColor = customColor;
+                
+                updateColorPickerVisibility();
+                renderFinalCanvas();
+            }
+        }
+
+        function renderFinalCanvas() {
+            if (frames.length === 0) return;
+            
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            let canvasWidth = 0;
+            let canvasHeight = 0;
+            let hasValidFrames = false;
+            
+            for (let i = 0; i < frameCount; i++) {
+                if (frames[i].frameImage) {
+                    const frameWidth = frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
+                    const frameHeight = frames[i].frameImage.naturalHeight || frames[i].frameImage.height;
+                    canvasWidth += frameWidth;
+                    canvasHeight = Math.max(canvasHeight, frameHeight);
+                    hasValidFrames = true;
+                }
+            }
+            
+            if (!hasValidFrames) return;
+            
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+            
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            
+            let currentX = 0;
+            for (let i = 0; i < frameCount; i++) {
+                const frame = frames[i];
+                if (!frame.frameImage) {
+                    continue;
+                }
+                
+                const frameWidth = frame.frameImage.naturalWidth || frame.frameImage.width;
+                const frameHeight = frame.frameImage.naturalHeight || frame.frameImage.height;
+                
+                const bgMode = frame.bgMode || 'dominant';
+                let bgColor = '#FFFFFF';
+                if (bgMode === 'dominant') bgColor = frame.dominantColor || '#FFFFFF';
+                else if (bgMode === 'black') bgColor = '#000000';
+                else if (bgMode === 'white') bgColor = '#FFFFFF';
+                else if (bgMode === 'custom') bgColor = frame.customColor || '#FFFFFF';
+                
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(currentX, 0, frameWidth, frameHeight);
+                
+                if (frame.uploadedImage && frame.transparentArea) {
+                    const fitMode = frame.fitMode || 'cover';
+                    const targetWidth = frame.transparentArea.width;
+                    const targetHeight = frame.transparentArea.height;
+                    const imgRatio = frame.uploadedImage.naturalWidth / frame.uploadedImage.naturalHeight;
+                    const targetRatio = targetWidth / targetHeight;
+                    
+                    let drawWidth, drawHeight, drawX, drawY;
+                    
+                    if (fitMode === 'cover') {
+                        if (imgRatio > targetRatio) {
+                            drawHeight = targetHeight;
+                            drawWidth = drawHeight * imgRatio;
+                        } else {
+                            drawWidth = targetWidth;
+                            drawHeight = drawWidth / imgRatio;
+                        }
+                        drawX = currentX + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
+                        drawY = frame.transparentArea.y + (targetHeight - drawHeight) / 2;
+                    } else if (fitMode === 'contain') {
+                        if (imgRatio > targetRatio) {
+                            drawWidth = targetWidth;
+                            drawHeight = drawWidth / imgRatio;
+                        } else {
+                            drawHeight = targetHeight;
+                            drawWidth = drawHeight * imgRatio;
+                        }
+                        drawX = currentX + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
+                        drawY = frame.transparentArea.y + (targetHeight - drawHeight) / 2;
+                    } else {
+                        drawWidth = targetWidth;
+                        drawHeight = targetHeight;
+                        drawX = currentX + frame.transparentArea.x;
+                        drawY = frame.transparentArea.y;
+                    }
+                    
+                    drawX += frame.imageOffset.x;
+                    drawY += frame.imageOffset.y;
+                    
+                    ctx.drawImage(frame.uploadedImage, drawX, drawY, drawWidth, drawHeight);
+                }
+                
+                ctx.drawImage(frame.frameImage, currentX, 0, frameWidth, frameHeight);
+                
+                currentX += frameWidth;
+            }
+        }
+
+        function updateColorPickerVisibility() {
+            const bgMode = document.getElementById('bgMode').value;
+            const customGroup = document.getElementById('customColorGroup');
+            customGroup.style.display = bgMode === 'custom' ? 'flex' : 'none';
+        }
+
+        function activateMoveMode() {
+            if (!frames[activeFrameIndex].uploadedImage) {
+                alert('Primeiro carregue uma imagem para poder movê-la.');
+                return;
+            }
+            deactivateEyedropper();
+            deactivateCropMode();
+            isMoveModeActive = true;
+            document.getElementById('moveBtn').classList.add('active');
+            document.getElementById('canvas').style.cursor = 'move';
+            const canvas = document.getElementById('canvas');
+            canvas.addEventListener('mousedown', startMove);
+            canvas.addEventListener('mousemove', doMove);
+            canvas.addEventListener('mouseup', endMove);
+            canvas.addEventListener('mouseleave', endMove);
+        }
+
+        function deactivateMoveMode() {
+            isMoveModeActive = false;
+            isDragging = false;
+            document.getElementById('moveBtn').classList.remove('active');
+            document.getElementById('canvas').style.cursor = 'default';
+            const canvas = document.getElementById('canvas');
+            canvas.removeEventListener('mousedown', startMove);
+            canvas.removeEventListener('mousemove', doMove);
+            canvas.removeEventListener('mouseup', endMove);
+            canvas.removeEventListener('mouseleave', endMove);
+        }
+
+        function startMove(e) {
+            if (!isMoveModeActive) return;
+            e.preventDefault();
+            isDragging = true;
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+            dragStart.x = e.clientX - rect.left;
+            dragStart.y = e.clientY - rect.top;
+            currentDragOffset = { ...frames[activeFrameIndex].imageOffset };
+        }
+
+        function doMove(e) {
+            if (!isMoveModeActive || !isDragging) return;
+            e.preventDefault();
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            frames[activeFrameIndex].imageOffset.x = currentDragOffset.x + (currentX - dragStart.x) * scaleX;
+            frames[activeFrameIndex].imageOffset.y = currentDragOffset.y + (currentY - dragStart.y) * scaleY;
+            renderFinalCanvas();
+        }
+
+        function endMove() {
+            if (!isMoveModeActive) return;
+            isDragging = false;
+        }
+
+        function activateCropMode() {
+            if (!frames[activeFrameIndex].uploadedImage) {
+                alert('Primeiro carregue uma imagem para poder cortá-la.');
+                return;
+            }
+            deactivateEyedropper();
+            deactivateMoveMode();
+            isCropModeActive = true;
+            document.getElementById('cropBtn').classList.add('active');
+            document.getElementById('resetCropBtn').style.display = 'inline-flex';
+            document.getElementById('cropHint').classList.add('active');
+            document.getElementById('canvas').classList.add('crop-mode');
+            const canvas = document.getElementById('canvas');
+            canvas.addEventListener('mousedown', startCropSelection);
+            canvas.addEventListener('mousemove', drawCropSelection);
+            canvas.addEventListener('mouseup', endCropSelection);
+            canvas.addEventListener('mouseleave', cancelCropSelection);
+        }
+
+        function deactivateCropMode() {
+            isCropModeActive = false;
+            isDrawingCrop = false;
+            document.getElementById('cropBtn').classList.remove('active');
+            document.getElementById('cropHint').classList.remove('active');
+            document.getElementById('canvas').classList.remove('crop-mode');
+            document.getElementById('cropOverlay').classList.remove('active');
+            const canvas = document.getElementById('canvas');
+            canvas.removeEventListener('mousedown', startCropSelection);
+            canvas.removeEventListener('mousemove', drawCropSelection);
+            canvas.removeEventListener('mouseup', endCropSelection);
+            canvas.removeEventListener('mouseleave', cancelCropSelection);
+        }
+
+        function startCropSelection(e) {
+            if (!isCropModeActive) return;
+            e.preventDefault();
+            isDrawingCrop = true;
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            let frameOffset = 0;
+            for (let i = 0; i < activeFrameIndex; i++) {
+                if (frames[i].frameImage) {
+                    frameOffset += frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
+                }
+            }
+            
+            cropStart.x = (e.clientX - rect.left) * scaleX;
+            cropStart.y = (e.clientY - rect.top) * scaleY;
+            
+            const frameWidth = frames[activeFrameIndex].frameImage ? 
+                (frames[activeFrameIndex].frameImage.naturalWidth || frames[activeFrameIndex].frameImage.width) : 0;
+            
+            if (cropStart.x < frameOffset || cropStart.x > frameOffset + frameWidth) {
+                isDrawingCrop = false;
+                return;
+            }
+            
+            cropSelection = { x: cropStart.x, y: cropStart.y, width: 0, height: 0 };
+            updateCropOverlay();
+        }
+
+        function drawCropSelection(e) {
+            if (!isCropModeActive || !isDrawingCrop) return;
+            e.preventDefault();
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const currentX = (e.clientX - rect.left) * scaleX;
+            const currentY = (e.clientY - rect.top) * scaleY;
+            
+            let frameOffset = 0;
+            for (let i = 0; i < activeFrameIndex; i++) {
+                if (frames[i].frameImage) {
+                    frameOffset += frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
+                }
+            }
+            
+            const frameWidth = frames[activeFrameIndex].frameImage ? 
+                (frames[activeFrameIndex].frameImage.naturalWidth || frames[activeFrameIndex].frameImage.width) : 0;
+            
+            const limitedX = Math.max(frameOffset, Math.min(currentX, frameOffset + frameWidth));
+            
+            cropSelection.width = limitedX - cropStart.x;
+            cropSelection.height = currentY - cropStart.y;
+            updateCropOverlay();
+        }
+
+        function endCropSelection() {
+            if (!isCropModeActive || !isDrawingCrop) return;
+            isDrawingCrop = false;
+            if (cropSelection.width < 0) {
+                cropSelection.x += cropSelection.width;
+                cropSelection.width = -cropSelection.width;
+            }
+            if (cropSelection.height < 0) {
+                cropSelection.y += cropSelection.height;
+                cropSelection.height = -cropSelection.height;
+            }
+            if (cropSelection.width > 10 && cropSelection.height > 10) {
+                applyCrop();
+            } else {
+                cropSelection = null;
+                document.getElementById('cropOverlay').classList.remove('active');
+            }
+        }
+
+        function cancelCropSelection() {
+            if (!isCropModeActive) return;
+            isDrawingCrop = false;
+            cropSelection = null;
+            document.getElementById('cropOverlay').classList.remove('active');
+        }
+
+        function updateCropOverlay() {
+            if (!cropSelection) return;
+            const overlay = document.getElementById('cropOverlay');
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = rect.width / canvas.width;
+            const scaleY = rect.height / canvas.height;
+            let x = cropSelection.x * scaleX;
+            let y = cropSelection.y * scaleY;
+            let width = cropSelection.width * scaleX;
+            let height = cropSelection.height * scaleY;
+            if (width < 0) {
+                x += width;
+                width = -width;
+            }
+            if (height < 0) {
+                y += height;
+                height = -height;
+            }
+            overlay.style.left = x + 'px';
+            overlay.style.top = y + 'px';
+            overlay.style.width = width + 'px';
+            overlay.style.height = height + 'px';
+            overlay.style.display = 'block';
+            overlay.classList.add('active');
+        }
+
+        function applyCrop() {
+            const frameIndex = activeFrameIndex;
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            let frameOffset = 0;
+            for (let i = 0; i < frameIndex; i++) {
+                if (frames[i].frameImage) {
+                    frameOffset += frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
+                }
+            }
+            
+            const croppedImage = document.createElement('canvas');
+            const croppedCtx = croppedImage.getContext('2d');
+            croppedImage.width = cropSelection.width;
+            croppedImage.height = cropSelection.height;
+            
+            const localCropX = cropSelection.x - frameOffset;
+            croppedCtx.drawImage(
+                canvas,
+                cropSelection.x, cropSelection.y,
+                cropSelection.width, cropSelection.height,
+                0, 0,
+                cropSelection.width, cropSelection.height
+            );
+            
+            const newImage = new Image();
+            newImage.onload = function() {
+                frames[frameIndex].uploadedImage = newImage;
+                frames[frameIndex].currentCrop = cropSelection;
+                cropSelection = null;
+                document.getElementById('cropOverlay').classList.remove('active');
+                renderFinalCanvas();
+            };
+            newImage.src = croppedImage.toDataURL('image/png');
+        }
+
+        function resetCrop() {
+            if (!frames[activeFrameIndex].originalImage) return;
+            const restoredImage = new Image();
+            restoredImage.onload = function() {
+                frames[activeFrameIndex].uploadedImage = restoredImage;
+                frames[activeFrameIndex].currentCrop = null;
+                frames[activeFrameIndex].imageOffset = { x: 0, y: 0 };
+                document.getElementById('resetCropBtn').style.display = 'none';
+                renderFinalCanvas();
+            };
+            restoredImage.src = frames[activeFrameIndex].originalImage.src;
+        }
+
+        function activateEyedropper() {
+            if ('EyeDropper' in window) {
+                const eyeDropper = new EyeDropper();
+                eyeDropper.open().then(result => {
+                    customColor = result.sRGBHex.toUpperCase();
+                    document.getElementById('colorInput').value = customColor;
+                    document.getElementById('colorDisplay').style.backgroundColor = customColor;
+                    if (frames[activeFrameIndex]) {
+                        frames[activeFrameIndex].customColor = customColor;
+                    }
+                    renderFinalCanvas();
+                }).catch(e => {
+                    console.log('Conta-gotas cancelado');
+                });
+                return;
+            }
+            
+            if (!frames[activeFrameIndex].uploadedImage) {
+                alert('Primeiro carregue uma imagem para usar o conta-gotas.');
+                return;
+            }
+            
+            deactivateMoveMode();
+            deactivateCropMode();
+            isEyedropperActive = true;
+            document.getElementById('eyedropperBtn').classList.add('active');
+            document.getElementById('eyedropperHint').classList.add('active');
+            document.getElementById('canvas').classList.add('eyedropper-mode');
+            const canvas = document.getElementById('canvas');
+            canvas.addEventListener('mousemove', handleCanvasMouseMove);
+            canvas.addEventListener('click', handleCanvasClick);
+            document.addEventListener('keydown', handleEyedropperKeydown);
+        }
+
+        function deactivateEyedropper() {
+            isEyedropperActive = false;
+            document.getElementById('eyedropperBtn').classList.remove('active');
+            document.getElementById('eyedropperHint').classList.remove('active');
+            document.getElementById('canvas').classList.remove('eyedropper-mode');
+            const canvas = document.getElementById('canvas');
+            canvas.removeEventListener('mousemove', handleCanvasMouseMove);
+            canvas.removeEventListener('click', handleCanvasClick);
+            document.removeEventListener('keydown', handleEyedropperKeydown);
+        }
+
+        function handleCanvasMouseMove(e) {
+            if (!isEyedropperActive) return;
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = Math.floor((e.clientX - rect.left) * scaleX);
+            const y = Math.floor((e.clientY - rect.top) * scaleY);
+            if (x >= 0 && x < canvas.width && y >= 0 && y < canvas.height) {
+                document.getElementById('canvas').style.cursor = 'crosshair';
+            }
+        }
+
+        function handleCanvasClick(e) {
+            if (!isEyedropperActive) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = Math.floor((e.clientX - rect.left) * scaleX);
+            const y = Math.floor((e.clientY - rect.top) * scaleY);
+            if (x >= 0 && x < canvas.width && y >= 0 && y < canvas.height) {
+                const ctx = canvas.getContext('2d');
+                const pixelData = ctx.getImageData(x, y, 1, 1).data;
+                const color = rgbToHex(pixelData[0], pixelData[1], pixelData[2]);
+                customColor = color;
+                document.getElementById('colorInput').value = customColor;
+                document.getElementById('colorDisplay').style.backgroundColor = customColor;
+                if (frames[activeFrameIndex]) {
+                    frames[activeFrameIndex].customColor = customColor;
+                }
+                renderFinalCanvas();
+            }
+            deactivateEyedropper();
+        }
+
+        function handleEyedropperKeydown(e) {
+            if (e.key === 'Escape') deactivateEyedropper();
         }
 
         function updateFilenamePreview() {
-            // ... mantida igual
             const prefix = document.getElementById('filePrefix').value.trim();
             const articleName = document.getElementById('articleName').value.trim();
             const preview = document.getElementById('filenamePreview');
@@ -865,7 +1366,6 @@
         }
 
         function generateFileName() {
-            // ... mantida igual
             const prefix = document.getElementById('filePrefix').value.trim();
             const articleName = document.getElementById('articleName').value.trim();
             if (!articleName) return 'imagem-enquadrada';
@@ -876,62 +1376,73 @@
             else return 'imagem-enquadrada';
         }
 
+        function downloadImage() {
+            const canvas = document.getElementById('canvas');
+            const fileName = generateFileName();
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.download = fileName + '.png';
+                link.href = url;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 'image/png', 1.0);
+        }
+
         function resetAll() {
-            // Resetar todas as variáveis
-            uploadedImage = null;
-            uploadedImages = [];
-            originalImage = null;
-            frameImage = null;
-            frameImages = [];
-            transparentArea = null;
-            dominantColor = '#FFFFFF';
-            customColor = '#FFFFFF';
-            imageOffset = { x: 0, y: 0 };
-            currentCrop = null;
+            frameCount = 1;
+            frames = [];
             selectedPortal = '';
             isCustomFrame = false;
-            isVerticalFrame = false;
-            frameQuantity = 1;
-            imageAssignments = {};
-            currentDrawInfo = { x: 0, y: 0, width: 0, height: 0, scale: 1 };
-            
-            // Resetar interface
+            customColor = '#FFFFFF';
+            activeFrameIndex = 0;
+            document.getElementById('imageUpload').value = '';
+            document.getElementById('frameUpload').value = '';
+            document.getElementById('filePrefix').value = '';
+            document.getElementById('articleName').value = '';
             document.getElementById('portalSelect').value = '';
             document.getElementById('colorInput').value = customColor;
             document.getElementById('colorDisplay').style.backgroundColor = customColor;
-            document.getElementById('filePrefix').value = '';
-            document.getElementById('articleName').value = '';
             updateFilenamePreview();
-            document.getElementById('frameQuantity').classList.remove('active');
-            document.getElementById('imageAssignment').style.display = 'none';
+            document.getElementById('imageBox').classList.remove('has-file');
+            document.getElementById('frameBox').classList.remove('has-file');
+            document.getElementById('frameBox').style.display = 'none';
+            document.getElementById('singleUploadSection').classList.add('single-column');
+            document.getElementById('singleUploadSection').style.display = 'grid';
+            document.getElementById('multiImageUploads').classList.remove('active');
+            document.getElementById('frameCountSelector').classList.remove('active');
+            document.getElementById('imageLabel').textContent = 'Sua Imagem';
+            document.getElementById('frameLabel').textContent = 'Moldura PNG';
             document.getElementById('previewSection').classList.remove('active');
             document.getElementById('fitMode').value = 'cover';
             document.getElementById('bgMode').value = 'dominant';
             document.getElementById('customColorGroup').style.display = 'none';
             document.getElementById('resetCropBtn').style.display = 'none';
-            
-            // Resetar botões de quantidade
-            document.querySelectorAll('.quantity-btn').forEach((btn, index) => {
-                if (index === 0) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-            
             deactivateEyedropper();
             deactivateMoveMode();
             deactivateCropMode();
-            
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.querySelectorAll('.frame-count-btn').forEach((btn, idx) => {
+                if (idx === 0) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
             
-            // Recriar interface de upload inicial
-            createUploadBoxes(1, false);
+            initializeFrames(1);
         }
 
-        // Event listeners e funções auxiliares mantidas
+        // CORREÇÃO: Adicionar event listeners para os upload boxes
+        document.getElementById('imageBox').addEventListener('click', function() {
+            document.getElementById('imageUpload').click();
+        });
+
+        document.getElementById('frameBox').addEventListener('click', function() {
+            document.getElementById('frameUpload').click();
+        });
+
         document.getElementById('colorInput').addEventListener('input', function() {
             let value = this.value;
             if (value.length <= 7) {
@@ -944,11 +1455,21 @@
         });
 
         document.getElementById('colorInput').addEventListener('blur', function() {
-            updateColorFromInput();
-        });
-
-        document.getElementById('colorInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') updateColorFromInput();
+            let color = this.value.trim().toUpperCase();
+            if (!color.startsWith('#')) color = '#' + color;
+            const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+            if (hexRegex.test(color)) {
+                if (color.length === 4) color = '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3];
+                customColor = color;
+                this.value = customColor;
+                document.getElementById('colorDisplay').style.backgroundColor = customColor;
+                if (frames[activeFrameIndex]) {
+                    frames[activeFrameIndex].customColor = customColor;
+                }
+                renderFinalCanvas();
+            } else {
+                this.value = customColor;
+            }
         });
 
         document.getElementById('colorDisplay').addEventListener('click', function() {
@@ -963,10 +1484,109 @@
             }
         });
 
+        // CORREÇÃO: Função para upload de imagem (modo single/custom)
+        document.getElementById('imageUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // Para modo custom, sempre usar índice 0
+                        const index = 0;
+                        
+                        if (frames.length === 0) {
+                            initializeFrames(1);
+                        }
+                        
+                        frames[index].uploadedImage = img;
+                        frames[index].originalImage = new Image();
+                        frames[index].originalImage.src = img.src;
+                        frames[index].imageOffset = { x: 0, y: 0 };
+                        
+                        document.getElementById('imageBox').classList.add('has-file');
+                        document.getElementById('imageLabel').textContent = '✓ Imagem Carregada';
+                        
+                        extractDominantColor(img, index);
+                        
+                        const isHorizontal = detectImageOrientation(img);
+                        frames[index].isVertical = !isHorizontal;
+                        
+                        // Para modo custom, verificar se já temos moldura
+                        if (selectedPortal === 'custom') {
+                            if (frames[index].frameImage) {
+                                checkAllImagesReady();
+                            } else {
+                                // Mostrar mensagem para carregar moldura
+                                alert('Agora faça upload da moldura PNG.');
+                            }
+                        } else if (selectedPortal && selectedPortal !== '') {
+                            const frameUrl = isHorizontal 
+                                ? portalFrames[selectedPortal].horizontal 
+                                : portalFrames[selectedPortal].vertical;
+                            loadFrameForImage(index, frameUrl);
+                        }
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // CORREÇÃO: Função para upload de moldura personalizada
+        document.getElementById('frameUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // Para modo custom, sempre usar índice 0
+                        const index = 0;
+                        
+                        if (frames.length === 0) {
+                            initializeFrames(1);
+                        }
+                        
+                        frames[index].frameImage = img;
+                        document.getElementById('frameBox').classList.add('has-file');
+                        document.getElementById('frameLabel').textContent = '✓ Moldura Carregada';
+                        
+                        document.getElementById('status').classList.add('active');
+                        
+                        setTimeout(() => {
+                            detectTransparentArea(index);
+                            
+                            if (frames[index].uploadedImage) {
+                                checkAllImagesReady();
+                            } else {
+                                // Se não tiver imagem ainda, mostrar preview da moldura
+                                renderFinalCanvas();
+                                document.getElementById('previewSection').classList.add('active');
+                                updateFrameSelector();
+                                loadFrameSettings();
+                            }
+                            
+                            document.getElementById('status').classList.remove('active');
+                        }, 500);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
         // Inicializar
+        window.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('portalSelect').value = '';
+            updatePortalSelection();
+            initializeFrames(1);
+        });
+        
         updateColorPickerVisibility();
         updateFilenamePreview();
-        createUploadBoxes(1, false); // Interface inicial
+        initializeFrames(1);
     </script>
+
 </body>
 </html>
