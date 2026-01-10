@@ -175,6 +175,8 @@
             border-radius: 10px;
             position: relative;
             overflow-x: auto;
+            overflow-y: auto;
+            max-height: 80vh;
         }
         .canvas-wrapper {
             display: inline-block;
@@ -458,7 +460,7 @@
             </select>
             
             <div class="frame-count-selector" id="frameCountSelector">
-                <label>Quantidade de Molduras na Imagem Final (apenas para verticais):</label>
+                <label>Quantidade de Molduras na Imagem Final:</label>
                 <div class="frame-count-buttons">
                     <button class="frame-count-btn active" onclick="setFrameCount(1)">1</button>
                     <button class="frame-count-btn" onclick="setFrameCount(2)">2</button>
@@ -563,9 +565,10 @@
             <strong>Como funciona:</strong><br>
             1. Selecione o portal desejado<br>
             2. Para molduras verticais, escolha quantas molduras aparecerão na imagem final (1 a 4, lado a lado)<br>
-            3. Faça upload das imagens - o sistema detecta automaticamente se é horizontal ou vertical<br>
-            4. Use os controles para ajustar cada moldura individualmente<br>
-            5. Baixe a imagem final com todas as molduras combinadas em uma única imagem
+            3. Para molduras horizontais, as molduras serão organizadas uma embaixo da outra<br>
+            4. Faça upload das imagens - o sistema detecta automaticamente se é horizontal ou vertical<br>
+            5. Use os controles para ajustar cada moldura individualmente<br>
+            6. Baixe a imagem final com todas as molduras combinadas em uma única imagem
             <br><br><strong>Beframe by Beside Media - 2026</strong>
         </div>
     </div>
@@ -621,7 +624,8 @@
                         isVertical: existingFrames[i].isVertical || false,
                         fitMode: existingFrames[i].fitMode || 'cover',
                         bgMode: existingFrames[i].bgMode || 'dominant',
-                        customColor: existingFrames[i].customColor || '#FFFFFF'
+                        customColor: existingFrames[i].customColor || '#FFFFFF',
+                        frameOrientation: existingFrames[i].frameOrientation || 'vertical' // 'vertical' ou 'horizontal'
                     });
                 } else {
                     // Nova frame vazia
@@ -636,7 +640,8 @@
                         isVertical: false,
                         fitMode: 'cover',
                         bgMode: 'dominant',
-                        customColor: '#FFFFFF'
+                        customColor: '#FFFFFF',
+                        frameOrientation: 'vertical' // Default
                     });
                 }
             }
@@ -662,7 +667,8 @@
                     isVertical: frames[i]?.isVertical || false,
                     fitMode: frames[i]?.fitMode || 'cover',
                     bgMode: frames[i]?.bgMode || 'dominant',
-                    customColor: frames[i]?.customColor || '#FFFFFF'
+                    customColor: frames[i]?.customColor || '#FFFFFF',
+                    frameOrientation: frames[i]?.frameOrientation || 'vertical'
                 });
             }
             
@@ -681,6 +687,7 @@
                     frames[i].fitMode = existingImages[i].fitMode;
                     frames[i].bgMode = existingImages[i].bgMode;
                     frames[i].customColor = existingImages[i].customColor;
+                    frames[i].frameOrientation = existingImages[i].frameOrientation;
                 }
             }
             
@@ -891,6 +898,9 @@
             img.crossOrigin = 'anonymous';
             img.onload = function() {
                 frames[index].frameImage = img;
+                // Determinar orientação da moldura
+                const isFrameHorizontal = img.naturalWidth > img.naturalHeight;
+                frames[index].frameOrientation = isFrameHorizontal ? 'horizontal' : 'vertical';
                 detectTransparentArea(index);
                 checkAllImagesReady();
             };
@@ -1053,17 +1063,33 @@
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
             
+            // Determinar layout baseado na orientação da primeira moldura
+            const firstFrameOrientation = frames[0].frameOrientation || 'vertical';
             let canvasWidth = 0;
             let canvasHeight = 0;
             let hasValidFrames = false;
             
-            for (let i = 0; i < frameCount; i++) {
-                if (frames[i].frameImage) {
-                    const frameWidth = frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
-                    const frameHeight = frames[i].frameImage.naturalHeight || frames[i].frameImage.height;
-                    canvasWidth += frameWidth;
-                    canvasHeight = Math.max(canvasHeight, frameHeight);
-                    hasValidFrames = true;
+            if (firstFrameOrientation === 'vertical') {
+                // Layout horizontal para molduras verticais (lado a lado)
+                for (let i = 0; i < frameCount; i++) {
+                    if (frames[i].frameImage) {
+                        const frameWidth = frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
+                        const frameHeight = frames[i].frameImage.naturalHeight || frames[i].frameImage.height;
+                        canvasWidth += frameWidth;
+                        canvasHeight = Math.max(canvasHeight, frameHeight);
+                        hasValidFrames = true;
+                    }
+                }
+            } else {
+                // Layout vertical para molduras horizontais (uma embaixo da outra)
+                for (let i = 0; i < frameCount; i++) {
+                    if (frames[i].frameImage) {
+                        const frameWidth = frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
+                        const frameHeight = frames[i].frameImage.naturalHeight || frames[i].frameImage.height;
+                        canvasWidth = Math.max(canvasWidth, frameWidth);
+                        canvasHeight += frameHeight;
+                        hasValidFrames = true;
+                    }
                 }
             }
             
@@ -1075,71 +1101,145 @@
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
             
-            let currentX = 0;
-            for (let i = 0; i < frameCount; i++) {
-                const frame = frames[i];
-                if (!frame.frameImage) {
-                    continue;
-                }
-                
-                const frameWidth = frame.frameImage.naturalWidth || frame.frameImage.width;
-                const frameHeight = frame.frameImage.naturalHeight || frame.frameImage.height;
-                
-                const bgMode = frame.bgMode || 'dominant';
-                let bgColor = '#FFFFFF';
-                if (bgMode === 'dominant') bgColor = frame.dominantColor || '#FFFFFF';
-                else if (bgMode === 'black') bgColor = '#000000';
-                else if (bgMode === 'white') bgColor = '#FFFFFF';
-                else if (bgMode === 'custom') bgColor = frame.customColor || '#FFFFFF';
-                
-                ctx.fillStyle = bgColor;
-                ctx.fillRect(currentX, 0, frameWidth, frameHeight);
-                
-                if (frame.uploadedImage && frame.transparentArea) {
-                    const fitMode = frame.fitMode || 'cover';
-                    const targetWidth = frame.transparentArea.width;
-                    const targetHeight = frame.transparentArea.height;
-                    const imgRatio = frame.uploadedImage.naturalWidth / frame.uploadedImage.naturalHeight;
-                    const targetRatio = targetWidth / targetHeight;
-                    
-                    let drawWidth, drawHeight, drawX, drawY;
-                    
-                    if (fitMode === 'cover') {
-                        if (imgRatio > targetRatio) {
-                            drawHeight = targetHeight;
-                            drawWidth = drawHeight * imgRatio;
-                        } else {
-                            drawWidth = targetWidth;
-                            drawHeight = drawWidth / imgRatio;
-                        }
-                        drawX = currentX + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
-                        drawY = frame.transparentArea.y + (targetHeight - drawHeight) / 2;
-                    } else if (fitMode === 'contain') {
-                        if (imgRatio > targetRatio) {
-                            drawWidth = targetWidth;
-                            drawHeight = drawWidth / imgRatio;
-                        } else {
-                            drawHeight = targetHeight;
-                            drawWidth = drawHeight * imgRatio;
-                        }
-                        drawX = currentX + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
-                        drawY = frame.transparentArea.y + (targetHeight - drawHeight) / 2;
-                    } else {
-                        drawWidth = targetWidth;
-                        drawHeight = targetHeight;
-                        drawX = currentX + frame.transparentArea.x;
-                        drawY = frame.transparentArea.y;
+            if (firstFrameOrientation === 'vertical') {
+                // Renderizar molduras verticais lado a lado
+                let currentX = 0;
+                for (let i = 0; i < frameCount; i++) {
+                    const frame = frames[i];
+                    if (!frame.frameImage) {
+                        continue;
                     }
                     
-                    drawX += frame.imageOffset.x;
-                    drawY += frame.imageOffset.y;
+                    const frameWidth = frame.frameImage.naturalWidth || frame.frameImage.width;
+                    const frameHeight = frame.frameImage.naturalHeight || frame.frameImage.height;
                     
-                    ctx.drawImage(frame.uploadedImage, drawX, drawY, drawWidth, drawHeight);
+                    const bgMode = frame.bgMode || 'dominant';
+                    let bgColor = '#FFFFFF';
+                    if (bgMode === 'dominant') bgColor = frame.dominantColor || '#FFFFFF';
+                    else if (bgMode === 'black') bgColor = '#000000';
+                    else if (bgMode === 'white') bgColor = '#FFFFFF';
+                    else if (bgMode === 'custom') bgColor = frame.customColor || '#FFFFFF';
+                    
+                    ctx.fillStyle = bgColor;
+                    ctx.fillRect(currentX, 0, frameWidth, frameHeight);
+                    
+                    if (frame.uploadedImage && frame.transparentArea) {
+                        const fitMode = frame.fitMode || 'cover';
+                        const targetWidth = frame.transparentArea.width;
+                        const targetHeight = frame.transparentArea.height;
+                        const imgRatio = frame.uploadedImage.naturalWidth / frame.uploadedImage.naturalHeight;
+                        const targetRatio = targetWidth / targetHeight;
+                        
+                        let drawWidth, drawHeight, drawX, drawY;
+                        
+                        if (fitMode === 'cover') {
+                            if (imgRatio > targetRatio) {
+                                drawHeight = targetHeight;
+                                drawWidth = drawHeight * imgRatio;
+                            } else {
+                                drawWidth = targetWidth;
+                                drawHeight = drawWidth / imgRatio;
+                            }
+                            drawX = currentX + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
+                            drawY = frame.transparentArea.y + (targetHeight - drawHeight) / 2;
+                        } else if (fitMode === 'contain') {
+                            if (imgRatio > targetRatio) {
+                                drawWidth = targetWidth;
+                                drawHeight = drawWidth / imgRatio;
+                            } else {
+                                drawHeight = targetHeight;
+                                drawWidth = drawHeight * imgRatio;
+                            }
+                            drawX = currentX + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
+                            drawY = frame.transparentArea.y + (targetHeight - drawHeight) / 2;
+                        } else {
+                            drawWidth = targetWidth;
+                            drawHeight = targetHeight;
+                            drawX = currentX + frame.transparentArea.x;
+                            drawY = frame.transparentArea.y;
+                        }
+                        
+                        drawX += frame.imageOffset.x;
+                        drawY += frame.imageOffset.y;
+                        
+                        ctx.drawImage(frame.uploadedImage, drawX, drawY, drawWidth, drawHeight);
+                    }
+                    
+                    ctx.drawImage(frame.frameImage, currentX, 0, frameWidth, frameHeight);
+                    
+                    currentX += frameWidth;
                 }
-                
-                ctx.drawImage(frame.frameImage, currentX, 0, frameWidth, frameHeight);
-                
-                currentX += frameWidth;
+            } else {
+                // Renderizar molduras horizontais uma embaixo da outra
+                let currentY = 0;
+                for (let i = 0; i < frameCount; i++) {
+                    const frame = frames[i];
+                    if (!frame.frameImage) {
+                        continue;
+                    }
+                    
+                    const frameWidth = frame.frameImage.naturalWidth || frame.frameImage.width;
+                    const frameHeight = frame.frameImage.naturalHeight || frame.frameImage.height;
+                    
+                    const bgMode = frame.bgMode || 'dominant';
+                    let bgColor = '#FFFFFF';
+                    if (bgMode === 'dominant') bgColor = frame.dominantColor || '#FFFFFF';
+                    else if (bgMode === 'black') bgColor = '#000000';
+                    else if (bgMode === 'white') bgColor = '#FFFFFF';
+                    else if (bgMode === 'custom') bgColor = frame.customColor || '#FFFFFF';
+                    
+                    // Centralizar horizontalmente
+                    const frameX = (canvasWidth - frameWidth) / 2;
+                    
+                    ctx.fillStyle = bgColor;
+                    ctx.fillRect(frameX, currentY, frameWidth, frameHeight);
+                    
+                    if (frame.uploadedImage && frame.transparentArea) {
+                        const fitMode = frame.fitMode || 'cover';
+                        const targetWidth = frame.transparentArea.width;
+                        const targetHeight = frame.transparentArea.height;
+                        const imgRatio = frame.uploadedImage.naturalWidth / frame.uploadedImage.naturalHeight;
+                        const targetRatio = targetWidth / targetHeight;
+                        
+                        let drawWidth, drawHeight, drawX, drawY;
+                        
+                        if (fitMode === 'cover') {
+                            if (imgRatio > targetRatio) {
+                                drawHeight = targetHeight;
+                                drawWidth = drawHeight * imgRatio;
+                            } else {
+                                drawWidth = targetWidth;
+                                drawHeight = drawWidth / imgRatio;
+                            }
+                            drawX = frameX + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
+                            drawY = currentY + frame.transparentArea.y + (targetHeight - drawHeight) / 2;
+                        } else if (fitMode === 'contain') {
+                            if (imgRatio > targetRatio) {
+                                drawWidth = targetWidth;
+                                drawHeight = drawWidth / imgRatio;
+                            } else {
+                                drawHeight = targetHeight;
+                                drawWidth = drawHeight * imgRatio;
+                            }
+                            drawX = frameX + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
+                            drawY = currentY + frame.transparentArea.y + (targetHeight - drawHeight) / 2;
+                        } else {
+                            drawWidth = targetWidth;
+                            drawHeight = targetHeight;
+                            drawX = frameX + frame.transparentArea.x;
+                            drawY = currentY + frame.transparentArea.y;
+                        }
+                        
+                        drawX += frame.imageOffset.x;
+                        drawY += frame.imageOffset.y;
+                        
+                        ctx.drawImage(frame.uploadedImage, drawX, drawY, drawWidth, drawHeight);
+                    }
+                    
+                    ctx.drawImage(frame.frameImage, frameX, currentY, frameWidth, frameHeight);
+                    
+                    currentY += frameHeight;
+                }
             }
         }
 
@@ -1251,22 +1351,46 @@
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
             
-            let frameOffset = 0;
-            for (let i = 0; i < activeFrameIndex; i++) {
-                if (frames[i].frameImage) {
-                    frameOffset += frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
+            const firstFrameOrientation = frames[0].frameOrientation || 'vertical';
+            
+            if (firstFrameOrientation === 'vertical') {
+                // Para layout horizontal (molduras verticais)
+                let frameOffset = 0;
+                for (let i = 0; i < activeFrameIndex; i++) {
+                    if (frames[i].frameImage) {
+                        frameOffset += frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
+                    }
                 }
-            }
-            
-            cropStart.x = (e.clientX - rect.left) * scaleX;
-            cropStart.y = (e.clientY - rect.top) * scaleY;
-            
-            const frameWidth = frames[activeFrameIndex].frameImage ? 
-                (frames[activeFrameIndex].frameImage.naturalWidth || frames[activeFrameIndex].frameImage.width) : 0;
-            
-            if (cropStart.x < frameOffset || cropStart.x > frameOffset + frameWidth) {
-                isDrawingCrop = false;
-                return;
+                
+                cropStart.x = (e.clientX - rect.left) * scaleX;
+                cropStart.y = (e.clientY - rect.top) * scaleY;
+                
+                const frameWidth = frames[activeFrameIndex].frameImage ? 
+                    (frames[activeFrameIndex].frameImage.naturalWidth || frames[activeFrameIndex].frameImage.width) : 0;
+                
+                if (cropStart.x < frameOffset || cropStart.x > frameOffset + frameWidth) {
+                    isDrawingCrop = false;
+                    return;
+                }
+            } else {
+                // Para layout vertical (molduras horizontais)
+                let frameOffset = 0;
+                for (let i = 0; i < activeFrameIndex; i++) {
+                    if (frames[i].frameImage) {
+                        frameOffset += frames[i].frameImage.naturalHeight || frames[i].frameImage.height;
+                    }
+                }
+                
+                cropStart.x = (e.clientX - rect.left) * scaleX;
+                cropStart.y = (e.clientY - rect.top) * scaleY;
+                
+                const frameHeight = frames[activeFrameIndex].frameImage ? 
+                    (frames[activeFrameIndex].frameImage.naturalHeight || frames[activeFrameIndex].frameImage.height) : 0;
+                
+                if (cropStart.y < frameOffset || cropStart.y > frameOffset + frameHeight) {
+                    isDrawingCrop = false;
+                    return;
+                }
             }
             
             cropSelection = { x: cropStart.x, y: cropStart.y, width: 0, height: 0 };
@@ -1284,20 +1408,42 @@
             const currentX = (e.clientX - rect.left) * scaleX;
             const currentY = (e.clientY - rect.top) * scaleY;
             
-            let frameOffset = 0;
-            for (let i = 0; i < activeFrameIndex; i++) {
-                if (frames[i].frameImage) {
-                    frameOffset += frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
+            const firstFrameOrientation = frames[0].frameOrientation || 'vertical';
+            
+            if (firstFrameOrientation === 'vertical') {
+                // Para layout horizontal (molduras verticais)
+                let frameOffset = 0;
+                for (let i = 0; i < activeFrameIndex; i++) {
+                    if (frames[i].frameImage) {
+                        frameOffset += frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
+                    }
                 }
+                
+                const frameWidth = frames[activeFrameIndex].frameImage ? 
+                    (frames[activeFrameIndex].frameImage.naturalWidth || frames[activeFrameIndex].frameImage.width) : 0;
+                
+                const limitedX = Math.max(frameOffset, Math.min(currentX, frameOffset + frameWidth));
+                
+                cropSelection.width = limitedX - cropStart.x;
+                cropSelection.height = currentY - cropStart.y;
+            } else {
+                // Para layout vertical (molduras horizontais)
+                let frameOffset = 0;
+                for (let i = 0; i < activeFrameIndex; i++) {
+                    if (frames[i].frameImage) {
+                        frameOffset += frames[i].frameImage.naturalHeight || frames[i].frameImage.height;
+                    }
+                }
+                
+                const frameHeight = frames[activeFrameIndex].frameImage ? 
+                    (frames[activeFrameIndex].frameImage.naturalHeight || frames[activeFrameIndex].frameImage.height) : 0;
+                
+                const limitedY = Math.max(frameOffset, Math.min(currentY, frameOffset + frameHeight));
+                
+                cropSelection.width = currentX - cropStart.x;
+                cropSelection.height = limitedY - cropStart.y;
             }
             
-            const frameWidth = frames[activeFrameIndex].frameImage ? 
-                (frames[activeFrameIndex].frameImage.naturalWidth || frames[activeFrameIndex].frameImage.width) : 0;
-            
-            const limitedX = Math.max(frameOffset, Math.min(currentX, frameOffset + frameWidth));
-            
-            cropSelection.width = limitedX - cropStart.x;
-            cropSelection.height = currentY - cropStart.y;
             updateCropOverlay();
         }
 
@@ -1364,12 +1510,30 @@
             
             if (!frame.uploadedImage || !frame.transparentArea) return;
             
+            const firstFrameOrientation = frames[0].frameOrientation || 'vertical';
+            
             // Calcular offset da moldura ativa
-            let frameOffset = 0;
-            for (let i = 0; i < frameIndex; i++) {
-                if (frames[i].frameImage) {
-                    frameOffset += frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
+            let frameOffsetX = 0;
+            let frameOffsetY = 0;
+            
+            if (firstFrameOrientation === 'vertical') {
+                // Para layout horizontal (molduras verticais)
+                for (let i = 0; i < frameIndex; i++) {
+                    if (frames[i].frameImage) {
+                        frameOffsetX += frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
+                    }
                 }
+            } else {
+                // Para layout vertical (molduras horizontais)
+                for (let i = 0; i < frameIndex; i++) {
+                    if (frames[i].frameImage) {
+                        frameOffsetY += frames[i].frameImage.naturalHeight || frames[i].frameImage.height;
+                    }
+                }
+                // Centralizar horizontalmente
+                const frameWidth = frame.frameImage.naturalWidth || frame.frameImage.width;
+                const canvasWidth = document.getElementById('canvas').width;
+                frameOffsetX = (canvasWidth - frameWidth) / 2;
             }
             
             // Calcular a posição da imagem dentro da moldura
@@ -1389,8 +1553,8 @@
                     drawWidth = targetWidth;
                     drawHeight = drawWidth / imgRatio;
                 }
-                drawX = frameOffset + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
-                drawY = frame.transparentArea.y + (targetHeight - drawHeight) / 2;
+                drawX = frameOffsetX + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
+                drawY = frameOffsetY + frame.transparentArea.y + (targetHeight - drawHeight) / 2;
             } else if (fitMode === 'contain') {
                 if (imgRatio > targetRatio) {
                     drawWidth = targetWidth;
@@ -1399,13 +1563,13 @@
                     drawHeight = targetHeight;
                     drawWidth = drawHeight * imgRatio;
                 }
-                drawX = frameOffset + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
-                drawY = frame.transparentArea.y + (targetHeight - drawHeight) / 2;
+                drawX = frameOffsetX + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
+                drawY = frameOffsetY + frame.transparentArea.y + (targetHeight - drawHeight) / 2;
             } else {
                 drawWidth = targetWidth;
                 drawHeight = targetHeight;
-                drawX = frameOffset + frame.transparentArea.x;
-                drawY = frame.transparentArea.y;
+                drawX = frameOffsetX + frame.transparentArea.x;
+                drawY = frameOffsetY + frame.transparentArea.y;
             }
             
             drawX += frame.imageOffset.x;
@@ -1421,14 +1585,13 @@
             let imageCropWidth = cropSelection.width * scaleX;
             let imageCropHeight = cropSelection.height * scaleY;
             
-            // CORREÇÃO: Limitar o crop aos limites da imagem (mas sem mensagem de erro)
-            // Se o crop estiver fora da imagem, ajustar para pegar apenas a parte dentro
+            // Limitar o crop aos limites da imagem
             if (imageCropX < 0) {
-                imageCropWidth += imageCropX; // Reduzir largura
+                imageCropWidth += imageCropX;
                 imageCropX = 0;
             }
             if (imageCropY < 0) {
-                imageCropHeight += imageCropY; // Reduzir altura
+                imageCropHeight += imageCropY;
                 imageCropY = 0;
             }
             if (imageCropX + imageCropWidth > frame.uploadedImage.naturalWidth) {
@@ -1480,7 +1643,6 @@
             newImage.src = croppedCanvas.toDataURL('image/png');
         }
 
-        // CORREÇÃO: Função resetCrop corrigida
         function resetCrop() {
             const frame = frames[activeFrameIndex];
             if (!frame || !frame.originalImage) {
@@ -1806,6 +1968,10 @@
                         }
                         
                         frames[index].frameImage = img;
+                        // Determinar orientação da moldura
+                        const isFrameHorizontal = img.naturalWidth > img.naturalHeight;
+                        frames[index].frameOrientation = isFrameHorizontal ? 'horizontal' : 'vertical';
+                        
                         document.getElementById('frameBox').classList.add('has-file');
                         document.getElementById('frameLabel').textContent = '✓ Moldura Carregada';
                         
