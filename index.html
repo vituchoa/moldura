@@ -6,435 +6,1225 @@
     <title>Beframe by Beside Media</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+        
         body {
             font-family: 'Funnel Display', sans-serif;
             background: url('https://vituchoa.github.io/moldura/src/fundo.png') center/cover no-repeat fixed;
             min-height: 100vh;
             padding: 20px;
         }
+        
         .container {
             max-width: 1600px;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 25px 80px rgba(0,0,0,0.25);
         }
-        h1 {
+        
+        .logo-section {
             text-align: center;
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 2.5em;
+            margin-bottom: 50px;
         }
-        .subtitle {
-            text-align: center;
-            color: #666;
+        
+        .logo {
+            width: 250px;
+            height: auto;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.1));
+        }
+        
+        .app-title {
+            color: #191e31;
+            font-size: 3em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+        
+        .app-subtitle {
+            color: #888;
+            font-size: 1.3em;
+            font-weight: 400;
+        }
+        
+        .section {
             margin-bottom: 30px;
-            font-size: 1.1em;
-        }
-        .portal-selection {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: #f8f9ff;
-            border-radius: 15px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+            border-radius: 20px;
             border: 2px solid #e0e7ff;
+            transition: all 0.3s ease;
         }
+        
+        .section:hover {
+            border-color: #c7d2fe;
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.1);
+        }
+        
+        .section-title {
+            color: #191e31;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
         .portal-selection label {
             display: block;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
             color: #191e31;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            text-align: center;
         }
-        .portal-selection select {
+        
+        .portal-select {
             width: 100%;
-            max-width: 400px;
-            padding: 12px 20px;
+            max-width: 450px;
+            padding: 16px 24px;
             border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 15px;
+            border-radius: 14px;
+            font-size: 16px;
             font-family: inherit;
             background: white;
             cursor: pointer;
             transition: all 0.3s;
+            margin: 0 auto;
+            display: block;
+            color: #333;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 20px;
         }
+        
+        .portal-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        }
+        
         .frame-count-selector {
-            margin-top: 15px;
-            display: none;
-            padding: 15px;
+            margin-top: 25px;
+            padding: 25px;
             background: white;
-            border-radius: 10px;
+            border-radius: 16px;
             border: 2px solid #e0e7ff;
+            display: none;
         }
+        
         .frame-count-selector.active {
             display: block;
         }
-        .frame-count-selector label {
+        
+        .frame-count-label {
             display: block;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
             color: #191e31;
-            margin-bottom: 10px;
+            margin-bottom: 18px;
+            text-align: center;
         }
+        
         .frame-count-buttons {
             display: flex;
-            gap: 10px;
+            gap: 14px;
             justify-content: center;
+            flex-wrap: wrap;
         }
+        
         .frame-count-btn {
-            padding: 10px 20px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
+            padding: 14px 28px;
+            border: 2px solid #e0e7ff;
+            border-radius: 12px;
             background: white;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 16px;
             transition: all 0.3s;
             font-family: inherit;
+            min-width: 65px;
+            color: #333;
         }
+        
         .frame-count-btn:hover {
-            border-color: #191e31;
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
         }
+        
         .frame-count-btn.active {
-            background: #191e31;
+            background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
             color: white;
-            border-color: #191e31;
+            border-color: #667eea;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
-        .upload-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 40px;
+        
+        .frame-upload-section {
+            display: none;
         }
-        .upload-section.single-column {
-            grid-template-columns: 1fr;
+        
+        .frame-upload-box {
+            max-width: 450px;
+            margin: 0 auto;
+            border: 3px dashed #667eea;
+            border-radius: 20px;
+            padding: 40px 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
         }
+        
+        .frame-upload-box:hover {
+            border-color: #5568d3;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.2);
+        }
+        
+        .frame-upload-box.has-file {
+            border-color: #10b981;
+            border-style: solid;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        
+        .frame-upload-box.has-file .upload-icon {
+            color: #10b981;
+        }
+        
+        .upload-title {
+            color: #191e31;
+            margin-bottom: 10px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .upload-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
         .multi-image-uploads {
             display: none;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
             margin-bottom: 30px;
         }
+        
         .multi-image-uploads.active {
             display: grid;
         }
-        .upload-box {
+        
+        .image-upload-box {
             border: 3px dashed #191e31;
-            border-radius: 15px;
-            padding: 30px 15px;
+            border-radius: 20px;
+            padding: 35px 25px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
-            background: #f8f9ff;
-            position: relative;
+            background: white;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
         }
-        .upload-box:hover {
-            border-color: #5568d3;
-            background: #f0f2ff;
-            transform: translateY(-5px);
+        
+        .image-upload-box:hover {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
         }
-        .upload-box.has-file {
+        
+        .image-upload-box.has-file {
             border-color: #10b981;
-            background: #f0fdf4;
+            border-style: solid;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
         }
-        .upload-box.has-file h3 {
+        
+        .image-upload-icon {
+            font-size: 42px;
+            margin-bottom: 12px;
+            color: #191e31;
+        }
+        
+        .image-upload-box.has-file .image-upload-icon {
             color: #10b981;
         }
-        .upload-box h3 {
+        
+        .image-upload-title {
             color: #191e31;
-            margin-bottom: 10px;
-            font-size: 0.95em;
-        }
-        .upload-box p {
-            color: #666;
-            font-size: 12px;
-        }
-        .icon {
-            font-size: 32px;
             margin-bottom: 8px;
+            font-size: 17px;
+            font-weight: 700;
         }
+        
+        .image-upload-description {
+            color: #666;
+            font-size: 14px;
+        }
+        
         input[type="file"] {
             display: none;
         }
+        
+        .status {
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            color: #0369a1;
+            font-weight: 600;
+            font-size: 16px;
+            display: none;
+            border: 2px solid #7dd3fc;
+        }
+        
+        .status.active {
+            display: block;
+        }
+        
+        .status.success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border-color: #6ee7b7;
+        }
+        
         .preview-section {
             display: none;
         }
+        
         .preview-section.active {
             display: block;
         }
-        .canvas-container {
-            text-align: center;
-            margin-bottom: 20px;
-            background: #f5f5f5;
-            padding: 20px;
-            border-radius: 10px;
-            position: relative;
-            overflow-x: auto;
-            overflow-y: auto;
-            max-height: 80vh;
-        }
-        .canvas-wrapper {
-            display: inline-block;
-            position: relative;
-        }
-        #canvas {
-            max-width: 100%;
-            height: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: block;
-            cursor: move;
-            touch-action: none;
-        }
-        #canvas.eyedropper-mode {
-            cursor: crosshair;
-        }
-        #canvas.crop-mode {
-            cursor: crosshair;
-        }
-        .crop-overlay {
-            position: absolute;
-            border: 2px dashed #FF0000;
-            background: rgba(255, 0, 0, 0.1);
-            pointer-events: none;
-            display: none;
-        }
-        .crop-overlay.active {
-            display: block;
-        }
-        .controls {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .control-group label {
-            font-size: 14px;
-            color: #666;
-            font-weight: 600;
-        }
-        select, button {
-            padding: 10px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-            cursor: pointer;
-            background: white;
-            font-family: inherit;
-        }
-        button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.3s;
-            font-weight: 600;
-        }
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .color-picker-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .color-picker-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .color-input {
-            width: 120px;
-            padding: 10px 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: monospace;
-            text-transform: uppercase;
-            background: white;
-        }
-        .color-display {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            border: 2px solid #ddd;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: all 0.3s;
-        }
-        .eyedropper-btn {
-            background: #191e31;
-            color: white;
-            border: none;
-        }
-        .eyedropper-btn:hover {
-            background: #5568d3;
-        }
-        .eyedropper-btn.active {
-            background: #10b981;
-        }
-        .filename-section {
-            background: #f8f9ff;
-            border: 2px solid #e0e7ff;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-        }
-        .filename-section h3 {
-            color: #191e31;
-            margin-bottom: 15px;
-            font-size: 18px;
-            text-align: center;
-        }
-        .filename-inputs {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        .filename-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .filename-group label {
-            font-size: 13px;
-            color: #666;
-            font-weight: 600;
-        }
-        .filename-group input {
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-            background: white;
-            transition: all 0.3s;
-        }
-        .filename-preview {
-            background: white;
-            border: 2px solid #10b981;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-        }
-        .filename-preview-text {
-            font-family: monospace;
-            font-size: 16px;
-            color: #10b981;
-            font-weight: bold;
-        }
-        .download-btn {
-            background: #10b981;
-            color: white;
-            padding: 15px 40px;
-            border: none;
-            border-radius: 50px;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-            display: inline-block;
-            margin: 10px;
-        }
-        .download-btn:hover {
-            background: #059669;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
-        }
-        .new-btn {
-            background: #191e31;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-        .new-btn:hover {
-            background: #5568d3;
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        }
+        
         .edit-controls {
             display: flex;
             gap: 15px;
             justify-content: center;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 25px;
             flex-wrap: wrap;
+            padding: 25px;
+            background: white;
+            border-radius: 16px;
+            border: 2px solid #e0e7ff;
         }
+        
         .frame-selector {
-            padding: 8px 12px;
+            padding: 12px 20px;
             border: 2px solid #667eea;
-            border-radius: 8px;
-            background: #f0f2ff;
-            font-weight: 600;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%);
+            font-weight: 700;
             color: #191e31;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 15px;
         }
+        
+        .frame-selector:hover {
+            background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+        
         .edit-btn {
-            background: #8b5cf6;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
             color: white;
             border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            border-radius: 8px;
+            padding: 14px;
+            font-size: 18px;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+            width: 54px;
+            height: 54px;
+            position: relative;
         }
+        
         .edit-btn:hover {
-            background: #7c3aed;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
         }
+        
         .edit-btn.active {
-            background: #10b981;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
         }
+        
+        .edit-btn .tooltip {
+            position: absolute;
+            bottom: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #191e31;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 100;
+            pointer-events: none;
+            font-weight: 500;
+        }
+        
+        .edit-btn:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+            bottom: -40px;
+        }
+        
+        .brush-controls {
+            display: none;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 25px;
+            background: white;
+            border-radius: 16px;
+            border: 2px solid #e0e7ff;
+        }
+        
+        .brush-controls.active {
+            display: flex;
+        }
+        
+        .brush-size-control,
+        .brush-color-control,
+        .shape-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .brush-size-label,
+        .brush-color-label,
+        .shape-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #191e31;
+        }
+        
+        .brush-size-slider {
+            width: 200px;
+            height: 10px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(90deg, #e0e7ff 0%, #c7d2fe 100%);
+            border-radius: 5px;
+            outline: none;
+        }
+        
+        .brush-size-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        .brush-size-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        .brush-size-value {
+            font-size: 15px;
+            font-weight: 700;
+            color: #667eea;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .brush-color-display {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            border: 3px solid #ddd;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.3s;
+            background: #000000;
+        }
+        
+        .brush-color-display:hover {
+            transform: scale(1.08);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .brush-tool-btn {
+            background: linear-gradient(135deg, #191e31 0%, #2d3555 100%);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+            position: relative;
+        }
+        
+        .brush-tool-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .brush-tool-btn.active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .brush-tool-btn .tooltip {
+            position: absolute;
+            bottom: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #191e31;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 100;
+            pointer-events: none;
+        }
+        
+        .brush-tool-btn .tooltip:after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 6px solid #191e31;
+        }
+        
+        .brush-tool-btn:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+            bottom: -40px;
+        }
+        
+        .shape-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .shape-btn {
+            padding: 10px 15px;
+            border: 2px solid #e0e7ff;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+            min-width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .shape-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .shape-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .resize-controls {
+            display: none;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 25px;
+            background: white;
+            border-radius: 16px;
+            border: 2px solid #e0e7ff;
+        }
+        
+        .resize-controls.active {
+            display: flex;
+        }
+        
+        .resize-control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .resize-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #191e31;
+        }
+        
+        .resize-slider {
+            width: 250px;
+            height: 10px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(90deg, #e0e7ff 0%, #c7d2fe 100%);
+            border-radius: 5px;
+            outline: none;
+        }
+        
+        .resize-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        .resize-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        .resize-value {
+            font-size: 15px;
+            font-weight: 700;
+            color: #667eea;
+            min-width: 70px;
+            text-align: center;
+        }
+        
+        .resize-reset-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        
+        .resize-reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+        
+        .hint {
+            padding: 18px 24px;
+            border-radius: 14px;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+            font-size: 15px;
+            line-height: 1.6;
+            display: none;
+            border: 2px solid;
+        }
+        
+        .hint.active {
+            display: block;
+        }
+        
+        .hint kbd {
+            background: rgba(0,0,0,0.1);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-family: inherit;
+            font-weight: 700;
+        }
+        
+        .eyedropper-hint {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+            border-color: #fbbf24;
+        }
+        
+        .crop-hint {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            border-color: #60a5fa;
+        }
+        
+        .brush-hint {
+            background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+            color: #9d174d;
+            border-color: #f472b6;
+        }
+        
+        .resize-hint {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border-color: #86efac;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            border: 2px solid #e0e7ff;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 220px;
+        }
+        
+        .control-label {
+            font-size: 15px;
+            color: #191e31;
+            font-weight: 700;
+        }
+        
+        .control-select {
+            padding: 14px 18px;
+            border: 2px solid #e0e7ff;
+            border-radius: 12px;
+            font-size: 15px;
+            cursor: pointer;
+            background: white;
+            font-family: inherit;
+            color: #333;
+            transition: all 0.3s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 18px;
+            padding-right: 45px;
+        }
+        
+        .control-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        }
+        
+        .color-picker-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-width: 320px;
+        }
+        
+        .color-picker-row {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+        
+        .color-input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 2px solid #e0e7ff;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: monospace;
+            text-transform: uppercase;
+            background: white;
+            color: #333;
+            transition: all 0.3s;
+        }
+        
+        .color-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        }
+        
+        .color-display {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            border: 3px solid #e0e7ff;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+        
+        .color-display:hover {
+            transform: scale(1.08);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        .eyedropper-btn {
+            background: linear-gradient(135deg, #191e31 0%, #2d3555 100%);
+            color: white;
+            border: none;
+            padding: 14px 22px;
+            border-radius: 12px;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            font-weight: 700;
+            white-space: nowrap;
+            position: relative;
+        }
+        
+        .eyedropper-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
+        }
+        
+        .eyedropper-btn.active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .eyedropper-btn .tooltip {
+            position: absolute;
+            bottom: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #191e31;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 100;
+            pointer-events: none;
+        }
+        
+        .eyedropper-btn .tooltip:after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 6px solid #191e31;
+        }
+        
+        .eyedropper-btn:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+            bottom: -40px;
+        }
+        
+        .canvas-container {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            padding: 30px;
+            border-radius: 20px;
+            position: relative;
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 80vh;
+            border: 2px solid #e0e7ff;
+        }
+        
+        .canvas-wrapper {
+            display: inline-block;
+            position: relative;
+            margin: 0 auto;
+        }
+        
+        #canvas {
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+            display: block;
+            cursor: default;
+            touch-action: none;
+            border-radius: 10px;
+        }
+        
+        #canvas.move-mode {
+            cursor: move;
+        }
+        
+        #canvas.eyedropper-mode {
+            cursor: crosshair;
+        }
+        
+        #canvas.crop-mode {
+            cursor: crosshair;
+        }
+        
+        #canvas.brush-mode {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="black" stroke-width="2"/></svg>') 12 12, crosshair;
+        }
+        
+        .crop-overlay {
+            position: absolute;
+            border: 3px dashed #dc2626;
+            background: rgba(220, 38, 38, 0.15);
+            pointer-events: none;
+            display: none;
+            box-shadow: 0 0 0 9999px rgba(0,0,0,0.3);
+        }
+        
+        .crop-overlay.active {
+            display: block;
+        }
+        
+        /* NOVO: Overlay de preview para formas */
+        .shape-preview-overlay {
+            position: absolute;
+            pointer-events: none;
+            display: none;
+            z-index: 10;
+        }
+        
+        .shape-preview-overlay.active {
+            display: block;
+        }
+        
+        /* NOVO: Sistema de notificações */
+        .notification-container {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        
+        .notification {
+            background: linear-gradient(135deg, #191e31 0%, #2d3555 100%);
+            color: white !important; /* FORÇA TEXTO BRANCO */
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            max-width: 500px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            pointer-events: auto;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .notification.hide {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        
+        .notification.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .notification.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .notification.error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .notification.info {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white !important; /* ESPECÍFICO PARA INFO */
+        }
+        
+        .notification-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .notification-message {
+            flex: 1;
+            font-weight: 600;
+            font-size: 15px;
+            color: white !important; /* FORÇA TEXTO BRANCO */
+        }
+        
+        .filename-section {
+            margin-bottom: 30px;
+        }
+        
+        .filename-inputs {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .filename-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .filename-label {
+            font-size: 15px;
+            color: #191e31;
+            font-weight: 700;
+        }
+        
+        .filename-input {
+            padding: 16px 20px;
+            border: 2px solid #e0e7ff;
+            border-radius: 14px;
+            font-size: 15px;
+            background: white;
+            transition: all 0.3s;
+            color: #333;
+        }
+        
+        .filename-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        }
+        
+        .filename-preview {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid #10b981;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .filename-preview-label {
+            display: block;
+            font-size: 14px;
+            color: #065f46;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .filename-preview-text {
+            font-family: monospace;
+            font-size: 18px;
+            color: #059669;
+            font-weight: bold;
+            word-break: break-all;
+        }
+        
+        .filename-preview-text .separator {
+            color: #10b981;
+        }
+        
+        .filename-preview-text .placeholder {
+            color: #6ee7b7;
+            font-style: italic;
+            font-weight: 500;
+        }
+        
         .button-group {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 35px;
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
+        
+        .action-btn {
+            padding: 18px 45px;
+            border: none;
+            border-radius: 50px;
+            font-size: 17px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-weight: 700;
+            min-width: 220px;
+            font-family: inherit;
+        }
+        
+        .download-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4);
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(16, 185, 129, 0.5);
+        }
+        
+        .new-btn {
+            background: linear-gradient(135deg, #191e31 0%, #2d3555 100%);
+            color: white;
+            box-shadow: 0 8px 30px rgba(25, 30, 49, 0.3);
+        }
+        
+        .new-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.5);
+        }
+        
         .info {
             text-align: center;
             color: #666;
-            margin-top: 20px;
-            font-size: 14px;
-            line-height: 1.6;
+            margin-top: 50px;
+            font-size: 15px;
+            line-height: 1.8;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+            border-radius: 20px;
+            border: 2px solid #e0e7ff;
         }
-        .status {
-            text-align: center;
-            padding: 15px;
+        
+        .info-title {
+            color: #191e31;
+            font-size: 18px;
+            font-weight: 700;
             margin-bottom: 20px;
-            border-radius: 10px;
-            background: #e0f2fe;
-            color: #0369a1;
-            font-weight: 600;
-            display: none;
         }
-        .status.active {
-            display: block;
+        
+        .info-steps {
+            text-align: left;
+            max-width: 650px;
+            margin: 0 auto 25px;
+            padding-left: 20px;
         }
-        .eyedropper-hint, .crop-hint {
-            background: #fef3c7;
-            color: #92400e;
-            padding: 12px 20px;
-            border-radius: 10px;
-            text-align: center;
-            margin-bottom: 15px;
-            display: none;
-            font-weight: 500;
+        
+        .info-steps li {
+            margin-bottom: 12px;
+            color: #555;
         }
-        .crop-hint {
-            background: #dbeafe;
-            color: #1e40af;
+        
+        .info-steps li strong {
+            color: #191e31;
         }
-        .eyedropper-hint.active, .crop-hint.active {
-            display: block;
+        
+        .footer {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px solid #e0e7ff;
+            font-weight: 700;
+            color: #191e31;
+            font-size: 14px;
         }
+        
+        @media (max-width: 992px) {
+            .container {
+                padding: 30px;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            .control-group {
+                width: 100%;
+                max-width: 350px;
+            }
+            .color-picker-group {
+                width: 100%;
+            }
+            .brush-controls, .resize-controls {
+                flex-direction: column;
+            }
+            .notification {
+                min-width: 280px;
+                max-width: 400px;
+            }
+        }
+        
         @media (max-width: 768px) {
-            .upload-section {
-                grid-template-columns: 1fr;
+            .container {
+                padding: 25px;
+            }
+            .app-title {
+                font-size: 2.4em;
+            }
+            .section {
+                padding: 25px;
             }
             .filename-inputs {
                 grid-template-columns: 1fr;
@@ -442,25 +1232,92 @@
             .multi-image-uploads {
                 grid-template-columns: 1fr;
             }
+            .frame-count-buttons {
+                gap: 10px;
+            }
+            .frame-count-btn {
+                padding: 12px 22px;
+                min-width: 55px;
+            }
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            .action-btn {
+                width: 100%;
+                max-width: 320px;
+            }
+            .edit-controls {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .frame-selector {
+                width: 100%;
+                text-align: center;
+            }
+            .edit-btn {
+                width: 52px;
+                height: 52px;
+            }
+            .brush-size-slider, .resize-slider {
+                width: 180px;
+            }
+            .notification {
+                min-width: 250px;
+                max-width: 350px;
+                padding: 14px 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            .app-title {
+                font-size: 2em;
+            }
+            .section {
+                padding: 20px;
+            }
+            .color-picker-row {
+                flex-wrap: wrap;
+            }
+            .eyedropper-btn {
+                width: 100%;
+                margin-top: 10px;
+            }
+            .brush-controls, .resize-controls {
+                padding: 20px;
+            }
+            .notification {
+                min-width: 220px;
+                max-width: 300px;
+                padding: 12px 16px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- NOVO: Container de notificações -->
+    <div class="notification-container" id="notificationContainer"></div>
+    
     <div class="container">
-        <img src="https://vituchoa.github.io/moldura/src/logo_beframe.png" style="width: 25%; height: auto; display: block; margin: 0 auto 30px auto;">
+        <div class="logo-section">
+            <img src="https://vituchoa.github.io/moldura/src/logo_beframe.png" alt="Beframe Logo" class="logo">
+            <h1 class="app-title">Beframe</h1>
+            <p class="app-subtitle">by Beside Media</p>
+        </div>
 
-        <div class="portal-selection">
-            <label for="portalSelect">Selecione o Portal:</label>
-            <select id="portalSelect" onchange="updatePortalSelection()">
+        <div class="section portal-selection">
+            <label for="portalSelect">🎯 Selecione o Portal</label>
+            <select id="portalSelect" class="portal-select" onchange="updatePortalSelection()">
                 <option value="" selected>-- Selecione um portal --</option>
                 <option value="portal1">Manual da Web</option>
-                <option value="portal2">Portal 2</option>
-                <option value="portal3">Portal 3</option>
-                <option value="custom">Moldura Personalizada</option>
+                <option value="custom">🎨 Moldura Personalizada</option>
             </select>
             
             <div class="frame-count-selector" id="frameCountSelector">
-                <label>Quantidade de Molduras na Imagem Final:</label>
+                <label class="frame-count-label">📊 Quantidade de Molduras na Imagem Final</label>
                 <div class="frame-count-buttons">
                     <button class="frame-count-btn active" onclick="setFrameCount(1)">1</button>
                     <button class="frame-count-btn" onclick="setFrameCount(2)">2</button>
@@ -470,48 +1327,118 @@
             </div>
         </div>
 
-        <div class="upload-section single-column" id="singleUploadSection" style="display: none;">
-            <div class="upload-box" id="imageBox">
-                <div class="icon">📷</div>
-                <h3 id="imageLabel">Sua Imagem</h3>
-                <p>Clique ou arraste a imagem aqui</p>
-                <input type="file" id="imageUpload" accept="image/*">
-            </div>
-
-            <div class="upload-box" id="frameBox" style="display: none;">
-                <div class="icon">🖼️</div>
-                <h3 id="frameLabel">Moldura PNG</h3>
-                <p>Clique ou arraste a moldura aqui<br>(PNG com transparência)</p>
-                <input type="file" id="frameUpload" accept="image/png">
+        <div class="section frame-upload-section" id="customFrameUpload">
+            <h3 class="section-title">🖼️ Upload da Moldura Personalizada</h3>
+            <div class="frame-upload-box" id="customFrameBox">
+                <div class="upload-icon">📁</div>
+                <h3 class="upload-title">Moldura Personalizada</h3>
+                <p class="upload-description">Clique ou arraste o arquivo PNG aqui<br><small>Formato: PNG com transparência</small></p>
+                <input type="file" id="customFrameUploadInput" accept="image/png">
             </div>
         </div>
 
         <div class="multi-image-uploads" id="multiImageUploads"></div>
 
-        <div class="status" id="status">Processando imagens...</div>
+        <div class="status" id="status">⏳ Processando imagens...</div>
 
         <div class="preview-section" id="previewSection">
-            <div class="edit-controls">
-                <div class="frame-selector" id="frameSelector">Editando: Moldura 1</div>
-                <button class="edit-btn" id="moveBtn" onclick="activateMoveMode()">✋ Mover Imagem</button>
-                <button class="edit-btn" id="cropBtn" onclick="activateCropMode()">✂️ Cortar Imagem</button>
-                <button class="edit-btn" id="resetCropBtn" onclick="resetCrop()" style="display: none;">↩️ Redefinir Crop</button>
+            <div class="section edit-controls">
+                <div class="frame-selector" id="frameSelector">✏️ Editando: Moldura 1</div>
+                <button class="edit-btn" id="moveBtn" onclick="activateMoveMode()">
+                    ✋
+                    <span class="tooltip">Mover Imagem</span>
+                </button>
+                <button class="edit-btn" id="cropBtn" onclick="activateCropMode()">
+                    ✂️
+                    <span class="tooltip">Cortar Imagem</span>
+                </button>
+                <button class="edit-btn" id="resizeBtn" onclick="activateResizeMode()">
+                    📐
+                    <span class="tooltip">Redimensionar</span>
+                </button>
+                <button class="edit-btn" id="brushBtn" onclick="activateBrushMode()">
+                    🖌️
+                    <span class="tooltip">Pincel e Formas</span>
+                </button>
+                <button class="edit-btn" id="resetCropBtn" onclick="resetCrop()" style="display: none;">
+                    ↩️
+                    <span class="tooltip">Redefinir Corte</span>
+                </button>
             </div>
 
-            <div class="crop-hint" id="cropHint">✂️ Arraste para selecionar a área de corte | Pressione <strong>ESC</strong> para cancelar</div>
+            <div class="brush-controls" id="brushControls">
+                <div class="brush-size-control">
+                    <label class="brush-size-label">Tamanho</label>
+                    <input type="range" min="5" max="100" value="20" class="brush-size-slider" id="brushSizeSlider" oninput="updateBrushSize(this.value)">
+                    <span class="brush-size-value" id="brushSizeValue">20px</span>
+                </div>
+                <div class="brush-color-control">
+                    <label class="brush-color-label">Cor</label>
+                    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center;">
+                        <div class="brush-color-display" id="brushColorDisplay"></div>
+                        <button type="button" class="brush-tool-btn" id="brushEyedropperBtn" onclick="activateBrushEyedropper()">
+                            🎨
+                            <span class="tooltip">Conta-gotas</span>
+                        </button>
+                        <button type="button" class="brush-tool-btn" id="eraserBtn" onclick="toggleEraser()">
+                            🧽
+                            <span class="tooltip">Borracha</span>
+                        </button>
+                        <button type="button" class="brush-tool-btn" id="undoBtn" onclick="undoBrush()" disabled>
+                            ↩️
+                            <span class="tooltip">Desfazer</span>
+                        </button>
+                        <button class="brush-tool-btn" onclick="resetBrushDrawing()">
+                            🗑️
+                            <span class="tooltip">Limpar Tudo</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="shape-controls">
+                    <label class="shape-label">Formas</label>
+                    <div class="shape-buttons">
+                        <button class="shape-btn" onclick="setShapeMode('brush')" id="shapeBrushBtn" title="Pincel">●</button>
+                        <button class="shape-btn" onclick="setShapeMode('rectangle')" id="shapeRectBtn" title="Retângulo">▭</button>
+                        <button class="shape-btn" onclick="setShapeMode('circle')" id="shapeCircleBtn" title="Círculo">○</button>
+                        <button class="shape-btn" onclick="setShapeMode('line')" id="shapeLineBtn" title="Linha">╱</button>
+                    </div>
+                </div>
+            </div>
 
-            <div class="controls">
+            <div class="resize-controls" id="resizeControls">
+                <div class="resize-control-group">
+                    <label class="resize-label">Escala da Imagem</label>
+                    <input type="range" min="10" max="300" value="100" class="resize-slider" id="resizeSlider" oninput="updateResizeScale(this.value)">
+                    <span class="resize-value" id="resizeValue">100%</span>
+                </div>
+                <button class="resize-reset-btn" onclick="resetResize()">↩️ Redefinir Tamanho</button>
+            </div>
+
+            <div class="crop-hint hint" id="cropHint">
+                ✂️ <strong>Modo Corte:</strong> Arraste para selecionar a área | Pressione <kbd>ESC</kbd> para cancelar
+            </div>
+            <div class="eyedropper-hint hint" id="eyedropperHint">
+                🎨 <strong>Modo Conta-gotas:</strong> Clique na imagem para capturar uma cor | Pressione <kbd>ESC</kbd> para cancelar
+            </div>
+            <div class="brush-hint hint" id="brushHint">
+                🖌️ <strong>Modo Pincel/Formas:</strong> Clique e arraste para desenhar | Pressione <kbd>ESC</kbd> para sair
+            </div>
+            <div class="resize-hint hint" id="resizeHint">
+                📐 <strong>Modo Redimensionamento:</strong> Use o controle deslizante para ajustar o tamanho | Pressione <kbd>ESC</kbd> para sair
+            </div>
+
+            <div class="section controls">
                 <div class="control-group">
-                    <label>Modo de Ajuste</label>
-                    <select id="fitMode" onchange="updateFrameSettings()">
+                    <label class="control-label">🔄 Modo de Ajuste</label>
+                    <select id="fitMode" class="control-select" onchange="updateFrameSettings()">
                         <option value="cover">Cobrir (sem bordas brancas)</option>
                         <option value="contain">Conter (imagem completa)</option>
                         <option value="fill">Preencher (esticar)</option>
                     </select>
                 </div>
                 <div class="control-group">
-                    <label>Cor de Fundo</label>
-                    <select id="bgMode" onchange="updateFrameSettings()">
+                    <label class="control-label">🎨 Cor de Fundo</label>
+                    <select id="bgMode" class="control-select" onchange="updateFrameSettings()">
                         <option value="dominant">Automático (cor dominante)</option>
                         <option value="white">Branco</option>
                         <option value="black">Preto</option>
@@ -519,188 +1446,248 @@
                     </select>
                 </div>
                 <div class="color-picker-group" id="customColorGroup" style="display: none;">
-                    <label>Selecionar Cor</label>
+                    <label class="control-label">🌈 Selecione a Cor</label>
                     <div class="color-picker-row">
                         <div class="color-display" id="colorDisplay"></div>
                         <input type="text" id="colorInput" class="color-input" placeholder="#FFFFFF" maxlength="7" value="#FFFFFF">
-                        <button type="button" class="eyedropper-btn" id="eyedropperBtn" onclick="activateEyedropper()">🎨 Conta-gotas</button>
+                        <button type="button" class="eyedropper-btn" id="eyedropperBtn" onclick="activateEyedropper()">
+                            🎨
+                            <span class="tooltip">Conta-gotas</span>
+                        </button>
                     </div>
                 </div>
             </div>
-
-            <div class="eyedropper-hint" id="eyedropperHint">🎯 Clique na imagem abaixo para capturar uma cor | Pressione <strong>ESC</strong> para cancelar</div>
 
             <div class="canvas-container">
                 <div class="canvas-wrapper">
                     <canvas id="canvas"></canvas>
                     <div class="crop-overlay" id="cropOverlay"></div>
+                    <!-- NOVO: Overlay de preview para formas -->
+                    <div class="shape-preview-overlay" id="shapePreviewOverlay"></div>
                 </div>
             </div>
             
-            <div class="filename-section">
-                <h3>📝 Nomenclatura do Arquivo</h3>
+            <div class="section filename-section">
+                <h3 class="section-title">📝 Nomenclatura do Arquivo</h3>
                 <div class="filename-inputs">
                     <div class="filename-group">
-                        <label>Nome do Artigo</label>
-                        <input type="text" id="filePrefix" placeholder="ex: artigo" oninput="updateFilenamePreview()">
+                        <label class="filename-label">Nome do Artigo</label>
+                        <input type="text" id="filePrefix" class="filename-input" placeholder="ex: artigo" oninput="updateFilenamePreview()">
                     </div>
                     <div class="filename-group">
-                        <label>Nome do Arquivo</label>
-                        <input type="text" id="articleName" placeholder="ex: titulo-do-meu-artigo" oninput="updateFilenamePreview()">
+                        <label class="filename-label">Nome do Arquivo</label>
+                        <input type="text" id="articleName" class="filename-input" placeholder="ex: corpo-1" oninput="updateFilenamePreview()">
                     </div>
                 </div>
                 <div class="filename-preview">
-                    <label>📄 Nome final do arquivo:</label>
+                    <span class="filename-preview-label">📄 Nome final do arquivo:</span>
                     <div class="filename-preview-text" id="filenamePreview"><span class="placeholder">Digite o nome do artigo</span></div>
                 </div>
             </div>
             
             <div class="button-group">
-                <button class="download-btn" onclick="downloadImage()">⬇️ Baixar Imagem</button>
-                <button class="download-btn new-btn" onclick="resetAll()">🔄 Gerar Nova Imagem</button>
+                <button class="action-btn download-btn" onclick="downloadImage()">
+                    ⬇️ Baixar Imagem
+                </button>
+                <button class="action-btn new-btn" onclick="resetAll()">
+                    🔄 Gerar Nova Imagem
+                </button>
             </div>
         </div>
 
         <div class="info">
-            <strong>Como funciona:</strong><br>
-            1. Selecione o portal desejado<br>
-            2. Para molduras verticais, escolha quantas molduras aparecerão na imagem final (1 a 4, lado a lado)<br>
-            3. Para molduras horizontais, as molduras serão organizadas uma embaixo da outra<br>
-            4. Faça upload das imagens - o sistema detecta automaticamente se é horizontal ou vertical<br>
-            5. Use os controles para ajustar cada moldura individualmente<br>
-            6. Baixe a imagem final com todas as molduras combinadas em uma única imagem
-            <br><br><strong>Beframe by Beside Media - 2026</strong>
+            <div class="info-title">📋 Como funciona o Beframe</div>
+            <ol class="info-steps">
+                <li><strong>Selecione o portal</strong> desejado ou escolha "Moldura Personalizada"</li>
+                <li><strong>Escolha a quantidade</strong> de molduras (1 a 4) que aparecerão na imagem final</li>
+                <li><strong>Faça upload das imagens</strong> - o sistema detecta automaticamente a orientação</li>
+                <li><strong>Ajuste cada moldura</strong> individualmente usando os controles</li>
+                <li><strong>Use as ferramentas de edição</strong>: mover, cortar, redimensionar ou desenhar formas</li>
+                <li><strong>Baixe a imagem final</strong> com todas as molduras combinadas</li>
+            </ol>
+            <div class="footer">
+                Beframe by Beside Media © 2026
+            </div>
         </div>
     </div>
 
     <script>
+        // ===== VARIÁVEIS GLOBAIS =====
         let frameCount = 1;
         let frames = [];
         let selectedPortal = '';
         let isCustomFrame = false;
         let customColor = '#FFFFFF';
         let activeFrameIndex = 0;
+        
+        // Modos de edição
         let isMoveModeActive = false;
         let isCropModeActive = false;
+        let isResizeModeActive = false;
+        let isBrushModeActive = false;
         let isEyedropperActive = false;
+        let isBrushEyedropperActive = false;
+        let isEraserActive = false;
+        
+        // Variáveis para formas
+        let shapeMode = 'brush';
+        let shapeStartPoint = null;
+        
+        // Variáveis para movimento
         let isDragging = false;
         let dragStart = { x: 0, y: 0 };
         let currentDragOffset = { x: 0, y: 0 };
+        
+        // Variáveis para crop
         let isDrawingCrop = false;
         let cropStart = { x: 0, y: 0 };
         let cropSelection = null;
+        
+        // Variáveis para pincel
+        let isDrawingBrush = false;
+        let brushSize = 20;
+        let brushColor = '#000000';
+        let lastBrushPoint = null;
+        
+        // NOVO: Variáveis para preview de formas
+        let isDrawingShapePreview = false;
+        let shapePreviewEndPoint = null;
+        
+        // NOVO: Controle de notificações ativas
+        let activeNotifications = new Set();
+        let notificationTimeoutIds = new Map();
         
         const portalFrames = {
             portal1: { 
                 horizontal: 'https://vituchoa.github.io/moldura/src/manualV.png', 
                 vertical: 'https://vituchoa.github.io/moldura/src/manualH.png' 
-            },
-            portal2: { 
-                horizontal: 'URL_DA_MOLDURA_VERTICAL_PORTAL2.png', 
-                vertical: 'URL_DA_MOLDURA_HORIZONTAL_PORTAL2.png' 
-            },
-            portal3: { 
-                horizontal: 'URL_DA_MOLDURA_VERTICAL_PORTAL3.png', 
-                vertical: 'URL_DA_MOLDURA_HORIZONTAL_PORTAL3.png' 
             }
         };
 
+        // ===== NOVO: SISTEMA DE NOTIFICAÇÕES MELHORADO =====
+        function showNotification(message, type = 'success', duration = 3000) {
+            const container = document.getElementById('notificationContainer');
+            
+            // Remove notificações antigas se houver muitas
+            if (activeNotifications.size >= 3) {
+                const oldestId = Array.from(activeNotifications)[0];
+                const oldestNotification = document.getElementById(oldestId);
+                if (oldestNotification) {
+                    hideNotification(oldestId);
+                }
+            }
+            
+            const notificationId = 'notification-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            
+            const notification = document.createElement('div');
+            notification.id = notificationId;
+            notification.className = `notification ${type}`;
+            
+            let icon = '💡';
+            if (type === 'success') icon = '✅';
+            else if (type === 'warning') icon = '⚠️';
+            else if (type === 'error') icon = '❌';
+            else if (type === 'info') icon = 'ℹ️';
+            
+            notification.innerHTML = `
+                <div class="notification-icon">${icon}</div>
+                <div class="notification-message">${message}</div>
+            `;
+            
+            container.appendChild(notification);
+            activeNotifications.add(notificationId);
+            
+            // Animar entrada
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            // Configurar timeout para remoção
+            const timeoutId = setTimeout(() => {
+                hideNotification(notificationId);
+            }, duration);
+            
+            notificationTimeoutIds.set(notificationId, timeoutId);
+            
+            return notificationId;
+        }
+
+        function hideNotification(notificationId) {
+            const notification = document.getElementById(notificationId);
+            if (!notification) return;
+            
+            // Limpar timeout se existir
+            const timeoutId = notificationTimeoutIds.get(notificationId);
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+                notificationTimeoutIds.delete(notificationId);
+            }
+            
+            // Animar saída
+            notification.classList.remove('show');
+            notification.classList.add('hide');
+            
+            // Remover do DOM após animação
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+                activeNotifications.delete(notificationId);
+            }, 300);
+        }
+
+        function clearAllNotifications() {
+            activeNotifications.forEach(id => hideNotification(id));
+        }
+
+        // ===== FUNÇÕES DE INICIALIZAÇÃO =====
         function initializeFrames(count) {
-            // Salvar as imagens existentes antes de resetar
             const existingFrames = [...frames];
             frames = [];
             
             for (let i = 0; i < count; i++) {
-                // Se já existia uma frame nessa posição, manter seus dados
                 if (existingFrames[i]) {
-                    frames.push({
-                        uploadedImage: existingFrames[i].uploadedImage,
-                        originalImage: existingFrames[i].originalImage,
-                        frameImage: null, // Resetar frameImage - será recarregado se necessário
-                        transparentArea: null,
-                        dominantColor: existingFrames[i].dominantColor || '#FFFFFF',
-                        imageOffset: existingFrames[i].imageOffset || { x: 0, y: 0 },
-                        currentCrop: existingFrames[i].currentCrop,
-                        isVertical: existingFrames[i].isVertical || false,
-                        fitMode: existingFrames[i].fitMode || 'cover',
-                        bgMode: existingFrames[i].bgMode || 'dominant',
-                        customColor: existingFrames[i].customColor || '#FFFFFF',
-                        frameOrientation: existingFrames[i].frameOrientation || 'vertical' // 'vertical' ou 'horizontal'
-                    });
+                    frames.push({ ...existingFrames[i] });
                 } else {
-                    // Nova frame vazia
-                    frames.push({
-                        uploadedImage: null,
-                        originalImage: null,
-                        frameImage: null,
-                        transparentArea: null,
-                        dominantColor: '#FFFFFF',
-                        imageOffset: { x: 0, y: 0 },
-                        currentCrop: null,
-                        isVertical: false,
-                        fitMode: 'cover',
-                        bgMode: 'dominant',
-                        customColor: '#FFFFFF',
-                        frameOrientation: 'vertical' // Default
-                    });
+                    frames.push(createEmptyFrame());
                 }
             }
         }
 
+        function createEmptyFrame() {
+            return {
+                uploadedImage: null,
+                originalImage: null,
+                frameImage: null,
+                transparentArea: null,
+                dominantColor: '#FFFFFF',
+                imageOffset: { x: 0, y: 0 },
+                imageScale: 1.0,
+                brushCanvas: null,
+                brushHistory: [],
+                isVertical: false,
+                fitMode: 'cover',
+                bgMode: 'dominant',
+                customColor: '#FFFFFF',
+                frameOrientation: 'vertical'
+            };
+        }
+
         function setFrameCount(count) {
-            const oldCount = frameCount;
             frameCount = count;
             
-            // Atualizar botões ativos
-            document.querySelectorAll('.frame-count-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            document.querySelectorAll('.frame-count-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', idx === count - 1);
+            });
             
-            // Preservar imagens existentes
-            const existingImages = [];
-            for (let i = 0; i < Math.min(oldCount, count); i++) {
-                existingImages.push({
-                    uploadedImage: frames[i]?.uploadedImage,
-                    originalImage: frames[i]?.originalImage,
-                    dominantColor: frames[i]?.dominantColor || '#FFFFFF',
-                    imageOffset: frames[i]?.imageOffset || { x: 0, y: 0 },
-                    currentCrop: frames[i]?.currentCrop,
-                    isVertical: frames[i]?.isVertical || false,
-                    fitMode: frames[i]?.fitMode || 'cover',
-                    bgMode: frames[i]?.bgMode || 'dominant',
-                    customColor: frames[i]?.customColor || '#FFFFFF',
-                    frameOrientation: frames[i]?.frameOrientation || 'vertical'
-                });
-            }
-            
-            // Reinicializar frames
             initializeFrames(count);
-            
-            // Restaurar imagens preservadas
-            for (let i = 0; i < Math.min(oldCount, count); i++) {
-                if (existingImages[i]?.uploadedImage) {
-                    frames[i].uploadedImage = existingImages[i].uploadedImage;
-                    frames[i].originalImage = existingImages[i].originalImage;
-                    frames[i].dominantColor = existingImages[i].dominantColor;
-                    frames[i].imageOffset = existingImages[i].imageOffset;
-                    frames[i].currentCrop = existingImages[i].currentCrop;
-                    frames[i].isVertical = existingImages[i].isVertical;
-                    frames[i].fitMode = existingImages[i].fitMode;
-                    frames[i].bgMode = existingImages[i].bgMode;
-                    frames[i].customColor = existingImages[i].customColor;
-                    frames[i].frameOrientation = existingImages[i].frameOrientation;
-                }
-            }
-            
-            // Recriar caixas de upload
             createMultipleUploadBoxes();
-            
-            // Atualizar status das caixas de upload
             updateUploadBoxesStatus();
             
-            // Recarregar molduras para as frames que têm imagens
-            reloadFramesForExistingImages();
+            if (selectedPortal === 'custom' && frames[0]?.frameImage) {
+                replicateCustomFrameToAll();
+            }
             
-            // Se já tivermos todas as imagens e molduras, mostrar preview
             checkAllImagesReady();
         }
 
@@ -710,22 +1697,21 @@
             
             for (let i = 0; i < frameCount; i++) {
                 const box = document.createElement('div');
-                box.className = 'upload-box';
+                box.className = 'image-upload-box';
                 box.id = `uploadBox${i}`;
                 const hasImage = frames[i]?.uploadedImage;
+                
                 box.innerHTML = `
-                    <div class="icon">${hasImage ? '✓' : '📷'}</div>
-                    <h3>${hasImage ? `✓ Moldura ${i + 1}` : `Moldura ${i + 1}`}</h3>
-                    <p>${hasImage ? 'Imagem já carregada' : 'Clique ou arraste aqui'}</p>
+                    <div class="image-upload-icon">${hasImage ? '✓' : '📷'}</div>
+                    <h3 class="image-upload-title">${hasImage ? `✓ Imagem ${i + 1}` : `Imagem ${i + 1}`}</h3>
+                    <p class="image-upload-description">${hasImage ? 'Imagem já carregada' : 'Clique ou arraste aqui'}</p>
                     <input type="file" id="imageUpload${i}" accept="image/*">
                 `;
-                if (hasImage) {
-                    box.classList.add('has-file');
-                }
-                box.onclick = () => document.getElementById(`imageUpload${i}`).click();
                 
-                const input = box.querySelector('input');
-                input.addEventListener('change', (e) => handleImageUpload(i, e));
+                if (hasImage) box.classList.add('has-file');
+                
+                box.onclick = () => document.getElementById(`imageUpload${i}`).click();
+                box.querySelector('input').addEventListener('change', (e) => handleImageUpload(i, e));
                 
                 container.appendChild(box);
             }
@@ -734,105 +1720,79 @@
         function updateUploadBoxesStatus() {
             for (let i = 0; i < frameCount; i++) {
                 const box = document.getElementById(`uploadBox${i}`);
-                if (box) {
-                    const hasImage = frames[i]?.uploadedImage;
-                    const icon = box.querySelector('.icon');
-                    const title = box.querySelector('h3');
-                    const text = box.querySelector('p');
-                    
-                    if (hasImage) {
-                        box.classList.add('has-file');
-                        icon.textContent = '✓';
-                        title.textContent = `✓ Moldura ${i + 1}`;
-                        text.textContent = 'Imagem já carregada';
-                    } else {
-                        box.classList.remove('has-file');
-                        icon.textContent = '📷';
-                        title.textContent = `Moldura ${i + 1}`;
-                        text.textContent = 'Clique ou arraste aqui';
-                    }
-                }
+                if (!box) continue;
+                
+                const hasImage = frames[i]?.uploadedImage;
+                box.classList.toggle('has-file', hasImage);
+                box.querySelector('.image-upload-icon').textContent = hasImage ? '✓' : '📷';
+                box.querySelector('.image-upload-title').textContent = hasImage ? `✓ Imagem ${i + 1}` : `Imagem ${i + 1}`;
+                box.querySelector('.image-upload-description').textContent = hasImage ? 'Imagem já carregada' : 'Clique ou arraste aqui';
             }
         }
 
-        function reloadFramesForExistingImages() {
-            for (let i = 0; i < frameCount; i++) {
-                if (frames[i]?.uploadedImage && selectedPortal && selectedPortal !== '' && selectedPortal !== 'custom') {
-                    const isHorizontal = frames[i].isVertical ? false : true;
-                    const frameUrl = isHorizontal 
-                        ? portalFrames[selectedPortal].horizontal 
-                        : portalFrames[selectedPortal].vertical;
-                    
-                    loadFrameForImage(i, frameUrl);
-                }
-            }
-        }
-
+        // ===== FUNÇÕES DE PORTAL E UPLOAD =====
         function updatePortalSelection() {
-            const portalSelect = document.getElementById('portalSelect');
-            selectedPortal = portalSelect.value;
-            const frameBox = document.getElementById('frameBox');
-            const uploadSection = document.getElementById('singleUploadSection');
+            selectedPortal = document.getElementById('portalSelect').value;
+            
             const multiUploadSection = document.getElementById('multiImageUploads');
             const frameCountSelector = document.getElementById('frameCountSelector');
+            const customFrameUpload = document.getElementById('customFrameUpload');
+            const previewSection = document.getElementById('previewSection');
             
-            // Esconder todas as seções de upload inicialmente
-            uploadSection.style.display = 'none';
             multiUploadSection.classList.remove('active');
             frameCountSelector.classList.remove('active');
+            customFrameUpload.style.display = 'none';
+            previewSection.classList.remove('active');
             
             if (selectedPortal === 'custom') {
-                frameBox.style.display = 'block';
-                uploadSection.classList.remove('single-column');
-                uploadSection.style.display = 'grid';
+                frameCountSelector.classList.add('active');
+                multiUploadSection.classList.add('active');
+                customFrameUpload.style.display = 'block';
                 isCustomFrame = true;
                 
-                // Resetar apenas a frame atual
-                activeFrameIndex = 0;
+                if (frames.length !== frameCount) initializeFrames(frameCount);
+                createMultipleUploadBoxes();
+                updateUploadBoxesStatus();
                 
-                // Não resetar imagens existentes - só limpar a moldura
-                if (frames.length > 0) {
-                    frames[0].frameImage = null;
-                    frames[0].transparentArea = null;
-                } else {
-                    initializeFrames(1);
-                }
+                if (frames[0]?.frameImage) replicateCustomFrameToAll();
                 
-                // Atualizar UI
-                document.getElementById('frameBox').classList.remove('has-file');
-                document.getElementById('frameLabel').textContent = 'Moldura PNG';
-                document.getElementById('previewSection').classList.remove('active');
-                
-            } else if (selectedPortal === '') {
-                // Quando "Selecione um portal" estiver selecionado, esconder tudo
-                frameBox.style.display = 'none';
-                uploadSection.style.display = 'none';
-                multiUploadSection.classList.remove('active');
-                frameCountSelector.classList.remove('active');
-                isCustomFrame = false;
-                
-                // Esconder preview
-                document.getElementById('previewSection').classList.remove('active');
-                
-            } else {
-                // Portal normal selecionado
-                frameBox.style.display = 'none';
+            } else if (selectedPortal) {
                 frameCountSelector.classList.add('active');
                 multiUploadSection.classList.add('active');
                 isCustomFrame = false;
                 
-                // Criar caixas de upload múltiplas
+                if (frames.length !== frameCount) initializeFrames(frameCount);
                 createMultipleUploadBoxes();
-                
-                // Recarregar molduras para imagens existentes
                 reloadFramesForExistingImages();
             }
         }
 
-        function detectImageOrientation(img) {
-            const imgWidth = img.naturalWidth || img.width;
-            const imgHeight = img.naturalHeight || img.height;
-            return imgWidth > imgHeight; // true = horizontal, false = vertical
+        function replicateCustomFrameToAll() {
+            if (!frames[0]?.frameImage) return;
+            
+            const originalFrame = frames[0].frameImage;
+            const originalTransparentArea = frames[0].transparentArea;
+            const originalOrientation = frames[0].frameOrientation;
+            
+            for (let i = 1; i < frameCount; i++) {
+                frames[i].frameImage = originalFrame;
+                frames[i].transparentArea = originalTransparentArea ? { ...originalTransparentArea } : null;
+                frames[i].frameOrientation = originalOrientation;
+            }
+            
+            checkAllImagesReady();
+        }
+
+        function reloadFramesForExistingImages() {
+            for (let i = 0; i < frameCount; i++) {
+                if (frames[i]?.uploadedImage && selectedPortal && selectedPortal !== 'custom') {
+                    const isHorizontal = !frames[i].isVertical;
+                    const frameUrl = isHorizontal 
+                        ? portalFrames[selectedPortal].horizontal 
+                        : portalFrames[selectedPortal].vertical;
+                    loadFrameForImage(i, frameUrl);
+                }
+            }
         }
 
         function handleImageUpload(index, event) {
@@ -843,49 +1803,36 @@
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
+                    const originalImg = new Image();
+                    originalImg.src = img.src;
+                    
                     frames[index].uploadedImage = img;
-                    frames[index].originalImage = new Image();
-                    frames[index].originalImage.src = img.src;
+                    frames[index].originalImage = originalImg;
                     frames[index].imageOffset = { x: 0, y: 0 };
-                    frames[index].currentCrop = null; // Resetar crop ao fazer novo upload
+                    frames[index].imageScale = 1.0;
+                    
+                    const brushCanvas = document.createElement('canvas');
+                    brushCanvas.width = img.naturalWidth || img.width;
+                    brushCanvas.height = img.naturalHeight || img.height;
+                    frames[index].brushCanvas = brushCanvas;
+                    frames[index].brushHistory = [];
                     
                     extractDominantColor(img, index);
                     
-                    const isHorizontal = detectImageOrientation(img);
+                    const isHorizontal = (img.naturalWidth || img.width) > (img.naturalHeight || img.height);
                     frames[index].isVertical = !isHorizontal;
                     
+                    updateUploadBoxesStatus();
+                    
                     if (selectedPortal === 'custom') {
-                        // Para moldura personalizada
-                        document.getElementById(`uploadBox${index}`).classList.add('has-file');
-                        document.getElementById(`uploadBox${index}`).querySelector('h3').textContent = `✓ Imagem ${index + 1}`;
-                        document.getElementById(`uploadBox${index}`).querySelector('p').textContent = 'Imagem carregada';
-                        
-                        // Mostrar botão resetCropBtn se necessário
-                        if (frames[index].originalImage) {
-                            document.getElementById('resetCropBtn').style.display = 'inline-flex';
-                        }
-                        
-                        // Verificar se já temos a moldura
                         if (frames[index].frameImage) {
                             checkAllImagesReady();
                         }
-                    } else if (selectedPortal && selectedPortal !== '') {
+                    } else if (selectedPortal) {
                         const frameUrl = isHorizontal 
                             ? portalFrames[selectedPortal].horizontal 
                             : portalFrames[selectedPortal].vertical;
-                        
                         loadFrameForImage(index, frameUrl);
-                        
-                        // Atualizar UI da caixa de upload
-                        document.getElementById(`uploadBox${index}`).classList.add('has-file');
-                        document.getElementById(`uploadBox${index}`).querySelector('.icon').textContent = '✓';
-                        document.getElementById(`uploadBox${index}`).querySelector('h3').textContent = `✓ Moldura ${index + 1}`;
-                        document.getElementById(`uploadBox${index}`).querySelector('p').textContent = 'Imagem carregada';
-                        
-                        // Mostrar botão resetCropBtn se necessário
-                        if (frames[index].originalImage) {
-                            document.getElementById('resetCropBtn').style.display = 'inline-flex';
-                        }
                     }
                 };
                 img.src = e.target.result;
@@ -898,15 +1845,14 @@
             img.crossOrigin = 'anonymous';
             img.onload = function() {
                 frames[index].frameImage = img;
-                // Determinar orientação da moldura
-                const isFrameHorizontal = img.naturalWidth > img.naturalHeight;
+                const isFrameHorizontal = (img.naturalWidth || img.width) > (img.naturalHeight || img.height);
                 frames[index].frameOrientation = isFrameHorizontal ? 'horizontal' : 'vertical';
                 detectTransparentArea(index);
                 checkAllImagesReady();
             };
             img.onerror = function() {
                 console.error('Erro ao carregar moldura:', url);
-                alert('Erro ao carregar a moldura. Verifique a URL da moldura.');
+                showNotification('Erro ao carregar a moldura.', 'error');
             };
             img.src = url;
         }
@@ -928,12 +1874,11 @@
             for (let y = 0; y < tempCanvas.height; y++) {
                 for (let x = 0; x < tempCanvas.width; x++) {
                     const idx = (y * tempCanvas.width + x) * 4;
-                    const alpha = data[idx + 3];
-                    if (alpha < 180) {
-                        if (x < minX) minX = x;
-                        if (x > maxX) maxX = x;
-                        if (y < minY) minY = y;
-                        if (y > maxY) maxY = y;
+                    if (data[idx + 3] < 180) {
+                        minX = Math.min(minX, x);
+                        maxX = Math.max(maxX, x);
+                        minY = Math.min(minY, y);
+                        maxY = Math.max(maxY, y);
                     }
                 }
             }
@@ -942,26 +1887,23 @@
             frames[index].transparentArea = {
                 x: Math.max(0, minX - margin),
                 y: Math.max(0, minY - margin),
-                width: Math.min(tempCanvas.width, maxX - minX + (margin * 2)),
-                height: Math.min(tempCanvas.height, maxY - minY + (margin * 2))
+                width: Math.min(tempCanvas.width, maxX - minX + margin * 2),
+                height: Math.min(tempCanvas.height, maxY - minY + margin * 2)
             };
         }
 
         function extractDominantColor(img, index) {
             const tempCanvas = document.createElement('canvas');
             const tempCtx = tempCanvas.getContext('2d');
-            const size = 50;
-            tempCanvas.width = size;
-            tempCanvas.height = size;
-            tempCtx.drawImage(img, 0, 0, size, size);
+            tempCanvas.width = tempCanvas.height = 50;
+            tempCtx.drawImage(img, 0, 0, 50, 50);
             
-            const imageData = tempCtx.getImageData(0, 0, size, size);
+            const imageData = tempCtx.getImageData(0, 0, 50, 50);
             const data = imageData.data;
             let r = 0, g = 0, b = 0, count = 0;
             
             for (let i = 0; i < data.length; i += 4) {
-                const alpha = data[i + 3];
-                if (alpha > 128) {
+                if (data[i + 3] > 128) {
                     r += data[i];
                     g += data[i + 1];
                     b += data[i + 2];
@@ -970,18 +1912,12 @@
             }
             
             if (count > 0) {
-                r = Math.floor(r / count);
-                g = Math.floor(g / count);
-                b = Math.floor(b / count);
-                frames[index].dominantColor = rgbToHex(r, g, b);
+                frames[index].dominantColor = rgbToHex(Math.floor(r/count), Math.floor(g/count), Math.floor(b/count));
             }
         }
 
         function rgbToHex(r, g, b) {
-            return "#" + [r, g, b].map(x => {
-                const hex = x.toString(16);
-                return hex.length === 1 ? '0' + hex : hex;
-            }).join('').toUpperCase();
+            return "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
         }
 
         function checkAllImagesReady() {
@@ -994,30 +1930,29 @@
             }
             
             if (allReady) {
-                // Garantir que todas as áreas transparentes sejam detectadas
                 for (let i = 0; i < frameCount; i++) {
-                    if (frames[i].frameImage && !frames[i].transparentArea) {
-                        detectTransparentArea(i);
-                    }
+                    if (!frames[i].transparentArea) detectTransparentArea(i);
                 }
                 
                 renderFinalCanvas();
                 document.getElementById('previewSection').classList.add('active');
                 updateFrameSelector();
                 loadFrameSettings();
+                showNotification('Todas as imagens carregadas! Pode começar a editar.', 'success');
             }
         }
 
         function updateFrameSelector() {
             const selector = document.getElementById('frameSelector');
             if (frameCount > 1) {
-                selector.textContent = `Editando: Moldura ${activeFrameIndex + 1}`;
+                selector.textContent = `✏️ Editando: Moldura ${activeFrameIndex + 1}`;
                 selector.style.display = 'block';
                 selector.onclick = () => {
                     activeFrameIndex = (activeFrameIndex + 1) % frameCount;
                     updateFrameSelector();
                     loadFrameSettings();
                     renderFinalCanvas();
+                    showNotification(`Agora editando: Moldura ${activeFrameIndex + 1}`, 'info', 2000);
                 };
             } else {
                 selector.style.display = 'none';
@@ -1025,252 +1960,217 @@
         }
 
         function loadFrameSettings() {
-            if (frames[activeFrameIndex]) {
-                const frame = frames[activeFrameIndex];
-                
-                document.getElementById('fitMode').value = frame.fitMode || 'cover';
-                document.getElementById('bgMode').value = frame.bgMode || 'dominant';
-                
-                customColor = frame.customColor || '#FFFFFF';
-                document.getElementById('colorInput').value = customColor;
-                document.getElementById('colorDisplay').style.backgroundColor = customColor;
-                
-                updateColorPickerVisibility();
-                
-                // Mostrar/esconder botão resetCropBtn
-                if (frame.currentCrop || frame.originalImage) {
-                    document.getElementById('resetCropBtn').style.display = 'inline-flex';
-                } else {
-                    document.getElementById('resetCropBtn').style.display = 'none';
-                }
-            }
+            const frame = frames[activeFrameIndex];
+            if (!frame) return;
+            
+            document.getElementById('fitMode').value = frame.fitMode || 'cover';
+            document.getElementById('bgMode').value = frame.bgMode || 'dominant';
+            
+            customColor = frame.customColor || '#FFFFFF';
+            document.getElementById('colorInput').value = customColor;
+            document.getElementById('colorDisplay').style.backgroundColor = customColor;
+            
+            updateColorPickerVisibility();
+            
+            document.getElementById('resetCropBtn').style.display = 
+                (frame.originalImage && frame.uploadedImage !== frame.originalImage) ? 'inline-flex' : 'none';
+            
+            document.getElementById('brushColorDisplay').style.backgroundColor = brushColor;
+            
+            const scale = frame.imageScale || 1.0;
+            document.getElementById('resizeSlider').value = Math.round(scale * 100);
+            document.getElementById('resizeValue').textContent = `${Math.round(scale * 100)}%`;
+            
+            updateUndoButtonState();
         }
 
         function updateFrameSettings() {
-            if (frames[activeFrameIndex]) {
-                frames[activeFrameIndex].fitMode = document.getElementById('fitMode').value;
-                frames[activeFrameIndex].bgMode = document.getElementById('bgMode').value;
-                frames[activeFrameIndex].customColor = customColor;
-                
-                updateColorPickerVisibility();
-                renderFinalCanvas();
-            }
+            const frame = frames[activeFrameIndex];
+            if (!frame) return;
+            
+            frame.fitMode = document.getElementById('fitMode').value;
+            frame.bgMode = document.getElementById('bgMode').value;
+            frame.customColor = customColor;
+            
+            updateColorPickerVisibility();
+            renderFinalCanvas();
         }
 
+        function updateColorPickerVisibility() {
+            const bgMode = document.getElementById('bgMode').value;
+            document.getElementById('customColorGroup').style.display = bgMode === 'custom' ? 'flex' : 'none';
+        }
+
+        // ===== FUNÇÃO DE RENDERIZAÇÃO =====
         function renderFinalCanvas() {
             if (frames.length === 0) return;
             
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
             
-            // Determinar layout baseado na orientação da primeira moldura
             const firstFrameOrientation = frames[0].frameOrientation || 'vertical';
-            let canvasWidth = 0;
-            let canvasHeight = 0;
-            let hasValidFrames = false;
+            let canvasWidth = 0, canvasHeight = 0;
             
-            if (firstFrameOrientation === 'vertical') {
-                // Layout horizontal para molduras verticais (lado a lado)
-                for (let i = 0; i < frameCount; i++) {
-                    if (frames[i].frameImage) {
-                        const frameWidth = frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
-                        const frameHeight = frames[i].frameImage.naturalHeight || frames[i].frameImage.height;
-                        canvasWidth += frameWidth;
-                        canvasHeight = Math.max(canvasHeight, frameHeight);
-                        hasValidFrames = true;
-                    }
-                }
-            } else {
-                // Layout vertical para molduras horizontais (uma embaixo da outra)
-                for (let i = 0; i < frameCount; i++) {
-                    if (frames[i].frameImage) {
-                        const frameWidth = frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
-                        const frameHeight = frames[i].frameImage.naturalHeight || frames[i].frameImage.height;
-                        canvasWidth = Math.max(canvasWidth, frameWidth);
-                        canvasHeight += frameHeight;
-                        hasValidFrames = true;
-                    }
+            for (let i = 0; i < frameCount; i++) {
+                if (!frames[i].frameImage) continue;
+                const fw = frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
+                const fh = frames[i].frameImage.naturalHeight || frames[i].frameImage.height;
+                
+                if (firstFrameOrientation === 'vertical') {
+                    canvasWidth += fw;
+                    canvasHeight = Math.max(canvasHeight, fh);
+                } else {
+                    canvasWidth = Math.max(canvasWidth, fw);
+                    canvasHeight += fh;
                 }
             }
             
-            if (!hasValidFrames) return;
+            if (canvasWidth === 0 || canvasHeight === 0) return;
             
             canvas.width = canvasWidth;
             canvas.height = canvasHeight;
-            
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
             
-            if (firstFrameOrientation === 'vertical') {
-                // Renderizar molduras verticais lado a lado
-                let currentX = 0;
-                for (let i = 0; i < frameCount; i++) {
-                    const frame = frames[i];
-                    if (!frame.frameImage) {
-                        continue;
+            let currentPos = 0;
+            
+            for (let i = 0; i < frameCount; i++) {
+                const frame = frames[i];
+                if (!frame.frameImage) continue;
+                
+                const frameWidth = frame.frameImage.naturalWidth || frame.frameImage.width;
+                const frameHeight = frame.frameImage.naturalHeight || frame.frameImage.height;
+                
+                let frameX, frameY;
+                if (firstFrameOrientation === 'vertical') {
+                    frameX = currentPos;
+                    frameY = 0;
+                    currentPos += frameWidth;
+                } else {
+                    frameX = (canvasWidth - frameWidth) / 2;
+                    frameY = currentPos;
+                    currentPos += frameHeight;
+                }
+                
+                const bgMode = frame.bgMode || 'dominant';
+                let bgColor = '#FFFFFF';
+                if (bgMode === 'dominant') bgColor = frame.dominantColor || '#FFFFFF';
+                else if (bgMode === 'black') bgColor = '#000000';
+                else if (bgMode === 'white') bgColor = '#FFFFFF';
+                else if (bgMode === 'custom') bgColor = frame.customColor || '#FFFFFF';
+                
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(frameX, frameY, frameWidth, frameHeight);
+                
+                if (frame.uploadedImage && frame.transparentArea) {
+                    const drawInfo = calculateImageDrawInfo(frame, frameX, frameY);
+                    
+                    ctx.drawImage(frame.uploadedImage, drawInfo.x, drawInfo.y, drawInfo.width, drawInfo.height);
+                    
+                    if (frame.brushCanvas) {
+                        ctx.drawImage(frame.brushCanvas, drawInfo.x, drawInfo.y, drawInfo.width, drawInfo.height);
                     }
-                    
-                    const frameWidth = frame.frameImage.naturalWidth || frame.frameImage.width;
-                    const frameHeight = frame.frameImage.naturalHeight || frame.frameImage.height;
-                    
-                    const bgMode = frame.bgMode || 'dominant';
-                    let bgColor = '#FFFFFF';
-                    if (bgMode === 'dominant') bgColor = frame.dominantColor || '#FFFFFF';
-                    else if (bgMode === 'black') bgColor = '#000000';
-                    else if (bgMode === 'white') bgColor = '#FFFFFF';
-                    else if (bgMode === 'custom') bgColor = frame.customColor || '#FFFFFF';
-                    
-                    ctx.fillStyle = bgColor;
-                    ctx.fillRect(currentX, 0, frameWidth, frameHeight);
-                    
-                    if (frame.uploadedImage && frame.transparentArea) {
-                        const fitMode = frame.fitMode || 'cover';
-                        const targetWidth = frame.transparentArea.width;
-                        const targetHeight = frame.transparentArea.height;
-                        const imgRatio = frame.uploadedImage.naturalWidth / frame.uploadedImage.naturalHeight;
-                        const targetRatio = targetWidth / targetHeight;
-                        
-                        let drawWidth, drawHeight, drawX, drawY;
-                        
-                        if (fitMode === 'cover') {
-                            if (imgRatio > targetRatio) {
-                                drawHeight = targetHeight;
-                                drawWidth = drawHeight * imgRatio;
-                            } else {
-                                drawWidth = targetWidth;
-                                drawHeight = drawWidth / imgRatio;
-                            }
-                            drawX = currentX + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
-                            drawY = frame.transparentArea.y + (targetHeight - drawHeight) / 2;
-                        } else if (fitMode === 'contain') {
-                            if (imgRatio > targetRatio) {
-                                drawWidth = targetWidth;
-                                drawHeight = drawWidth / imgRatio;
-                            } else {
-                                drawHeight = targetHeight;
-                                drawWidth = drawHeight * imgRatio;
-                            }
-                            drawX = currentX + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
-                            drawY = frame.transparentArea.y + (targetHeight - drawHeight) / 2;
-                        } else {
-                            drawWidth = targetWidth;
-                            drawHeight = targetHeight;
-                            drawX = currentX + frame.transparentArea.x;
-                            drawY = frame.transparentArea.y;
-                        }
-                        
-                        drawX += frame.imageOffset.x;
-                        drawY += frame.imageOffset.y;
-                        
-                        ctx.drawImage(frame.uploadedImage, drawX, drawY, drawWidth, drawHeight);
-                    }
-                    
-                    ctx.drawImage(frame.frameImage, currentX, 0, frameWidth, frameHeight);
-                    
-                    currentX += frameWidth;
+                }
+                
+                ctx.drawImage(frame.frameImage, frameX, frameY, frameWidth, frameHeight);
+            }
+        }
+
+        function calculateImageDrawInfo(frame, frameX, frameY) {
+            const fitMode = frame.fitMode || 'cover';
+            const targetWidth = frame.transparentArea.width;
+            const targetHeight = frame.transparentArea.height;
+            const imgWidth = frame.uploadedImage.naturalWidth || frame.uploadedImage.width;
+            const imgHeight = frame.uploadedImage.naturalHeight || frame.uploadedImage.height;
+            const imgRatio = imgWidth / imgHeight;
+            const targetRatio = targetWidth / targetHeight;
+            
+            let drawWidth, drawHeight, drawX, drawY;
+            
+            if (fitMode === 'cover') {
+                if (imgRatio > targetRatio) {
+                    drawHeight = targetHeight;
+                    drawWidth = drawHeight * imgRatio;
+                } else {
+                    drawWidth = targetWidth;
+                    drawHeight = drawWidth / imgRatio;
+                }
+            } else if (fitMode === 'contain') {
+                if (imgRatio > targetRatio) {
+                    drawWidth = targetWidth;
+                    drawHeight = drawWidth / imgRatio;
+                } else {
+                    drawHeight = targetHeight;
+                    drawWidth = drawHeight * imgRatio;
                 }
             } else {
-                // Renderizar molduras horizontais uma embaixo da outra
-                let currentY = 0;
-                for (let i = 0; i < frameCount; i++) {
-                    const frame = frames[i];
-                    if (!frame.frameImage) {
-                        continue;
+                drawWidth = targetWidth;
+                drawHeight = targetHeight;
+            }
+            
+            drawWidth *= frame.imageScale || 1.0;
+            drawHeight *= frame.imageScale || 1.0;
+            
+            drawX = frameX + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
+            drawY = frameY + frame.transparentArea.y + (targetHeight - drawHeight) / 2;
+            
+            drawX += frame.imageOffset.x;
+            drawY += frame.imageOffset.y;
+            
+            return { x: drawX, y: drawY, width: drawWidth, height: drawHeight };
+        }
+
+        function getFrameOffset(frameIndex) {
+            const firstFrameOrientation = frames[0].frameOrientation || 'vertical';
+            let offsetX = 0, offsetY = 0;
+            
+            if (firstFrameOrientation === 'vertical') {
+                for (let i = 0; i < frameIndex; i++) {
+                    if (frames[i].frameImage) {
+                        offsetX += frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
                     }
-                    
-                    const frameWidth = frame.frameImage.naturalWidth || frame.frameImage.width;
-                    const frameHeight = frame.frameImage.naturalHeight || frame.frameImage.height;
-                    
-                    const bgMode = frame.bgMode || 'dominant';
-                    let bgColor = '#FFFFFF';
-                    if (bgMode === 'dominant') bgColor = frame.dominantColor || '#FFFFFF';
-                    else if (bgMode === 'black') bgColor = '#000000';
-                    else if (bgMode === 'white') bgColor = '#FFFFFF';
-                    else if (bgMode === 'custom') bgColor = frame.customColor || '#FFFFFF';
-                    
-                    // Centralizar horizontalmente
-                    const frameX = (canvasWidth - frameWidth) / 2;
-                    
-                    ctx.fillStyle = bgColor;
-                    ctx.fillRect(frameX, currentY, frameWidth, frameHeight);
-                    
-                    if (frame.uploadedImage && frame.transparentArea) {
-                        const fitMode = frame.fitMode || 'cover';
-                        const targetWidth = frame.transparentArea.width;
-                        const targetHeight = frame.transparentArea.height;
-                        const imgRatio = frame.uploadedImage.naturalWidth / frame.uploadedImage.naturalHeight;
-                        const targetRatio = targetWidth / targetHeight;
-                        
-                        let drawWidth, drawHeight, drawX, drawY;
-                        
-                        if (fitMode === 'cover') {
-                            if (imgRatio > targetRatio) {
-                                drawHeight = targetHeight;
-                                drawWidth = drawHeight * imgRatio;
-                            } else {
-                                drawWidth = targetWidth;
-                                drawHeight = drawWidth / imgRatio;
-                            }
-                            drawX = frameX + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
-                            drawY = currentY + frame.transparentArea.y + (targetHeight - drawHeight) / 2;
-                        } else if (fitMode === 'contain') {
-                            if (imgRatio > targetRatio) {
-                                drawWidth = targetWidth;
-                                drawHeight = drawWidth / imgRatio;
-                            } else {
-                                drawHeight = targetHeight;
-                                drawWidth = drawHeight * imgRatio;
-                            }
-                            drawX = frameX + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
-                            drawY = currentY + frame.transparentArea.y + (targetHeight - drawHeight) / 2;
-                        } else {
-                            drawWidth = targetWidth;
-                            drawHeight = targetHeight;
-                            drawX = frameX + frame.transparentArea.x;
-                            drawY = currentY + frame.transparentArea.y;
-                        }
-                        
-                        drawX += frame.imageOffset.x;
-                        drawY += frame.imageOffset.y;
-                        
-                        ctx.drawImage(frame.uploadedImage, drawX, drawY, drawWidth, drawHeight);
+                }
+            } else {
+                for (let i = 0; i < frameIndex; i++) {
+                    if (frames[i].frameImage) {
+                        offsetY += frames[i].frameImage.naturalHeight || frames[i].frameImage.height;
                     }
-                    
-                    ctx.drawImage(frame.frameImage, frameX, currentY, frameWidth, frameHeight);
-                    
-                    currentY += frameHeight;
+                }
+                if (frames[frameIndex].frameImage) {
+                    const fw = frames[frameIndex].frameImage.naturalWidth || frames[frameIndex].frameImage.width;
+                    offsetX = (document.getElementById('canvas').width - fw) / 2;
                 }
             }
+            
+            return { x: offsetX, y: offsetY };
         }
 
-        function updateColorPickerVisibility() {
-            const bgMode = document.getElementById('bgMode').value;
-            const customGroup = document.getElementById('customColorGroup');
-            customGroup.style.display = bgMode === 'custom' ? 'flex' : 'none';
-        }
-
+        // ===== MODO MOVER =====
         function activateMoveMode() {
-            if (!frames[activeFrameIndex].uploadedImage) {
-                alert('Primeiro carregue uma imagem para poder movê-la.');
+            if (!frames[activeFrameIndex]?.uploadedImage) {
+                showNotification('Primeiro carregue uma imagem.', 'warning');
                 return;
             }
-            deactivateEyedropper();
-            deactivateCropMode();
+            deactivateAllModes();
             isMoveModeActive = true;
             document.getElementById('moveBtn').classList.add('active');
-            document.getElementById('canvas').style.cursor = 'move';
+            document.getElementById('canvas').classList.add('move-mode');
+            
             const canvas = document.getElementById('canvas');
             canvas.addEventListener('mousedown', startMove);
             canvas.addEventListener('mousemove', doMove);
             canvas.addEventListener('mouseup', endMove);
             canvas.addEventListener('mouseleave', endMove);
+            
+            showNotification('Modo mover ativado. Arraste a imagem para ajustar sua posição.', 'info', 3000);
         }
 
         function deactivateMoveMode() {
             isMoveModeActive = false;
             isDragging = false;
             document.getElementById('moveBtn').classList.remove('active');
-            document.getElementById('canvas').style.cursor = 'default';
+            document.getElementById('canvas').classList.remove('move-mode');
+            
             const canvas = document.getElementById('canvas');
             canvas.removeEventListener('mousedown', startMove);
             canvas.removeEventListener('mousemove', doMove);
@@ -1294,37 +2194,40 @@
             e.preventDefault();
             const canvas = document.getElementById('canvas');
             const rect = canvas.getBoundingClientRect();
-            const currentX = e.clientX - rect.left;
-            const currentY = e.clientY - rect.top;
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
+            
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+            
             frames[activeFrameIndex].imageOffset.x = currentDragOffset.x + (currentX - dragStart.x) * scaleX;
             frames[activeFrameIndex].imageOffset.y = currentDragOffset.y + (currentY - dragStart.y) * scaleY;
+            
             renderFinalCanvas();
         }
 
         function endMove() {
-            if (!isMoveModeActive) return;
             isDragging = false;
         }
 
+        // ===== MODO CORTE =====
         function activateCropMode() {
-            if (!frames[activeFrameIndex].uploadedImage) {
-                alert('Primeiro carregue uma imagem para poder cortá-la.');
+            if (!frames[activeFrameIndex]?.uploadedImage) {
+                showNotification('Primeiro carregue uma imagem.', 'warning');
                 return;
             }
-            deactivateEyedropper();
-            deactivateMoveMode();
+            deactivateAllModes();
             isCropModeActive = true;
             document.getElementById('cropBtn').classList.add('active');
-            document.getElementById('resetCropBtn').style.display = 'inline-flex';
             document.getElementById('cropHint').classList.add('active');
             document.getElementById('canvas').classList.add('crop-mode');
+            
             const canvas = document.getElementById('canvas');
             canvas.addEventListener('mousedown', startCropSelection);
             canvas.addEventListener('mousemove', drawCropSelection);
             canvas.addEventListener('mouseup', endCropSelection);
-            canvas.addEventListener('mouseleave', cancelCropSelection);
+            
+            showNotification('Modo corte ativado. Arraste para selecionar a área que deseja manter.', 'info', 3000);
         }
 
         function deactivateCropMode() {
@@ -1333,169 +2236,101 @@
             document.getElementById('cropBtn').classList.remove('active');
             document.getElementById('cropHint').classList.remove('active');
             document.getElementById('canvas').classList.remove('crop-mode');
-            document.getElementById('cropOverlay').classList.remove('active');
-            document.getElementById('cropOverlay').style.display = 'none';
+            
             const canvas = document.getElementById('canvas');
             canvas.removeEventListener('mousedown', startCropSelection);
             canvas.removeEventListener('mousemove', drawCropSelection);
             canvas.removeEventListener('mouseup', endCropSelection);
-            canvas.removeEventListener('mouseleave', cancelCropSelection);
+            
+            const overlay = document.getElementById('cropOverlay');
+            overlay.classList.remove('active');
+            overlay.style.display = 'none';
         }
 
         function startCropSelection(e) {
             if (!isCropModeActive) return;
             e.preventDefault();
             isDrawingCrop = true;
+            
             const canvas = document.getElementById('canvas');
             const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
             
-            const firstFrameOrientation = frames[0].frameOrientation || 'vertical';
+            cropStart.x = e.clientX - rect.left;
+            cropStart.y = e.clientY - rect.top;
             
-            if (firstFrameOrientation === 'vertical') {
-                // Para layout horizontal (molduras verticais)
-                let frameOffset = 0;
-                for (let i = 0; i < activeFrameIndex; i++) {
-                    if (frames[i].frameImage) {
-                        frameOffset += frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
-                    }
-                }
-                
-                cropStart.x = (e.clientX - rect.left) * scaleX;
-                cropStart.y = (e.clientY - rect.top) * scaleY;
-                
-                const frameWidth = frames[activeFrameIndex].frameImage ? 
-                    (frames[activeFrameIndex].frameImage.naturalWidth || frames[activeFrameIndex].frameImage.width) : 0;
-                
-                if (cropStart.x < frameOffset || cropStart.x > frameOffset + frameWidth) {
-                    isDrawingCrop = false;
-                    return;
-                }
-            } else {
-                // Para layout vertical (molduras horizontais)
-                let frameOffset = 0;
-                for (let i = 0; i < activeFrameIndex; i++) {
-                    if (frames[i].frameImage) {
-                        frameOffset += frames[i].frameImage.naturalHeight || frames[i].frameImage.height;
-                    }
-                }
-                
-                cropStart.x = (e.clientX - rect.left) * scaleX;
-                cropStart.y = (e.clientY - rect.top) * scaleY;
-                
-                const frameHeight = frames[activeFrameIndex].frameImage ? 
-                    (frames[activeFrameIndex].frameImage.naturalHeight || frames[activeFrameIndex].frameImage.height) : 0;
-                
-                if (cropStart.y < frameOffset || cropStart.y > frameOffset + frameHeight) {
-                    isDrawingCrop = false;
-                    return;
-                }
-            }
+            cropSelection = { 
+                startX: cropStart.x, 
+                startY: cropStart.y, 
+                endX: cropStart.x, 
+                endY: cropStart.y 
+            };
             
-            cropSelection = { x: cropStart.x, y: cropStart.y, width: 0, height: 0 };
             updateCropOverlay();
         }
 
         function drawCropSelection(e) {
             if (!isCropModeActive || !isDrawingCrop) return;
             e.preventDefault();
+            
             const canvas = document.getElementById('canvas');
             const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
             
-            const currentX = (e.clientX - rect.left) * scaleX;
-            const currentY = (e.clientY - rect.top) * scaleY;
-            
-            const firstFrameOrientation = frames[0].frameOrientation || 'vertical';
-            
-            if (firstFrameOrientation === 'vertical') {
-                // Para layout horizontal (molduras verticais)
-                let frameOffset = 0;
-                for (let i = 0; i < activeFrameIndex; i++) {
-                    if (frames[i].frameImage) {
-                        frameOffset += frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
-                    }
-                }
-                
-                const frameWidth = frames[activeFrameIndex].frameImage ? 
-                    (frames[activeFrameIndex].frameImage.naturalWidth || frames[activeFrameIndex].frameImage.width) : 0;
-                
-                const limitedX = Math.max(frameOffset, Math.min(currentX, frameOffset + frameWidth));
-                
-                cropSelection.width = limitedX - cropStart.x;
-                cropSelection.height = currentY - cropStart.y;
-            } else {
-                // Para layout vertical (molduras horizontais)
-                let frameOffset = 0;
-                for (let i = 0; i < activeFrameIndex; i++) {
-                    if (frames[i].frameImage) {
-                        frameOffset += frames[i].frameImage.naturalHeight || frames[i].frameImage.height;
-                    }
-                }
-                
-                const frameHeight = frames[activeFrameIndex].frameImage ? 
-                    (frames[activeFrameIndex].frameImage.naturalHeight || frames[activeFrameIndex].frameImage.height) : 0;
-                
-                const limitedY = Math.max(frameOffset, Math.min(currentY, frameOffset + frameHeight));
-                
-                cropSelection.width = currentX - cropStart.x;
-                cropSelection.height = limitedY - cropStart.y;
-            }
+            cropSelection.endX = e.clientX - rect.left;
+            cropSelection.endY = e.clientY - rect.top;
             
             updateCropOverlay();
         }
 
-        function endCropSelection() {
+        function endCropSelection(e) {
             if (!isCropModeActive || !isDrawingCrop) return;
             isDrawingCrop = false;
-            if (cropSelection.width < 0) {
-                cropSelection.x += cropSelection.width;
-                cropSelection.width = -cropSelection.width;
-            }
-            if (cropSelection.height < 0) {
-                cropSelection.y += cropSelection.height;
-                cropSelection.height = -cropSelection.height;
-            }
-            if (cropSelection.width > 10 && cropSelection.height > 10) {
-                applyCrop();
-                // Remover overlay imediatamente
+            
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+            
+            let x1 = Math.min(cropSelection.startX, cropSelection.endX);
+            let y1 = Math.min(cropSelection.startY, cropSelection.endY);
+            let x2 = Math.max(cropSelection.startX, cropSelection.endX);
+            let y2 = Math.max(cropSelection.startY, cropSelection.endY);
+            
+            const width = x2 - x1;
+            const height = y2 - y1;
+            
+            if (width < 20 || height < 20) {
+                const overlay = document.getElementById('cropOverlay');
+                overlay.classList.remove('active');
+                overlay.style.display = 'none';
                 cropSelection = null;
-                document.getElementById('cropOverlay').classList.remove('active');
-                document.getElementById('cropOverlay').style.display = 'none';
-            } else {
-                cancelCropSelection();
+                showNotification('Selecione uma área maior para cortar.', 'warning', 2000);
+                return;
             }
-        }
-
-        function cancelCropSelection() {
-            if (!isCropModeActive) return;
-            isDrawingCrop = false;
+            
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const canvasX1 = x1 * scaleX;
+            const canvasY1 = y1 * scaleY;
+            const canvasX2 = x2 * scaleX;
+            const canvasY2 = y2 * scaleY;
+            
+            applyCrop(canvasX1, canvasY1, canvasX2 - canvasX1, canvasY2 - canvasY1);
+            
+            const overlay = document.getElementById('cropOverlay');
+            overlay.classList.remove('active');
+            overlay.style.display = 'none';
             cropSelection = null;
-            document.getElementById('cropOverlay').classList.remove('active');
-            document.getElementById('cropOverlay').style.display = 'none';
         }
 
         function updateCropOverlay() {
             if (!cropSelection) return;
+            
             const overlay = document.getElementById('cropOverlay');
-            const canvas = document.getElementById('canvas');
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = rect.width / canvas.width;
-            const scaleY = rect.height / canvas.height;
-            let x = cropSelection.x * scaleX;
-            let y = cropSelection.y * scaleY;
-            let width = cropSelection.width * scaleX;
-            let height = cropSelection.height * scaleY;
-            if (width < 0) {
-                x += width;
-                width = -width;
-            }
-            if (height < 0) {
-                y += height;
-                height = -height;
-            }
+            
+            let x = Math.min(cropSelection.startX, cropSelection.endX);
+            let y = Math.min(cropSelection.startY, cropSelection.endY);
+            let width = Math.abs(cropSelection.endX - cropSelection.startX);
+            let height = Math.abs(cropSelection.endY - cropSelection.startY);
+            
             overlay.style.left = x + 'px';
             overlay.style.top = y + 'px';
             overlay.style.width = width + 'px';
@@ -1504,210 +2339,646 @@
             overlay.classList.add('active');
         }
 
-        function applyCrop() {
-            const frameIndex = activeFrameIndex;
-            const frame = frames[frameIndex];
+        function applyCrop(canvasX, canvasY, canvasWidth, canvasHeight) {
+            const frame = frames[activeFrameIndex];
+            if (!frame.uploadedImage) return;
             
-            if (!frame.uploadedImage || !frame.transparentArea) return;
+            const frameOffset = getFrameOffset(activeFrameIndex);
+            const drawInfo = calculateImageDrawInfo(frame, frameOffset.x, frameOffset.y);
             
-            const firstFrameOrientation = frames[0].frameOrientation || 'vertical';
+            const cropLeft = Math.max(canvasX, drawInfo.x);
+            const cropTop = Math.max(canvasY, drawInfo.y);
+            const cropRight = Math.min(canvasX + canvasWidth, drawInfo.x + drawInfo.width);
+            const cropBottom = Math.min(canvasY + canvasHeight, drawInfo.y + drawInfo.height);
             
-            // Calcular offset da moldura ativa
-            let frameOffsetX = 0;
-            let frameOffsetY = 0;
-            
-            if (firstFrameOrientation === 'vertical') {
-                // Para layout horizontal (molduras verticais)
-                for (let i = 0; i < frameIndex; i++) {
-                    if (frames[i].frameImage) {
-                        frameOffsetX += frames[i].frameImage.naturalWidth || frames[i].frameImage.width;
-                    }
-                }
-            } else {
-                // Para layout vertical (molduras horizontais)
-                for (let i = 0; i < frameIndex; i++) {
-                    if (frames[i].frameImage) {
-                        frameOffsetY += frames[i].frameImage.naturalHeight || frames[i].frameImage.height;
-                    }
-                }
-                // Centralizar horizontalmente
-                const frameWidth = frame.frameImage.naturalWidth || frame.frameImage.width;
-                const canvasWidth = document.getElementById('canvas').width;
-                frameOffsetX = (canvasWidth - frameWidth) / 2;
-            }
-            
-            // Calcular a posição da imagem dentro da moldura
-            const fitMode = frame.fitMode || 'cover';
-            const targetWidth = frame.transparentArea.width;
-            const targetHeight = frame.transparentArea.height;
-            const imgRatio = frame.uploadedImage.naturalWidth / frame.uploadedImage.naturalHeight;
-            const targetRatio = targetWidth / targetHeight;
-            
-            let drawWidth, drawHeight, drawX, drawY;
-            
-            if (fitMode === 'cover') {
-                if (imgRatio > targetRatio) {
-                    drawHeight = targetHeight;
-                    drawWidth = drawHeight * imgRatio;
-                } else {
-                    drawWidth = targetWidth;
-                    drawHeight = drawWidth / imgRatio;
-                }
-                drawX = frameOffsetX + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
-                drawY = frameOffsetY + frame.transparentArea.y + (targetHeight - drawHeight) / 2;
-            } else if (fitMode === 'contain') {
-                if (imgRatio > targetRatio) {
-                    drawWidth = targetWidth;
-                    drawHeight = drawWidth / imgRatio;
-                } else {
-                    drawHeight = targetHeight;
-                    drawWidth = drawHeight * imgRatio;
-                }
-                drawX = frameOffsetX + frame.transparentArea.x + (targetWidth - drawWidth) / 2;
-                drawY = frameOffsetY + frame.transparentArea.y + (targetHeight - drawHeight) / 2;
-            } else {
-                drawWidth = targetWidth;
-                drawHeight = targetHeight;
-                drawX = frameOffsetX + frame.transparentArea.x;
-                drawY = frameOffsetY + frame.transparentArea.y;
-            }
-            
-            drawX += frame.imageOffset.x;
-            drawY += frame.imageOffset.y;
-            
-            // Converter coordenadas do canvas para coordenadas da imagem original
-            const scaleX = frame.uploadedImage.naturalWidth / drawWidth;
-            const scaleY = frame.uploadedImage.naturalHeight / drawHeight;
-            
-            // Calcular coordenadas relativas à imagem
-            let imageCropX = (cropSelection.x - drawX) * scaleX;
-            let imageCropY = (cropSelection.y - drawY) * scaleY;
-            let imageCropWidth = cropSelection.width * scaleX;
-            let imageCropHeight = cropSelection.height * scaleY;
-            
-            // Limitar o crop aos limites da imagem
-            if (imageCropX < 0) {
-                imageCropWidth += imageCropX;
-                imageCropX = 0;
-            }
-            if (imageCropY < 0) {
-                imageCropHeight += imageCropY;
-                imageCropY = 0;
-            }
-            if (imageCropX + imageCropWidth > frame.uploadedImage.naturalWidth) {
-                imageCropWidth = frame.uploadedImage.naturalWidth - imageCropX;
-            }
-            if (imageCropY + imageCropHeight > frame.uploadedImage.naturalHeight) {
-                imageCropHeight = frame.uploadedImage.naturalHeight - imageCropY;
-            }
-            
-            // Garantir dimensões mínimas
-            if (imageCropWidth < 1 || imageCropHeight < 1) {
-                // Se não houver área válida, cancelar o crop
-                cropSelection = null;
-                document.getElementById('cropOverlay').classList.remove('active');
-                document.getElementById('cropOverlay').style.display = 'none';
+            if (cropRight <= cropLeft || cropBottom <= cropTop) {
+                showNotification('Selecione uma área sobre a imagem.', 'warning', 2000);
                 return;
             }
             
-            // Criar canvas temporário para o crop
-            const croppedCanvas = document.createElement('canvas');
-            const croppedCtx = croppedCanvas.getContext('2d');
-            croppedCanvas.width = imageCropWidth;
-            croppedCanvas.height = imageCropHeight;
+            const imgWidth = frame.uploadedImage.naturalWidth || frame.uploadedImage.width;
+            const imgHeight = frame.uploadedImage.naturalHeight || frame.uploadedImage.height;
             
-            // Desenhar apenas a parte cortada da imagem original
-            croppedCtx.drawImage(
+            const scaleX = imgWidth / drawInfo.width;
+            const scaleY = imgHeight / drawInfo.height;
+            
+            const imgCropX = (cropLeft - drawInfo.x) * scaleX;
+            const imgCropY = (cropTop - drawInfo.y) * scaleY;
+            const imgCropWidth = (cropRight - cropLeft) * scaleX;
+            const imgCropHeight = (cropBottom - cropTop) * scaleY;
+            
+            const finalX = Math.max(0, Math.min(imgCropX, imgWidth - 1));
+            const finalY = Math.max(0, Math.min(imgCropY, imgHeight - 1));
+            const finalWidth = Math.max(1, Math.min(imgCropWidth, imgWidth - finalX));
+            const finalHeight = Math.max(1, Math.min(imgCropHeight, imgHeight - finalY));
+            
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = finalWidth;
+            tempCanvas.height = finalHeight;
+            
+            tempCtx.drawImage(
                 frame.uploadedImage,
-                imageCropX, imageCropY,
-                imageCropWidth, imageCropHeight,
-                0, 0,
-                imageCropWidth, imageCropHeight
+                finalX, finalY, finalWidth, finalHeight,
+                0, 0, finalWidth, finalHeight
             );
             
-            // Criar nova imagem
-            const newImage = new Image();
-            newImage.onload = function() {
-                frames[frameIndex].uploadedImage = newImage;
-                frames[frameIndex].currentCrop = {
-                    x: imageCropX,
-                    y: imageCropY,
-                    width: imageCropWidth,
-                    height: imageCropHeight
-                };
-                renderFinalCanvas();
+            const croppedImage = new Image();
+            croppedImage.onload = function() {
+                frame.uploadedImage = croppedImage;
+                frame.imageOffset = { x: 0, y: 0 };
+                frame.imageScale = 1.0;
                 
-                // Mostrar botão resetCropBtn
+                const newBrushCanvas = document.createElement('canvas');
+                newBrushCanvas.width = finalWidth;
+                newBrushCanvas.height = finalHeight;
+                const newBrushCtx = newBrushCanvas.getContext('2d');
+                
+                if (frame.brushCanvas) {
+                    newBrushCtx.drawImage(
+                        frame.brushCanvas,
+                        finalX, finalY, finalWidth, finalHeight,
+                        0, 0, finalWidth, finalHeight
+                    );
+                }
+                
+                frame.brushCanvas = newBrushCanvas;
+                frame.brushHistory = [];
+                
                 document.getElementById('resetCropBtn').style.display = 'inline-flex';
+                document.getElementById('resizeSlider').value = 100;
+                document.getElementById('resizeValue').textContent = '100%';
+                
+                renderFinalCanvas();
+                updateUndoButtonState();
+                
+                showNotification('Imagem cortada com sucesso!', 'success');
             };
-            newImage.src = croppedCanvas.toDataURL('image/png');
+            croppedImage.src = tempCanvas.toDataURL('image/png');
         }
 
         function resetCrop() {
             const frame = frames[activeFrameIndex];
-            if (!frame || !frame.originalImage) {
-                alert('Nenhuma imagem original disponível para restaurar.');
+            if (!frame.originalImage) {
+                showNotification('Nenhuma imagem original disponível.', 'warning');
                 return;
             }
             
-            // Criar uma cópia da imagem original
             const restoredImage = new Image();
             restoredImage.onload = function() {
-                // Substituir a imagem atual pela original
-                frames[activeFrameIndex].uploadedImage = restoredImage;
-                frames[activeFrameIndex].currentCrop = null;
-                frames[activeFrameIndex].imageOffset = { x: 0, y: 0 };
+                frame.uploadedImage = restoredImage;
+                frame.imageOffset = { x: 0, y: 0 };
+                frame.imageScale = 1.0;
                 
-                // Esconder botão resetCropBtn
+                const newBrushCanvas = document.createElement('canvas');
+                newBrushCanvas.width = restoredImage.naturalWidth;
+                newBrushCanvas.height = restoredImage.naturalHeight;
+                frame.brushCanvas = newBrushCanvas;
+                frame.brushHistory = [];
+                
                 document.getElementById('resetCropBtn').style.display = 'none';
+                document.getElementById('resizeSlider').value = 100;
+                document.getElementById('resizeValue').textContent = '100%';
                 
-                // Recriar a imagem original (nova referência)
-                frames[activeFrameIndex].originalImage = new Image();
-                frames[activeFrameIndex].originalImage.src = restoredImage.src;
-                
-                // Atualizar o canvas
                 renderFinalCanvas();
+                updateUndoButtonState();
+                
+                showNotification('Imagem restaurada para o estado original!', 'success');
             };
-            restoredImage.onerror = function() {
-                alert('Erro ao restaurar a imagem original.');
-            };
-            
-            // Usar a imagem original armazenada
             restoredImage.src = frame.originalImage.src;
         }
 
+        // ===== MODO REDIMENSIONAMENTO =====
+        function activateResizeMode() {
+            if (!frames[activeFrameIndex]?.uploadedImage) {
+                showNotification('Primeiro carregue uma imagem.', 'warning');
+                return;
+            }
+            deactivateAllModes();
+            isResizeModeActive = true;
+            document.getElementById('resizeBtn').classList.add('active');
+            document.getElementById('resizeControls').classList.add('active');
+            document.getElementById('resizeHint').classList.add('active');
+            
+            const scale = frames[activeFrameIndex].imageScale || 1.0;
+            document.getElementById('resizeSlider').value = Math.round(scale * 100);
+            document.getElementById('resizeValue').textContent = `${Math.round(scale * 100)}%`;
+            
+            showNotification('Modo redimensionamento ativado. Use o controle deslizante para ajustar o tamanho.', 'info', 3000);
+        }
+
+        function deactivateResizeMode() {
+            isResizeModeActive = false;
+            document.getElementById('resizeBtn').classList.remove('active');
+            document.getElementById('resizeControls').classList.remove('active');
+            document.getElementById('resizeHint').classList.remove('active');
+        }
+
+        function updateResizeScale(value) {
+            frames[activeFrameIndex].imageScale = parseInt(value) / 100;
+            document.getElementById('resizeValue').textContent = `${value}%`;
+            renderFinalCanvas();
+        }
+
+        function resetResize() {
+            frames[activeFrameIndex].imageScale = 1.0;
+            document.getElementById('resizeSlider').value = 100;
+            document.getElementById('resizeValue').textContent = '100%';
+            renderFinalCanvas();
+            showNotification('Tamanho da imagem redefinido!', 'success');
+        }
+
+        // ===== FUNÇÕES DE FORMAS =====
+        function setShapeMode(mode) {
+            shapeMode = mode;
+            
+            document.getElementById('shapeBrushBtn').classList.toggle('active', mode === 'brush');
+            document.getElementById('shapeRectBtn').classList.toggle('active', mode === 'rectangle');
+            document.getElementById('shapeCircleBtn').classList.toggle('active', mode === 'circle');
+            document.getElementById('shapeLineBtn').classList.toggle('active', mode === 'line');
+            
+            let shapeName = 'Pincel';
+            if (mode === 'rectangle') shapeName = 'Retângulo';
+            else if (mode === 'circle') shapeName = 'Círculo';
+            else if (mode === 'line') shapeName = 'Linha';
+            
+            showNotification(`Modo ${shapeName} selecionado`, 'info', 2000);
+        }
+
+        // ===== NOVO: FUNÇÕES DE PREVIEW DE FORMAS CORRIGIDAS =====
+        function updateShapePreview(startX, startY, endX, endY) {
+            const overlay = document.getElementById('shapePreviewOverlay');
+            const frameOffset = getFrameOffset(activeFrameIndex);
+            const frame = frames[activeFrameIndex];
+            const drawInfo = calculateImageDrawInfo(frame, frameOffset.x, frameOffset.y);
+            
+            if (!drawInfo) return;
+            
+            const scaleX = drawInfo.width / frame.brushCanvas.width;
+            const scaleY = drawInfo.height / frame.brushCanvas.height;
+            
+            const canvasX1 = drawInfo.x + (startX * scaleX);
+            const canvasY1 = drawInfo.y + (startY * scaleY);
+            const canvasX2 = drawInfo.x + (endX * scaleX);
+            const canvasY2 = drawInfo.y + (endY * scaleY);
+            
+            overlay.style.border = `2px dashed ${brushColor}`;
+            overlay.style.backgroundColor = isEraserActive ? 'rgba(255, 255, 255, 0.3)' : `${brushColor}40`;
+            
+            if (shapeMode === 'circle') {
+                const radius = Math.sqrt(Math.pow(canvasX2 - canvasX1, 2) + Math.pow(canvasY2 - canvasY1, 2));
+                const x = canvasX1 - radius;
+                const y = canvasY1 - radius;
+                const size = radius * 2;
+                
+                overlay.style.left = x + 'px';
+                overlay.style.top = y + 'px';
+                overlay.style.width = size + 'px';
+                overlay.style.height = size + 'px';
+                overlay.style.borderRadius = '50%';
+                overlay.style.transform = 'none';
+                
+            } else if (shapeMode === 'line') {
+                const x = Math.min(canvasX1, canvasX2);
+                const y = Math.min(canvasY1, canvasY2);
+                const width = Math.abs(canvasX2 - canvasX1);
+                const height = Math.abs(canvasY2 - canvasY1);
+                
+                overlay.style.left = canvasX1 + 'px';
+                overlay.style.top = canvasY1 + 'px';
+                overlay.style.width = Math.sqrt(width * width + height * height) + 'px';
+                overlay.style.height = '2px';
+                overlay.style.backgroundColor = 'transparent';
+                overlay.style.border = `2px solid ${brushColor}`;
+                
+                const angle = Math.atan2(canvasY2 - canvasY1, canvasX2 - canvasX1) * 180 / Math.PI;
+                overlay.style.transform = `rotate(${angle}deg)`;
+                overlay.style.transformOrigin = '0 0';
+                
+            } else {
+                const x = Math.min(canvasX1, canvasX2);
+                const y = Math.min(canvasY1, canvasY2);
+                const width = Math.abs(canvasX2 - canvasX1);
+                const height = Math.abs(canvasY2 - canvasY1);
+                
+                overlay.style.left = x + 'px';
+                overlay.style.top = y + 'px';
+                overlay.style.width = width + 'px';
+                overlay.style.height = height + 'px';
+                overlay.style.borderRadius = '0';
+                overlay.style.transform = 'none';
+            }
+            
+            overlay.style.display = 'block';
+            overlay.classList.add('active');
+        }
+
+        function hideShapePreview() {
+            const overlay = document.getElementById('shapePreviewOverlay');
+            overlay.classList.remove('active');
+            overlay.style.display = 'none';
+        }
+
+        // ===== MODO PINCEL/FORMAS =====
+        function activateBrushMode() {
+            if (!frames[activeFrameIndex]?.uploadedImage) {
+                showNotification('Primeiro carregue uma imagem.', 'warning');
+                return;
+            }
+            deactivateAllModes();
+            isBrushModeActive = true;
+            document.getElementById('brushBtn').classList.add('active');
+            document.getElementById('brushControls').classList.add('active');
+            document.getElementById('brushHint').classList.add('active');
+            document.getElementById('canvas').classList.add('brush-mode');
+            
+            const canvas = document.getElementById('canvas');
+            canvas.addEventListener('mousedown', startBrushDrawing);
+            canvas.addEventListener('mousemove', drawBrush);
+            canvas.addEventListener('mouseup', endBrushDrawing);
+            canvas.addEventListener('mouseleave', endBrushDrawing);
+            
+            showNotification('Modo pincel/formas ativado. Use os controles para selecionar forma, tamanho e cor.', 'info', 3000);
+        }
+
+        function deactivateBrushMode() {
+            isBrushModeActive = false;
+            isDrawingBrush = false;
+            isDrawingShapePreview = false;
+            lastBrushPoint = null;
+            shapeStartPoint = null;
+            shapePreviewEndPoint = null;
+            
+            document.getElementById('brushBtn').classList.remove('active');
+            document.getElementById('brushControls').classList.remove('active');
+            document.getElementById('brushHint').classList.remove('active');
+            document.getElementById('canvas').classList.remove('brush-mode');
+            
+            const canvas = document.getElementById('canvas');
+            canvas.removeEventListener('mousedown', startBrushDrawing);
+            canvas.removeEventListener('mousemove', drawBrush);
+            canvas.removeEventListener('mouseup', endBrushDrawing);
+            canvas.removeEventListener('mouseleave', endBrushDrawing);
+            
+            hideShapePreview();
+        }
+
+        function updateBrushSize(size) {
+            brushSize = parseInt(size);
+            document.getElementById('brushSizeValue').textContent = `${size}px`;
+        }
+
+        function toggleEraser() {
+            isEraserActive = !isEraserActive;
+            const eraserBtn = document.getElementById('eraserBtn');
+            
+            if (isEraserActive) {
+                eraserBtn.classList.add('active');
+                eraserBtn.innerHTML = '✏️<span class="tooltip">Pincel</span>';
+                showNotification('Modo borracha ativado', 'info', 2000);
+            } else {
+                eraserBtn.classList.remove('active');
+                eraserBtn.innerHTML = '🧽<span class="tooltip">Borracha</span>';
+                showNotification('Modo pincel ativado', 'info', 2000);
+            }
+        }
+
+        function saveBrushState() {
+            const frame = frames[activeFrameIndex];
+            if (!frame.brushCanvas) return;
+            
+            const state = frame.brushCanvas.toDataURL();
+            frame.brushHistory.push(state);
+            
+            if (frame.brushHistory.length > 20) {
+                frame.brushHistory.shift();
+            }
+            
+            updateUndoButtonState();
+        }
+
+        function undoBrush() {
+            const frame = frames[activeFrameIndex];
+            if (!frame.brushCanvas || frame.brushHistory.length === 0) {
+                showNotification('Nada para desfazer', 'info', 2000);
+                return;
+            }
+            
+            frame.brushHistory.pop();
+            
+            const brushCtx = frame.brushCanvas.getContext('2d');
+            brushCtx.clearRect(0, 0, frame.brushCanvas.width, frame.brushCanvas.height);
+            
+            if (frame.brushHistory.length > 0) {
+                const img = new Image();
+                img.onload = function() {
+                    brushCtx.drawImage(img, 0, 0);
+                    renderFinalCanvas();
+                    updateUndoButtonState();
+                    showNotification('Ação desfeita', 'success');
+                };
+                img.src = frame.brushHistory[frame.brushHistory.length - 1];
+            } else {
+                renderFinalCanvas();
+                updateUndoButtonState();
+                showNotification('Todas as ações desfeitas', 'success');
+            }
+        }
+
+        function updateUndoButtonState() {
+            const frame = frames[activeFrameIndex];
+            const undoBtn = document.getElementById('undoBtn');
+            const hasHistory = frame && frame.brushHistory && frame.brushHistory.length > 0;
+            
+            undoBtn.disabled = !hasHistory;
+            undoBtn.style.opacity = hasHistory ? '1' : '0.5';
+            undoBtn.style.cursor = hasHistory ? 'pointer' : 'not-allowed';
+        }
+
+        function getBrushCoordinates(e) {
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const canvasX = (e.clientX - rect.left) * scaleX;
+            const canvasY = (e.clientY - rect.top) * scaleY;
+            
+            const frame = frames[activeFrameIndex];
+            if (!frame.uploadedImage || !frame.transparentArea) return null;
+            
+            const frameOffset = getFrameOffset(activeFrameIndex);
+            const drawInfo = calculateImageDrawInfo(frame, frameOffset.x, frameOffset.y);
+            
+            if (canvasX < drawInfo.x || canvasX > drawInfo.x + drawInfo.width ||
+                canvasY < drawInfo.y || canvasY > drawInfo.y + drawInfo.height) {
+                return null;
+            }
+            
+            const imgWidth = frame.brushCanvas.width;
+            const imgHeight = frame.brushCanvas.height;
+            
+            const imgX = ((canvasX - drawInfo.x) / drawInfo.width) * imgWidth;
+            const imgY = ((canvasY - drawInfo.y) / drawInfo.height) * imgHeight;
+            
+            return { x: imgX, y: imgY };
+        }
+
+        function startBrushDrawing(e) {
+            if (!isBrushModeActive || isBrushEyedropperActive) return;
+            e.preventDefault();
+            
+            const point = getBrushCoordinates(e);
+            if (!point) {
+                showNotification('Clique dentro da imagem para desenhar', 'warning', 2000);
+                return;
+            }
+            
+            isDrawingBrush = true;
+            shapeStartPoint = point;
+            
+            if (shapeMode === 'brush') {
+                saveBrushState();
+                drawBrushPoint(point.x, point.y);
+                lastBrushPoint = point;
+            } else {
+                isDrawingShapePreview = true;
+                shapePreviewEndPoint = point;
+                updateShapePreview(point.x, point.y, point.x, point.y);
+            }
+        }
+
+        function drawBrush(e) {
+            if (!isBrushModeActive || !isDrawingBrush || isBrushEyedropperActive) return;
+            e.preventDefault();
+            
+            const point = getBrushCoordinates(e);
+            if (!point) return;
+            
+            if (shapeMode === 'brush') {
+                if (lastBrushPoint) {
+                    drawBrushLine(lastBrushPoint.x, lastBrushPoint.y, point.x, point.y);
+                } else {
+                    drawBrushPoint(point.x, point.y);
+                }
+                lastBrushPoint = point;
+            } else if (isDrawingShapePreview && shapeStartPoint) {
+                shapePreviewEndPoint = point;
+                updateShapePreview(shapeStartPoint.x, shapeStartPoint.y, point.x, point.y);
+            }
+        }
+
+        function endBrushDrawing(e) {
+            if (!isDrawingBrush) return;
+            
+            const frame = frames[activeFrameIndex];
+            const point = shapeStartPoint;
+            
+            if (shapeMode !== 'brush' && point) {
+                const endPoint = getBrushCoordinates(e) || shapePreviewEndPoint || point;
+                if (endPoint) {
+                    saveBrushState();
+                    drawShape(point.x, point.y, endPoint.x, endPoint.y);
+                    showNotification('Forma desenhada com sucesso!', 'success');
+                }
+            } else if (shapeMode === 'brush') {
+                saveBrushState();
+                showNotification('Desenho concluído!', 'success', 2000);
+            }
+            
+            isDrawingBrush = false;
+            isDrawingShapePreview = false;
+            lastBrushPoint = null;
+            shapeStartPoint = null;
+            shapePreviewEndPoint = null;
+            hideShapePreview();
+        }
+
+        function drawBrushPoint(x, y) {
+            const frame = frames[activeFrameIndex];
+            const ctx = frame.brushCanvas.getContext('2d');
+            
+            ctx.globalCompositeOperation = isEraserActive ? 'destination-out' : 'source-over';
+            ctx.fillStyle = brushColor;
+            ctx.beginPath();
+            ctx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            renderFinalCanvas();
+        }
+
+        function drawBrushLine(x1, y1, x2, y2) {
+            const frame = frames[activeFrameIndex];
+            const ctx = frame.brushCanvas.getContext('2d');
+            
+            ctx.globalCompositeOperation = isEraserActive ? 'destination-out' : 'source-over';
+            ctx.strokeStyle = brushColor;
+            ctx.lineWidth = brushSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            
+            renderFinalCanvas();
+        }
+
+        function drawShape(x1, y1, x2, y2) {
+            const frame = frames[activeFrameIndex];
+            const ctx = frame.brushCanvas.getContext('2d');
+            
+            ctx.globalCompositeOperation = isEraserActive ? 'destination-out' : 'source-over';
+            ctx.strokeStyle = brushColor;
+            ctx.fillStyle = brushColor;
+            ctx.lineWidth = brushSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            ctx.beginPath();
+            
+            if (shapeMode === 'rectangle') {
+                const width = x2 - x1;
+                const height = y2 - y1;
+                ctx.rect(x1, y1, width, height);
+                ctx.stroke();
+            } else if (shapeMode === 'circle') {
+                const radius = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                ctx.arc(x1, y1, radius, 0, Math.PI * 2);
+                ctx.stroke();
+            } else if (shapeMode === 'line') {
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+            
+            renderFinalCanvas();
+        }
+
+        function resetBrushDrawing() {
+            const frame = frames[activeFrameIndex];
+            if (frame.brushCanvas) {
+                const ctx = frame.brushCanvas.getContext('2d');
+                ctx.clearRect(0, 0, frame.brushCanvas.width, frame.brushCanvas.height);
+                frame.brushHistory = [];
+                updateUndoButtonState();
+                renderFinalCanvas();
+                showNotification('Todos os desenhos foram removidos!', 'success');
+            }
+        }
+
+        function activateBrushEyedropper() {
+            if (!frames[activeFrameIndex]?.uploadedImage) {
+                showNotification('Primeiro carregue uma imagem.', 'warning');
+                return;
+            }
+            
+            if ('EyeDropper' in window) {
+                const eyeDropper = new EyeDropper();
+                eyeDropper.open().then(result => {
+                    brushColor = result.sRGBHex.toUpperCase();
+                    document.getElementById('brushColorDisplay').style.backgroundColor = brushColor;
+                    showNotification(`Cor selecionada: ${brushColor}`, 'success');
+                }).catch(() => {
+                    showNotification('Conta-gotas cancelado', 'info');
+                });
+                return;
+            }
+            
+            isBrushEyedropperActive = true;
+            document.getElementById('brushEyedropperBtn').classList.add('active');
+            document.getElementById('canvas').style.cursor = 'crosshair';
+            
+            const canvas = document.getElementById('canvas');
+            canvas.removeEventListener('mousedown', startBrushDrawing);
+            canvas.removeEventListener('mousemove', drawBrush);
+            canvas.removeEventListener('mouseup', endBrushDrawing);
+            
+            canvas.addEventListener('click', handleBrushEyedropperClick);
+            document.addEventListener('keydown', handleBrushEyedropperKeydown);
+            
+            showNotification('Clique na imagem para selecionar uma cor', 'info');
+        }
+
+        function handleBrushEyedropperClick(e) {
+            if (!isBrushEyedropperActive) return;
+            
+            e.preventDefault();
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = Math.floor((e.clientX - rect.left) * scaleX);
+            const y = Math.floor((e.clientY - rect.top) * scaleY);
+            
+            if (x >= 0 && x < canvas.width && y >= 0 && y < canvas.height) {
+                const ctx = canvas.getContext('2d');
+                const pixelData = ctx.getImageData(x, y, 1, 1).data;
+                brushColor = rgbToHex(pixelData[0], pixelData[1], pixelData[2]);
+                document.getElementById('brushColorDisplay').style.backgroundColor = brushColor;
+                showNotification(`Cor selecionada: ${brushColor}`, 'success');
+            }
+            
+            deactivateBrushEyedropper();
+        }
+
+        function handleBrushEyedropperKeydown(e) {
+            if (e.key === 'Escape') {
+                deactivateBrushEyedropper();
+                showNotification('Conta-gotas cancelado', 'info');
+            }
+        }
+
+        function deactivateBrushEyedropper() {
+            isBrushEyedropperActive = false;
+            document.getElementById('brushEyedropperBtn').classList.remove('active');
+            document.getElementById('canvas').style.cursor = 'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="black" stroke-width="2"/></svg>\') 12 12, crosshair';
+            
+            const canvas = document.getElementById('canvas');
+            canvas.removeEventListener('click', handleBrushEyedropperClick);
+            document.removeEventListener('keydown', handleBrushEyedropperKeydown);
+            
+            if (isBrushModeActive) {
+                canvas.addEventListener('mousedown', startBrushDrawing);
+                canvas.addEventListener('mousemove', drawBrush);
+                canvas.addEventListener('mouseup', endBrushDrawing);
+            }
+        }
+
+        // ===== MODO CONTA-GOTAS (COR DE FUNDO) =====
         function activateEyedropper() {
+            if (!frames[activeFrameIndex]?.uploadedImage) {
+                showNotification('Primeiro carregue uma imagem.', 'warning');
+                return;
+            }
+            
             if ('EyeDropper' in window) {
                 const eyeDropper = new EyeDropper();
                 eyeDropper.open().then(result => {
                     customColor = result.sRGBHex.toUpperCase();
                     document.getElementById('colorInput').value = customColor;
                     document.getElementById('colorDisplay').style.backgroundColor = customColor;
-                    if (frames[activeFrameIndex]) {
-                        frames[activeFrameIndex].customColor = customColor;
-                    }
+                    frames[activeFrameIndex].customColor = customColor;
                     renderFinalCanvas();
-                }).catch(e => {
-                    console.log('Conta-gotas cancelado');
+                    showNotification(`Cor de fundo selecionada: ${customColor}`, 'success');
+                }).catch(() => {
+                    showNotification('Conta-gotas cancelado', 'info');
                 });
                 return;
             }
             
-            if (!frames[activeFrameIndex].uploadedImage) {
-                alert('Primeiro carregue uma imagem para usar o conta-gotas.');
-                return;
-            }
-            
-            deactivateMoveMode();
-            deactivateCropMode();
+            deactivateAllModes();
             isEyedropperActive = true;
             document.getElementById('eyedropperBtn').classList.add('active');
             document.getElementById('eyedropperHint').classList.add('active');
             document.getElementById('canvas').classList.add('eyedropper-mode');
+            
             const canvas = document.getElementById('canvas');
             canvas.addEventListener('mousemove', handleCanvasMouseMove);
             canvas.addEventListener('click', handleCanvasClick);
             document.addEventListener('keydown', handleEyedropperKeydown);
+            
+            showNotification('Clique na imagem para selecionar uma cor de fundo', 'info');
         }
 
         function deactivateEyedropper() {
@@ -1715,6 +2986,7 @@
             document.getElementById('eyedropperBtn').classList.remove('active');
             document.getElementById('eyedropperHint').classList.remove('active');
             document.getElementById('canvas').classList.remove('eyedropper-mode');
+            
             const canvas = document.getElementById('canvas');
             canvas.removeEventListener('mousemove', handleCanvasMouseMove);
             canvas.removeEventListener('click', handleCanvasClick);
@@ -1729,6 +3001,7 @@
             const scaleY = canvas.height / rect.height;
             const x = Math.floor((e.clientX - rect.left) * scaleX);
             const y = Math.floor((e.clientY - rect.top) * scaleY);
+            
             if (x >= 0 && x < canvas.width && y >= 0 && y < canvas.height) {
                 document.getElementById('canvas').style.cursor = 'crosshair';
             }
@@ -1737,13 +3010,13 @@
         function handleCanvasClick(e) {
             if (!isEyedropperActive) return;
             e.preventDefault();
-            e.stopPropagation();
             const canvas = document.getElementById('canvas');
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
             const x = Math.floor((e.clientX - rect.left) * scaleX);
             const y = Math.floor((e.clientY - rect.top) * scaleY);
+            
             if (x >= 0 && x < canvas.width && y >= 0 && y < canvas.height) {
                 const ctx = canvas.getContext('2d');
                 const pixelData = ctx.getImageData(x, y, 1, 1).data;
@@ -1755,49 +3028,78 @@
                     frames[activeFrameIndex].customColor = customColor;
                 }
                 renderFinalCanvas();
+                showNotification(`Cor de fundo selecionada: ${customColor}`, 'success');
             }
             deactivateEyedropper();
         }
 
         function handleEyedropperKeydown(e) {
-            if (e.key === 'Escape') deactivateEyedropper();
+            if (e.key === 'Escape') {
+                deactivateEyedropper();
+                showNotification('Conta-gotas cancelado', 'info');
+            }
         }
 
+        // ===== DESATIVAR TODOS OS MODOS =====
+        function deactivateAllModes() {
+            deactivateMoveMode();
+            deactivateCropMode();
+            deactivateResizeMode();
+            deactivateBrushMode();
+            deactivateEyedropper();
+            deactivateBrushEyedropper();
+            
+            isEyedropperActive = false;
+            isBrushEyedropperActive = false;
+            
+            document.querySelectorAll('.hint').forEach(h => h.classList.remove('active'));
+            document.querySelectorAll('.edit-btn').forEach(b => b.classList.remove('active'));
+            
+            const canvas = document.getElementById('canvas');
+            canvas.className = '';
+            
+            hideShapePreview();
+            
+            clearAllNotifications();
+        }
+
+        // ===== FUNÇÕES AUXILIARES =====
         function updateFilenamePreview() {
             const prefix = document.getElementById('filePrefix').value.trim();
             const articleName = document.getElementById('articleName').value.trim();
             const preview = document.getElementById('filenamePreview');
+            
             if (!articleName) {
-                preview.innerHTML = '<span class="placeholder" style="color: #999;">Digite o nome do artigo</span>';
+                preview.innerHTML = '<span class="placeholder">Digite o nome do artigo</span>';
                 return;
             }
+            
             const cleanPrefix = prefix.replace(/[^a-zA-Z0-9-_]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
             const cleanArticle = articleName.replace(/[^a-zA-Z0-9-_]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-            let finalName = '';
+            
             if (cleanPrefix && cleanArticle) {
-                finalName = `${cleanPrefix}<span class="separator">-</span>${cleanArticle}.png`;
+                preview.innerHTML = `${cleanPrefix}<span class="separator">-</span>${cleanArticle}.png`;
             } else if (cleanArticle) {
-                finalName = `${cleanArticle}.png`;
-            } else {
-                finalName = '<span class="placeholder" style="color: #999;">Digite o nome do artigo</span>';
+                preview.innerHTML = `${cleanArticle}.png`;
             }
-            preview.innerHTML = finalName;
         }
 
         function generateFileName() {
             const prefix = document.getElementById('filePrefix').value.trim();
             const articleName = document.getElementById('articleName').value.trim();
+            
             if (!articleName) return 'imagem-enquadrada';
+            
             const cleanPrefix = prefix.replace(/[^a-zA-Z0-9-_]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
             const cleanArticle = articleName.replace(/[^a-zA-Z0-9-_]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-            if (cleanPrefix && cleanArticle) return `${cleanPrefix}-${cleanArticle}`;
-            else if (cleanArticle) return cleanArticle;
-            else return 'imagem-enquadrada';
+            
+            return cleanPrefix && cleanArticle ? `${cleanPrefix}-${cleanArticle}` : cleanArticle || 'imagem-enquadrada';
         }
 
         function downloadImage() {
             const canvas = document.getElementById('canvas');
             const fileName = generateFileName();
+            
             canvas.toBlob(function(blob) {
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
@@ -1807,6 +3109,7 @@
                 link.click();
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
+                showNotification(`Imagem "${fileName}.png" baixada com sucesso!`, 'success');
             }, 'image/png', 1.0);
         }
 
@@ -1817,77 +3120,87 @@
             isCustomFrame = false;
             customColor = '#FFFFFF';
             activeFrameIndex = 0;
-            document.getElementById('imageUpload').value = '';
-            document.getElementById('frameUpload').value = '';
+            brushColor = '#000000';
+            brushSize = 20;
+            isEraserActive = false;
+            shapeMode = 'brush';
+            
             document.getElementById('filePrefix').value = '';
             document.getElementById('articleName').value = '';
-            document.getElementById('portalSelect').value = '';
+            document.getElementById('portalSelect').value = ''; // RESET PARA OPÇÃO PADRÃO
             document.getElementById('colorInput').value = customColor;
             document.getElementById('colorDisplay').style.backgroundColor = customColor;
+            document.getElementById('customFrameUploadInput').value = '';
+            document.getElementById('brushSizeSlider').value = 20;
+            document.getElementById('brushSizeValue').textContent = '20px';
+            document.getElementById('brushColorDisplay').style.backgroundColor = brushColor;
+            document.getElementById('resizeSlider').value = 100;
+            document.getElementById('resizeValue').textContent = '100%';
+            
+            setShapeMode('brush');
+            
             updateFilenamePreview();
-            document.getElementById('imageBox').classList.remove('has-file');
-            document.getElementById('frameBox').classList.remove('has-file');
-            document.getElementById('frameBox').style.display = 'none';
-            document.getElementById('singleUploadSection').classList.add('single-column');
-            document.getElementById('singleUploadSection').style.display = 'none';
+            
             document.getElementById('multiImageUploads').classList.remove('active');
             document.getElementById('frameCountSelector').classList.remove('active');
-            document.getElementById('imageLabel').textContent = 'Sua Imagem';
-            document.getElementById('frameLabel').textContent = 'Moldura PNG';
+            document.getElementById('customFrameUpload').style.display = 'none';
+            document.getElementById('customFrameBox').classList.remove('has-file');
+            document.getElementById('customFrameBox').querySelector('.upload-title').textContent = 'Moldura Personalizada';
             document.getElementById('previewSection').classList.remove('active');
+            
             document.getElementById('fitMode').value = 'cover';
             document.getElementById('bgMode').value = 'dominant';
             document.getElementById('customColorGroup').style.display = 'none';
             document.getElementById('resetCropBtn').style.display = 'none';
-            deactivateEyedropper();
-            deactivateMoveMode();
-            deactivateCropMode();
+            
+            deactivateAllModes();
+            
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
             document.querySelectorAll('.frame-count-btn').forEach((btn, idx) => {
-                if (idx === 0) btn.classList.add('active');
-                else btn.classList.remove('active');
+                btn.classList.toggle('active', idx === 0);
             });
             
+            const eraserBtn = document.getElementById('eraserBtn');
+            eraserBtn.classList.remove('active');
+            eraserBtn.innerHTML = '🧽<span class="tooltip">Borracha</span>';
+            
             initializeFrames(1);
+            createMultipleUploadBoxes();
+            updateUndoButtonState();
+            
+            showNotification('Tudo foi redefinido! Comece novamente.', 'info');
         }
 
-        // Event listeners para os upload boxes
-        document.getElementById('imageBox').addEventListener('click', function() {
-            document.getElementById('imageUpload').click();
-        });
-
-        document.getElementById('frameBox').addEventListener('click', function() {
-            document.getElementById('frameUpload').click();
-        });
-
+        // ===== EVENT LISTENERS =====
         document.getElementById('colorInput').addEventListener('input', function() {
             let value = this.value;
-            if (value.length <= 7) {
-                if (value.length > 0 && !value.startsWith('#')) {
-                    value = '#' + value;
-                    this.value = value;
-                }
-                this.value = value.toUpperCase();
+            if (value.length > 0 && !value.startsWith('#')) {
+                value = '#' + value;
             }
+            this.value = value.toUpperCase().slice(0, 7);
         });
 
         document.getElementById('colorInput').addEventListener('blur', function() {
             let color = this.value.trim().toUpperCase();
             if (!color.startsWith('#')) color = '#' + color;
+            
             const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
             if (hexRegex.test(color)) {
-                if (color.length === 4) color = '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3];
+                if (color.length === 4) {
+                    color = '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3];
+                }
                 customColor = color;
                 this.value = customColor;
                 document.getElementById('colorDisplay').style.backgroundColor = customColor;
-                if (frames[activeFrameIndex]) {
-                    frames[activeFrameIndex].customColor = customColor;
-                }
+                frames[activeFrameIndex].customColor = customColor;
                 renderFinalCanvas();
+                showNotification(`Cor de fundo alterada para: ${customColor}`, 'success');
             } else {
                 this.value = customColor;
+                showNotification('Formato de cor inválido! Use #RRGGBB', 'error');
             }
         });
 
@@ -1898,117 +3211,67 @@
 
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                if (isEyedropperActive) deactivateEyedropper();
-                if (isCropModeActive) {
-                    deactivateCropMode();
-                    document.getElementById('cropOverlay').classList.remove('active');
-                    document.getElementById('cropOverlay').style.display = 'none';
+                deactivateAllModes();
+                showNotification('Modo de edição cancelado', 'info', 2000);
+            }
+            
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                if (isBrushModeActive) {
+                    undoBrush();
                 }
             }
         });
 
-        // Função para upload de imagem (modo single/custom)
-        document.getElementById('imageUpload').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const index = 0;
-                        
-                        if (frames.length === 0) {
-                            initializeFrames(1);
-                        }
-                        
-                        frames[index].uploadedImage = img;
-                        frames[index].originalImage = new Image();
-                        frames[index].originalImage.src = img.src;
-                        frames[index].imageOffset = { x: 0, y: 0 };
-                        frames[index].currentCrop = null;
-                        
-                        document.getElementById('imageBox').classList.add('has-file');
-                        document.getElementById('imageLabel').textContent = '✓ Imagem Carregada';
-                        
-                        extractDominantColor(img, index);
-                        
-                        const isHorizontal = detectImageOrientation(img);
-                        frames[index].isVertical = !isHorizontal;
-                        
-                        // Mostrar botão resetCropBtn
-                        document.getElementById('resetCropBtn').style.display = 'inline-flex';
-                        
-                        // Para modo custom, verificar se já temos moldura
-                        if (selectedPortal === 'custom') {
-                            if (frames[index].frameImage) {
-                                checkAllImagesReady();
-                            } else {
-                                alert('Agora faça upload da moldura PNG.');
-                            }
-                        }
-                    };
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
+        document.getElementById('customFrameBox').addEventListener('click', function() {
+            document.getElementById('customFrameUploadInput').click();
         });
 
-        // Função para upload de moldura personalizada
-        document.getElementById('frameUpload').addEventListener('change', function(e) {
+        document.getElementById('customFrameUploadInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const index = 0;
-                        
-                        if (frames.length === 0) {
-                            initializeFrames(1);
-                        }
-                        
-                        frames[index].frameImage = img;
-                        // Determinar orientação da moldura
-                        const isFrameHorizontal = img.naturalWidth > img.naturalHeight;
-                        frames[index].frameOrientation = isFrameHorizontal ? 'horizontal' : 'vertical';
-                        
-                        document.getElementById('frameBox').classList.add('has-file');
-                        document.getElementById('frameLabel').textContent = '✓ Moldura Carregada';
-                        
-                        document.getElementById('status').classList.add('active');
-                        
-                        setTimeout(() => {
-                            detectTransparentArea(index);
-                            
-                            if (frames[index].uploadedImage) {
-                                checkAllImagesReady();
-                            } else {
-                                renderFinalCanvas();
-                                document.getElementById('previewSection').classList.add('active');
-                                updateFrameSelector();
-                                loadFrameSettings();
-                            }
-                            
-                            document.getElementById('status').classList.remove('active');
-                        }, 500);
-                    };
-                    img.src = event.target.result;
+            if (!file) return;
+            
+            document.getElementById('customFrameBox').classList.add('has-file');
+            document.getElementById('customFrameBox').querySelector('.upload-title').textContent = '✓ Moldura Carregada';
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    frames[0].frameImage = img;
+                    const isFrameHorizontal = (img.naturalWidth || img.width) > (img.naturalHeight || img.height);
+                    frames[0].frameOrientation = isFrameHorizontal ? 'horizontal' : 'vertical';
+                    
+                    detectTransparentArea(0);
+                    replicateCustomFrameToAll();
+                    
+                    let hasImages = frames.some(f => f.uploadedImage);
+                    if (hasImages) {
+                        checkAllImagesReady();
+                    }
+                    showNotification('Moldura personalizada carregada com sucesso!', 'success');
                 };
-                reader.readAsDataURL(file);
-            }
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
         });
 
-        // Inicializar
+        // ===== INICIALIZAÇÃO =====
         window.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('portalSelect').value = '';
-            updatePortalSelection();
             initializeFrames(1);
+            createMultipleUploadBoxes();
+            updateFilenamePreview();
+            updateColorPickerVisibility();
+            document.getElementById('brushColorDisplay').style.backgroundColor = brushColor;
+            document.getElementById('colorDisplay').style.backgroundColor = customColor;
+            setShapeMode('brush');
+            
+            // GARANTIR QUE A OPÇÃO PADRÃO ESTEJA SELECIONADA
+            document.getElementById('portalSelect').selectedIndex = 0;
+            
+            // Limpar notificações antigas se houver
+            clearAllNotifications();
         });
-        
-        updateColorPickerVisibility();
-        updateFilenamePreview();
-        initializeFrames(1);
     </script>
-
 </body>
 </html>
