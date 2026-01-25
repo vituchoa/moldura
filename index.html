@@ -187,6 +187,7 @@
             cursor: pointer;
             transition: all 0.3s;
             background: white;
+            position: relative;
         }
         
         .frame-upload-box:hover {
@@ -200,6 +201,12 @@
             border-color: #10b981;
             border-style: solid;
             background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+        
+        .frame-upload-box.drag-over {
+            border-color: #8b5cf6;
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            transform: scale(1.02);
         }
         
         .upload-icon {
@@ -250,6 +257,7 @@
             align-items: center;
             justify-content: center;
             min-height: 180px;
+            position: relative;
         }
         
         .image-upload-box:hover {
@@ -263,6 +271,12 @@
             border-color: #10b981;
             border-style: solid;
             background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+        
+        .image-upload-box.drag-over {
+            border-color: #8b5cf6;
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            transform: scale(1.02);
         }
         
         .image-upload-icon {
@@ -946,7 +960,6 @@
             display: block;
         }
         
-        /* NOVO: Overlay de preview para formas */
         .shape-preview-overlay {
             position: absolute;
             pointer-events: none;
@@ -958,7 +971,6 @@
             display: block;
         }
         
-        /* NOVO: Sistema de notificações */
         .notification-container {
             position: fixed;
             bottom: 30px;
@@ -973,7 +985,7 @@
         
         .notification {
             background: linear-gradient(135deg, #191e31 0%, #2d3555 100%);
-            color: white !important; /* FORÇA TEXTO BRANCO */
+            color: white !important;
             padding: 16px 24px;
             border-radius: 12px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.3);
@@ -1012,7 +1024,7 @@
         
         .notification.info {
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            color: white !important; /* ESPECÍFICO PARA INFO */
+            color: white !important;
         }
         
         .notification-icon {
@@ -1024,7 +1036,7 @@
             flex: 1;
             font-weight: 600;
             font-size: 15px;
-            color: white !important; /* FORÇA TEXTO BRANCO */
+            color: white !important;
         }
         
         .filename-section {
@@ -1298,7 +1310,6 @@
     </style>
 </head>
 <body>
-    <!-- NOVO: Container de notificações -->
     <div class="notification-container" id="notificationContainer"></div>
     
     <div class="container">
@@ -1460,7 +1471,6 @@
                 <div class="canvas-wrapper">
                     <canvas id="canvas"></canvas>
                     <div class="crop-overlay" id="cropOverlay"></div>
-                    <!-- NOVO: Overlay de preview para formas -->
                     <div class="shape-preview-overlay" id="shapePreviewOverlay"></div>
                 </div>
             </div>
@@ -1547,11 +1557,11 @@
         let brushColor = '#000000';
         let lastBrushPoint = null;
         
-        // NOVO: Variáveis para preview de formas
+        // Variáveis para preview de formas
         let isDrawingShapePreview = false;
         let shapePreviewEndPoint = null;
         
-        // NOVO: Controle de notificações ativas
+        // Controle de notificações
         let activeNotifications = new Set();
         let notificationTimeoutIds = new Map();
         
@@ -1562,11 +1572,10 @@
             }
         };
 
-        // ===== NOVO: SISTEMA DE NOTIFICAÇÕES MELHORADO =====
+        // ===== SISTEMA DE NOTIFICAÇÕES =====
         function showNotification(message, type = 'success', duration = 3000) {
             const container = document.getElementById('notificationContainer');
             
-            // Remove notificações antigas se houver muitas
             if (activeNotifications.size >= 3) {
                 const oldestId = Array.from(activeNotifications)[0];
                 const oldestNotification = document.getElementById(oldestId);
@@ -1595,12 +1604,10 @@
             container.appendChild(notification);
             activeNotifications.add(notificationId);
             
-            // Animar entrada
             setTimeout(() => {
                 notification.classList.add('show');
             }, 10);
             
-            // Configurar timeout para remoção
             const timeoutId = setTimeout(() => {
                 hideNotification(notificationId);
             }, duration);
@@ -1614,18 +1621,15 @@
             const notification = document.getElementById(notificationId);
             if (!notification) return;
             
-            // Limpar timeout se existir
             const timeoutId = notificationTimeoutIds.get(notificationId);
             if (timeoutId) {
                 clearTimeout(timeoutId);
                 notificationTimeoutIds.delete(notificationId);
             }
             
-            // Animar saída
             notification.classList.remove('show');
             notification.classList.add('hide');
             
-            // Remover do DOM após animação
             setTimeout(() => {
                 if (notification.parentNode) {
                     notification.parentNode.removeChild(notification);
@@ -1636,6 +1640,73 @@
 
         function clearAllNotifications() {
             activeNotifications.forEach(id => hideNotification(id));
+        }
+
+        // ===== FUNÇÕES DE DRAG AND DROP =====
+        function setupDragAndDrop() {
+            // Configurar drag and drop para moldura personalizada
+            const customFrameBox = document.getElementById('customFrameBox');
+            if (customFrameBox) {
+                customFrameBox.addEventListener('dragover', handleDragOver);
+                customFrameBox.addEventListener('dragleave', handleDragLeave);
+                customFrameBox.addEventListener('drop', handleCustomFrameDrop);
+            }
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('drag-over');
+        }
+
+        function handleCustomFrameDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type === 'image/png') {
+                    const input = document.getElementById('customFrameUploadInput');
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    input.files = dataTransfer.files;
+                    
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                    showNotification('Moldura PNG carregada via drag and drop!', 'success');
+                } else {
+                    showNotification('Por favor, envie apenas arquivos PNG.', 'error');
+                }
+            }
+        }
+
+        function handleImageDrop(e, index) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    const input = document.getElementById(`imageUpload${index}`);
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    input.files = dataTransfer.files;
+                    
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                    showNotification(`Imagem ${index + 1} carregada via drag and drop!`, 'success');
+                } else {
+                    showNotification('Por favor, envie apenas arquivos de imagem.', 'error');
+                }
+            }
         }
 
         // ===== FUNÇÕES DE INICIALIZAÇÃO =====
@@ -1709,7 +1780,33 @@
                 if (hasImage) box.classList.add('has-file');
                 
                 box.onclick = () => document.getElementById(`imageUpload${i}`).click();
-                box.querySelector('input').addEventListener('change', (e) => handleImageUpload(i, e));
+                
+                const input = box.querySelector('input');
+                input.addEventListener('change', (e) => handleImageUpload(i, e));
+                
+                // Adicionar eventos de drag and drop
+                box.addEventListener('dragover', handleDragOver);
+                box.addEventListener('dragleave', handleDragLeave);
+                box.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    box.classList.remove('drag-over');
+                    
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        const file = files[0];
+                        if (file.type.startsWith('image/')) {
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(file);
+                            input.files = dataTransfer.files;
+                            
+                            input.dispatchEvent(new Event('change', { bubbles: true }));
+                            showNotification(`Imagem ${i + 1} carregada via drag and drop!`, 'success');
+                        } else {
+                            showNotification('Por favor, envie apenas arquivos de imagem.', 'error');
+                        }
+                    }
+                });
                 
                 container.appendChild(box);
             }
@@ -1940,6 +2037,7 @@
             }
         }
 
+        // ===== FUNÇÕES DE EDIÇÃO =====
         function updateFrameSelector() {
             const selector = document.getElementById('frameSelector');
             if (frameCount > 1) {
@@ -2503,80 +2601,6 @@
             showNotification(`Modo ${shapeName} selecionado`, 'info', 2000);
         }
 
-        // ===== NOVO: FUNÇÕES DE PREVIEW DE FORMAS CORRIGIDAS =====
-        function updateShapePreview(startX, startY, endX, endY) {
-            const overlay = document.getElementById('shapePreviewOverlay');
-            const frameOffset = getFrameOffset(activeFrameIndex);
-            const frame = frames[activeFrameIndex];
-            const drawInfo = calculateImageDrawInfo(frame, frameOffset.x, frameOffset.y);
-            
-            if (!drawInfo) return;
-            
-            const scaleX = drawInfo.width / frame.brushCanvas.width;
-            const scaleY = drawInfo.height / frame.brushCanvas.height;
-            
-            const canvasX1 = drawInfo.x + (startX * scaleX);
-            const canvasY1 = drawInfo.y + (startY * scaleY);
-            const canvasX2 = drawInfo.x + (endX * scaleX);
-            const canvasY2 = drawInfo.y + (endY * scaleY);
-            
-            overlay.style.border = `2px dashed ${brushColor}`;
-            overlay.style.backgroundColor = isEraserActive ? 'rgba(255, 255, 255, 0.3)' : `${brushColor}40`;
-            
-            if (shapeMode === 'circle') {
-                const radius = Math.sqrt(Math.pow(canvasX2 - canvasX1, 2) + Math.pow(canvasY2 - canvasY1, 2));
-                const x = canvasX1 - radius;
-                const y = canvasY1 - radius;
-                const size = radius * 2;
-                
-                overlay.style.left = x + 'px';
-                overlay.style.top = y + 'px';
-                overlay.style.width = size + 'px';
-                overlay.style.height = size + 'px';
-                overlay.style.borderRadius = '50%';
-                overlay.style.transform = 'none';
-                
-            } else if (shapeMode === 'line') {
-                const x = Math.min(canvasX1, canvasX2);
-                const y = Math.min(canvasY1, canvasY2);
-                const width = Math.abs(canvasX2 - canvasX1);
-                const height = Math.abs(canvasY2 - canvasY1);
-                
-                overlay.style.left = canvasX1 + 'px';
-                overlay.style.top = canvasY1 + 'px';
-                overlay.style.width = Math.sqrt(width * width + height * height) + 'px';
-                overlay.style.height = '2px';
-                overlay.style.backgroundColor = 'transparent';
-                overlay.style.border = `2px solid ${brushColor}`;
-                
-                const angle = Math.atan2(canvasY2 - canvasY1, canvasX2 - canvasX1) * 180 / Math.PI;
-                overlay.style.transform = `rotate(${angle}deg)`;
-                overlay.style.transformOrigin = '0 0';
-                
-            } else {
-                const x = Math.min(canvasX1, canvasX2);
-                const y = Math.min(canvasY1, canvasY2);
-                const width = Math.abs(canvasX2 - canvasX1);
-                const height = Math.abs(canvasY2 - canvasY1);
-                
-                overlay.style.left = x + 'px';
-                overlay.style.top = y + 'px';
-                overlay.style.width = width + 'px';
-                overlay.style.height = height + 'px';
-                overlay.style.borderRadius = '0';
-                overlay.style.transform = 'none';
-            }
-            
-            overlay.style.display = 'block';
-            overlay.classList.add('active');
-        }
-
-        function hideShapePreview() {
-            const overlay = document.getElementById('shapePreviewOverlay');
-            overlay.classList.remove('active');
-            overlay.style.display = 'none';
-        }
-
         // ===== MODO PINCEL/FORMAS =====
         function activateBrushMode() {
             if (!frames[activeFrameIndex]?.uploadedImage) {
@@ -3038,7 +3062,80 @@
             }
         }
 
-        // ===== DESATIVAR TODOS OS MODOS =====
+        // ===== FUNÇÕES AUXILIARES =====
+        function updateShapePreview(startX, startY, endX, endY) {
+            const overlay = document.getElementById('shapePreviewOverlay');
+            const frameOffset = getFrameOffset(activeFrameIndex);
+            const frame = frames[activeFrameIndex];
+            const drawInfo = calculateImageDrawInfo(frame, frameOffset.x, frameOffset.y);
+            
+            if (!drawInfo) return;
+            
+            const scaleX = drawInfo.width / frame.brushCanvas.width;
+            const scaleY = drawInfo.height / frame.brushCanvas.height;
+            
+            const canvasX1 = drawInfo.x + (startX * scaleX);
+            const canvasY1 = drawInfo.y + (startY * scaleY);
+            const canvasX2 = drawInfo.x + (endX * scaleX);
+            const canvasY2 = drawInfo.y + (endY * scaleY);
+            
+            overlay.style.border = `2px dashed ${brushColor}`;
+            overlay.style.backgroundColor = isEraserActive ? 'rgba(255, 255, 255, 0.3)' : `${brushColor}40`;
+            
+            if (shapeMode === 'circle') {
+                const radius = Math.sqrt(Math.pow(canvasX2 - canvasX1, 2) + Math.pow(canvasY2 - canvasY1, 2));
+                const x = canvasX1 - radius;
+                const y = canvasY1 - radius;
+                const size = radius * 2;
+                
+                overlay.style.left = x + 'px';
+                overlay.style.top = y + 'px';
+                overlay.style.width = size + 'px';
+                overlay.style.height = size + 'px';
+                overlay.style.borderRadius = '50%';
+                overlay.style.transform = 'none';
+                
+            } else if (shapeMode === 'line') {
+                const x = Math.min(canvasX1, canvasX2);
+                const y = Math.min(canvasY1, canvasY2);
+                const width = Math.abs(canvasX2 - canvasX1);
+                const height = Math.abs(canvasY2 - canvasY1);
+                
+                overlay.style.left = canvasX1 + 'px';
+                overlay.style.top = canvasY1 + 'px';
+                overlay.style.width = Math.sqrt(width * width + height * height) + 'px';
+                overlay.style.height = '2px';
+                overlay.style.backgroundColor = 'transparent';
+                overlay.style.border = `2px solid ${brushColor}`;
+                
+                const angle = Math.atan2(canvasY2 - canvasY1, canvasX2 - canvasX1) * 180 / Math.PI;
+                overlay.style.transform = `rotate(${angle}deg)`;
+                overlay.style.transformOrigin = '0 0';
+                
+            } else {
+                const x = Math.min(canvasX1, canvasX2);
+                const y = Math.min(canvasY1, canvasY2);
+                const width = Math.abs(canvasX2 - canvasX1);
+                const height = Math.abs(canvasY2 - canvasY1);
+                
+                overlay.style.left = x + 'px';
+                overlay.style.top = y + 'px';
+                overlay.style.width = width + 'px';
+                overlay.style.height = height + 'px';
+                overlay.style.borderRadius = '0';
+                overlay.style.transform = 'none';
+            }
+            
+            overlay.style.display = 'block';
+            overlay.classList.add('active');
+        }
+
+        function hideShapePreview() {
+            const overlay = document.getElementById('shapePreviewOverlay');
+            overlay.classList.remove('active');
+            overlay.style.display = 'none';
+        }
+
         function deactivateAllModes() {
             deactivateMoveMode();
             deactivateCropMode();
@@ -3061,7 +3158,6 @@
             clearAllNotifications();
         }
 
-        // ===== FUNÇÕES AUXILIARES =====
         function updateFilenamePreview() {
             const prefix = document.getElementById('filePrefix').value.trim();
             const articleName = document.getElementById('articleName').value.trim();
@@ -3125,7 +3221,7 @@
             
             document.getElementById('filePrefix').value = '';
             document.getElementById('articleName').value = '';
-            document.getElementById('portalSelect').value = ''; // RESET PARA OPÇÃO PADRÃO
+            document.getElementById('portalSelect').value = '';
             document.getElementById('colorInput').value = customColor;
             document.getElementById('colorDisplay').style.backgroundColor = customColor;
             document.getElementById('customFrameUploadInput').value = '';
@@ -3143,6 +3239,7 @@
             document.getElementById('frameCountSelector').classList.remove('active');
             document.getElementById('customFrameUpload').style.display = 'none';
             document.getElementById('customFrameBox').classList.remove('has-file');
+            document.getElementById('customFrameBox').classList.remove('drag-over');
             document.getElementById('customFrameBox').querySelector('.upload-title').textContent = 'Moldura Personalizada';
             document.getElementById('previewSection').classList.remove('active');
             
@@ -3256,6 +3353,7 @@
 
         // ===== INICIALIZAÇÃO =====
         window.addEventListener('DOMContentLoaded', function() {
+            setupDragAndDrop();
             initializeFrames(1);
             createMultipleUploadBoxes();
             updateFilenamePreview();
@@ -3264,10 +3362,8 @@
             document.getElementById('colorDisplay').style.backgroundColor = customColor;
             setShapeMode('brush');
             
-            // GARANTIR QUE A OPÇÃO PADRÃO ESTEJA SELECIONADA
             document.getElementById('portalSelect').selectedIndex = 0;
             
-            // Limpar notificações antigas se houver
             clearAllNotifications();
         });
     </script>
