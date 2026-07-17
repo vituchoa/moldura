@@ -331,7 +331,32 @@
             opacity: 1; pointer-events: all;
             transform: translateY(-50%) translateX(0);
         }
-        .floating-toolbar .edit-btn { width: 48px; height: 48px; font-size: 17px; }
+        .floating-toolbar .edit-btn {
+            width: 46px; height: 46px; font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .floating-toolbar .edit-btn:hover { transform: scale(1.12); }
+        .floating-toolbar .edit-btn.active {
+            background: linear-gradient(135deg,#667eea,#5568d3) !important;
+            color: white; box-shadow: 0 4px 14px rgba(102,126,234,0.45);
+            transform: scale(1.05);
+        }
+        .floating-toolbar .edit-btn svg { pointer-events: none; }
+        .edit-btn-save {
+            background: linear-gradient(135deg,#10b981,#059669) !important;
+            color: white;
+            animation: savePulse 2s ease-in-out infinite;
+        }
+        .edit-btn-save:hover {
+            transform: scale(1.12);
+            box-shadow: 0 4px 14px rgba(16,185,129,0.45) !important;
+            animation: none;
+        }
+        @keyframes savePulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.6); }
+            50%       { box-shadow: 0 0 0 7px rgba(16,185,129,0); }
+        }
         .floating-toolbar .edit-btn .tooltip {
             right: calc(100% + 10px); left: auto;
             bottom: 50%; transform: translateY(50%);
@@ -1192,21 +1217,14 @@
             border-radius: 10px;
         }
         
-        #canvas.move-mode {
-            cursor: move;
-        }
-        
-        #canvas.eyedropper-mode {
-            cursor: crosshair;
-        }
-        
-        #canvas.crop-mode {
-            cursor: crosshair;
-        }
-        
-        #canvas.brush-mode {
-            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="black" stroke-width="2"/></svg>') 12 12, crosshair;
-        }
+        #canvas { transition: box-shadow 0.2s ease; }
+        #canvas:hover { box-shadow: 0 15px 50px rgba(0,0,0,0.25); }
+        #canvas.move-mode    { cursor: grab; }
+        #canvas.move-mode.dragging { cursor: grabbing !important; }
+        #canvas.eyedropper-mode { cursor: crosshair; }
+        #canvas.crop-mode    { cursor: crosshair; outline: 3px dashed #dc2626; outline-offset: 4px; }
+        #canvas.brush-mode   { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="none" stroke="%23667eea" stroke-width="2"/><circle cx="10" cy="10" r="2" fill="%23667eea"/></svg>') 10 10, crosshair; }
+        #canvas.resize-mode  { cursor: nwse-resize; }
         
         .crop-overlay {
             position: absolute;
@@ -1944,19 +1962,40 @@
             </div><!-- /inner modal box -->
         </div><!-- /modal overlay -->
 
-        <!-- Barra de edição flutuante (aparece ao entrar no modo edição) -->
+        <!-- Barra de edição flutuante -->
         <div class="floating-toolbar" id="floatingToolbar">
             <span class="floating-toolbar-label">EDITAR</span>
             <div class="floating-toolbar-divider"></div>
-            <button class="edit-btn" id="ftMoveBtn" onclick="activateMoveMode()">✋<span class="tooltip">Mover</span></button>
-            <button class="edit-btn" id="ftCropBtn" onclick="activateCropMode()">✂️<span class="tooltip">Cortar</span></button>
-            <button class="edit-btn" id="ftResizeBtn" onclick="activateResizeMode()">📐<span class="tooltip">Redimensionar</span></button>
-            <button class="edit-btn" id="ftBrushBtn" onclick="activateBrushMode()">🖌️<span class="tooltip">Pincel</span></button>
-            <button class="edit-btn" id="ftResetCropBtn" onclick="resetCrop()" style="display:none;">↩️<span class="tooltip">Desfazer Corte</span></button>
+            <button class="edit-btn" id="ftMoveBtn" onclick="activateMoveMode()" aria-label="Mover imagem">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M12 12h.01M3 12h18M12 3v18"/></svg>
+                <span class="tooltip">Mover</span>
+            </button>
+            <button class="edit-btn" id="ftCropBtn" onclick="activateCropMode()" aria-label="Cortar imagem">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 2v14a2 2 0 002 2h14M18 22V8a2 2 0 00-2-2H2"/></svg>
+                <span class="tooltip">Cortar</span>
+            </button>
+            <button class="edit-btn" id="ftResizeBtn" onclick="activateResizeMode()" aria-label="Redimensionar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15l-5 5m5 0l-5-5M3 9l5-5M3 4l5 5"/><rect x="3" y="12" width="9" height="9" rx="1"/><rect x="12" y="3" width="9" height="9" rx="1"/></svg>
+                <span class="tooltip">Redimensionar</span>
+            </button>
+            <button class="edit-btn" id="ftBrushBtn" onclick="activateBrushMode()" aria-label="Pincel">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9.06 11.9l8.07-8.06a2.85 2.85 0 114.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1 1 2.48 1.02 3.5 1.02 1.66 0 3-1.34 3-3s-1.34-3.06-1.5-3.06"/></svg>
+                <span class="tooltip">Pincel</span>
+            </button>
+            <button class="edit-btn" id="ftResetCropBtn" onclick="resetCrop()" style="display:none;" aria-label="Desfazer corte">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 19 9 24"/><path d="M4 19h10.5a6.5 6.5 0 000-13H11"/><polyline points="11 6 16 1 11 6"/></svg>
+                <span class="tooltip">Desfazer Corte</span>
+            </button>
             <div class="floating-toolbar-divider"></div>
-            <button class="edit-btn" id="ftFrameBtn" onclick="cycleActiveFrame()" style="display:none; background:linear-gradient(135deg,#f59e0b,#d97706);">🖼️<span class="tooltip">Trocar Moldura</span></button>
+            <button class="edit-btn" id="ftFrameBtn" onclick="cycleActiveFrame()" style="display:none;" aria-label="Trocar frame ativo">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg>
+                <span class="tooltip">Próxima Imagem</span>
+            </button>
             <div class="floating-toolbar-divider"></div>
-            <button class="edit-btn" style="background:linear-gradient(135deg,#10b981,#059669);" onclick="closeEditMode()">✅<span class="tooltip">Concluir</span></button>
+            <button class="edit-btn edit-btn-save" onclick="closeEditMode()" aria-label="Concluir edição">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                <span class="tooltip">Salvar Ajuste</span>
+            </button>
         </div>
 
         <!-- Botão + flutuante para adicionar moldura manual rapidamente -->
@@ -2079,7 +2118,16 @@
             </div>
 
             <div class="canvas-container">
-                <div class="canvas-wrapper">
+                <!-- Indicador de modo ativo — segue o mouse -->
+            <div id="canvasModeIndicator" style="
+                position:fixed; z-index:9999;
+                background:rgba(25,30,49,0.88); color:white; border-radius:20px;
+                padding:7px 16px; font-size:12px; font-weight:700; letter-spacing:.04em;
+                backdrop-filter:blur(4px); pointer-events:none;
+                white-space:nowrap; box-shadow:0 4px 16px rgba(0,0,0,0.3);
+                opacity:0; transition:opacity 0.3s ease; left:-9999px; top:-9999px;
+            "></div>
+            <div class="canvas-wrapper">
                     <canvas id="canvas"></canvas>
                     <div class="crop-overlay" id="cropOverlay"></div>
                     <div class="shape-preview-overlay" id="shapePreviewOverlay"></div>
@@ -3102,12 +3150,37 @@
         function updateFrameSelector() {
             const selector = document.getElementById('frameSelector');
             if (!selector) return;
-            if (frameCount > 1) {
-                selector.textContent = `✏️ Editando Moldura ${activeFrameIndex + 1} de ${frameCount} — clique no 🖼️ na barra lateral para trocar`;
-                selector.style.display = 'block';
-            } else {
+            selector.style.display = 'block';
+
+            if (frameCount <= 1) {
                 selector.textContent = '✏️ Ajuste a imagem usando a barra lateral';
-                selector.style.display = 'block';
+            } else {
+                selector.innerHTML = `<span style="font-size:13px; color:#667eea; font-weight:700; display:block; margin-bottom:8px;">✏️ Selecione qual imagem ajustar:</span>`;
+                const btnRow = document.createElement('div');
+                btnRow.style.cssText = 'display:flex; gap:8px; justify-content:center; flex-wrap:wrap;';
+                for (let i = 0; i < frameCount; i++) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.textContent = `Imagem ${i + 1}`;
+                    btn.style.cssText = `
+                        padding:8px 18px; border-radius:10px; font-size:13px; font-weight:700;
+                        cursor:pointer; font-family:inherit; border:2px solid;
+                        border-color:${activeFrameIndex === i ? '#667eea' : '#e0e7ff'};
+                        background:${activeFrameIndex === i ? '#667eea' : 'white'};
+                        color:${activeFrameIndex === i ? 'white' : '#667eea'};
+                        transition:all .2s;
+                    `;
+                    btn.onclick = () => {
+                        activeFrameIndex = i;
+                        loadFrameSettings();
+                        updateFrameSelector();
+                        syncFloatingToolbar();
+                        deactivateAllModes();
+                        showNotification(`Editando Imagem ${i + 1}`, 'info', 1500);
+                    };
+                    btnRow.appendChild(btn);
+                }
+                selector.appendChild(btnRow);
             }
             syncFloatingToolbar();
         }
@@ -3241,7 +3314,8 @@
             canvas.addEventListener('mouseup', endMove);
             canvas.addEventListener('mouseleave', endMove);
             
-            showNotification('Modo mover ativado. Arraste a imagem para ajustar sua posição.', 'info', 3000);
+            setCanvasModeIndicator('✥ Mover — arraste para reposicionar');
+            document.getElementById('canvas').classList.add('move-mode');
         }
 
         function deactivateMoveMode() {
@@ -3258,6 +3332,7 @@
 
         function startMove(e) {
             if (!isMoveModeActive) return;
+            document.getElementById('canvas').classList.add('dragging');
             e.preventDefault();
             isDragging = true;
             const canvas = document.getElementById('canvas');
@@ -3304,7 +3379,7 @@
             canvas.addEventListener('mousemove', drawCropSelection);
             canvas.addEventListener('mouseup', endCropSelection);
             
-            showNotification('Modo corte ativado. Arraste para selecionar a área que deseja manter.', 'info', 3000);
+            setCanvasModeIndicator('✂️ Cortar — selecione a área a manter · ESC cancela');
         }
 
         function deactivateCropMode() {
@@ -3538,11 +3613,12 @@
             document.getElementById('resizeSlider').value = Math.round(scale * 100);
             document.getElementById('resizeValue').textContent = `${Math.round(scale * 100)}%`;
             
-            showNotification('Modo redimensionamento ativado. Use o controle deslizante para ajustar o tamanho.', 'info', 3000);
+            setCanvasModeIndicator('⤢ Redimensionar — use o slider ao lado');
         }
 
         function deactivateResizeMode() {
             isResizeModeActive = false;
+            document.getElementById('canvas').classList.remove('resize-mode');
             document.getElementById('resizeControls').classList.remove('active');
             document.getElementById('resizeHint').classList.remove('active');
         }
@@ -3595,7 +3671,8 @@
             canvas.addEventListener('mouseup', endBrushDrawing);
             canvas.addEventListener('mouseleave', endBrushDrawing);
             
-            showNotification('Modo pincel/formas ativado. Use os controles para selecionar forma, tamanho e cor.', 'info', 3000);
+            setCanvasModeIndicator('🖌 Pincel — configure no painel ao lado');
+            document.getElementById('canvas').classList.add('resize-mode');
         }
 
         function deactivateBrushMode() {
@@ -4109,7 +4186,68 @@
             overlay.style.display = 'none';
         }
 
+        // ── Mode indicator state ──
+        let _modeText   = null;
+        let _modeHide   = null;   // timer para esconder após 2s
+        let _modeShow   = null;   // timer para reaparecer 1s após parar
+        let _modeMoving = false;  // está em movimento?
+        let _modeMoveT  = null;   // debounce "parou de mover"
+
+        function _modeMouseMove(e) {
+            const el = document.getElementById('canvasModeIndicator');
+            if (!el || !_modeText) return;
+            // Posiciona
+            const W = el.offsetWidth || 220;
+            const x = e.clientX + 20;
+            const y = e.clientY;
+            el.style.left = (x + W > window.innerWidth - 10 ? e.clientX - W - 16 : x) + 'px';
+            el.style.top  = y + 'px';
+            // Se já passou os 2s iniciais, esconde ao mover
+            if (!_modeHide) {
+                el.style.opacity = '0';
+                clearTimeout(_modeShow);
+                // Reaparece 1s após parar
+                clearTimeout(_modeMoveT);
+                _modeMoveT = setTimeout(() => {
+                    if (_modeText) el.style.opacity = '1';
+                }, 1000);
+            }
+        }
+
+        function setCanvasModeIndicator(text) {
+            const el = document.getElementById('canvasModeIndicator');
+            if (!el) return;
+            // Limpa timers
+            clearTimeout(_modeHide); _modeHide = null;
+            clearTimeout(_modeShow);
+            clearTimeout(_modeMoveT);
+
+            if (!text) {
+                _modeText = null;
+                el.style.opacity = '0';
+                document.removeEventListener('mousemove', _modeMouseMove);
+                return;
+            }
+
+            _modeText = text;
+            el.textContent = text;
+            // Posição inicial próxima ao centro
+            el.style.left = (window.innerWidth / 2) + 'px';
+            el.style.top  = (window.innerHeight / 2) + 'px';
+            el.style.opacity = '1';
+
+            document.removeEventListener('mousemove', _modeMouseMove);
+            document.addEventListener('mousemove', _modeMouseMove);
+
+            // Esconde após 2s e libera o comportamento de mover
+            _modeHide = setTimeout(() => {
+                el.style.opacity = '0';
+                _modeHide = null; // agora o mousemove pode controlar
+            }, 2000);
+        }
+
         function deactivateAllModes() {
+            setCanvasModeIndicator(null);
             deactivateMoveMode();
             deactivateCropMode();
             deactivateResizeMode();
@@ -4476,6 +4614,7 @@
                 // inicial — o usuário confere e ajusta manualmente antes de montar.
                 pdfFlatImages = [];
                 pdfJoinWithNext = [];
+                pdfSplits = {};
                 for (let p = 1; p <= pdf.numPages; p++) {
                     setPdfProgress(Math.round((p - 1) / pdf.numPages * 90) + 2, `Analisando página ${p} de ${pdf.numPages}...`);
                     const page = await pdf.getPage(p);
@@ -4513,19 +4652,94 @@
 
         // Renderiza a grade de imagens extraídas com os conectores ✂️/🔗 entre elas,
         // permitindo ao usuário indicar manualmente quais imagens compõem cada moldura.
+        // pdfSplits: { index: N } — imagem no índice deve ser dividida em N fatias verticais
+        let pdfSplits = {};
+
+        function splitImage(dataUrl, parts) {
+            // Divide a imagem em `parts` fatias verticais iguais
+            return new Promise(resolve => {
+                const img = new Image();
+                img.onload = () => {
+                    const sliceW = Math.floor(img.width / parts);
+                    const slices = [];
+                    for (let p = 0; p < parts; p++) {
+                        const c = document.createElement('canvas');
+                        c.width = sliceW;
+                        c.height = img.height;
+                        c.getContext('2d').drawImage(img, p * sliceW, 0, sliceW, img.height, 0, 0, sliceW, img.height);
+                        slices.push(c.toDataURL('image/png'));
+                    }
+                    resolve(slices);
+                };
+                img.src = dataUrl;
+            });
+        }
+
         function renderPdfGroupingGrid() {
             const grid = document.getElementById('pdfGroupingGrid');
             grid.innerHTML = '';
 
             pdfFlatImages.forEach((imgObj, i) => {
-                const card = document.createElement('div');
-                card.style.cssText = 'width:120px; text-align:center; background:white; border:2px solid #e0e7ff; border-radius:12px; padding:6px;';
-                card.innerHTML = `
-                    <img src="${imgObj.dataUrl}" style="width:100%; border-radius:6px; display:block;">
-                    <p style="font-size:10px; color:#999; margin-top:4px;">pág. ${imgObj.pageNum}</p>
-                `;
-                grid.appendChild(card);
+                const splitN = pdfSplits[i] || 1;
 
+                const wrapper = document.createElement('div');
+                wrapper.style.cssText = 'display:flex; flex-direction:column; align-items:center; gap:6px;';
+
+                // Card da imagem
+                const card = document.createElement('div');
+                card.style.cssText = 'width:120px; text-align:center; background:white; border:2px solid #e0e7ff; border-radius:12px; padding:6px; position:relative;';
+
+                // Linhas de divisão visuais sobre a imagem
+                const imgWrap = document.createElement('div');
+                imgWrap.style.cssText = 'position:relative; width:100%; border-radius:6px; overflow:hidden;';
+                const img = document.createElement('img');
+                img.src = imgObj.dataUrl;
+                img.style.cssText = 'width:100%; display:block;';
+                imgWrap.appendChild(img);
+
+                // Linhas de corte visuais
+                for (let l = 1; l < splitN; l++) {
+                    const line = document.createElement('div');
+                    line.style.cssText = `position:absolute; top:0; bottom:0; left:${(l/splitN*100).toFixed(1)}%; width:2px; background:rgba(255,80,80,0.85); pointer-events:none; z-index:2;`;
+                    imgWrap.appendChild(line);
+                }
+
+                card.appendChild(imgWrap);
+
+                const pageLabel = document.createElement('p');
+                pageLabel.style.cssText = 'font-size:10px; color:#999; margin-top:4px;';
+                pageLabel.textContent = `pág. ${imgObj.pageNum}${splitN > 1 ? ` · ${splitN}✂️` : ''}`;
+                card.appendChild(pageLabel);
+
+                // Botões de divisão
+                const splitRow = document.createElement('div');
+                splitRow.style.cssText = 'display:flex; gap:3px; justify-content:center;';
+
+                [1, 2, 3].forEach(n => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.textContent = n === 1 ? '1' : n === 2 ? '÷2' : '÷3';
+                    btn.title = n === 1 ? 'Sem divisão' : `Dividir em ${n} partes iguais`;
+                    btn.style.cssText = `
+                        font-size:11px; font-weight:700; padding:3px 7px;
+                        border-radius:6px; border:1.5px solid ${splitN === n ? '#667eea' : '#e0e7ff'};
+                        background:${splitN === n ? '#667eea' : 'white'};
+                        color:${splitN === n ? 'white' : '#667eea'};
+                        cursor:pointer; font-family:inherit; transition:all .15s;
+                    `;
+                    btn.onclick = () => {
+                        if (n === 1) delete pdfSplits[i];
+                        else pdfSplits[i] = n;
+                        renderPdfGroupingGrid();
+                    };
+                    splitRow.appendChild(btn);
+                });
+
+                wrapper.appendChild(card);
+                wrapper.appendChild(splitRow);
+                grid.appendChild(wrapper);
+
+                // Botão de unir/separar entre imagens adjacentes
                 if (i < pdfFlatImages.length - 1) {
                     const btn = document.createElement('button');
                     btn.type = 'button';
@@ -4556,24 +4770,52 @@
         }
 
         async function confirmPdfGrouping() {
+            // Primeiro expande as imagens que foram marcadas para divisão
+            document.getElementById('pdfGroupingSection').style.display = 'none';
+            document.getElementById('previewSection').classList.remove('active');
+            setPdfProgress(2, 'Processando divisões de imagem...');
+            document.getElementById('pdfProgress').style.display = 'block';
+
+            // Expande pdfFlatImages: substitui entradas com split por N fatias
+            const expandedImages = [];
+            const expandedJoins  = [];
+
+            for (let i = 0; i < pdfFlatImages.length; i++) {
+                const splitN = pdfSplits[i] || 1;
+                if (splitN > 1) {
+                    const slices = await splitImage(pdfFlatImages[i].dataUrl, splitN);
+                    slices.forEach((sliceDataUrl, si) => {
+                        expandedImages.push({ dataUrl: sliceDataUrl, pageNum: pdfFlatImages[i].pageNum });
+                        // Fatias da mesma imagem ficam UNIDAS na mesma moldura múltipla
+                        // Só a última fatia pode se separar da próxima imagem
+                        const isLastSlice = si === slices.length - 1;
+                        expandedJoins.push(isLastSlice ? (pdfJoinWithNext[i] || false) : true);
+                    });
+                } else {
+                    expandedImages.push(pdfFlatImages[i]);
+                    expandedJoins.push(pdfJoinWithNext[i] || false);
+                }
+            }
+
+            // Agrupa usando os arrays expandidos
             const groups = [];
             let current = [];
-            pdfFlatImages.forEach((imgObj, i) => {
+            expandedImages.forEach((imgObj, i) => {
                 current.push(imgObj);
-                if (!pdfJoinWithNext[i]) {
+                if (!expandedJoins[i]) {
                     groups.push(current);
                     current = [];
                 }
             });
             if (current.length) groups.push(current);
-
-            document.getElementById('pdfGroupingSection').style.display = 'none';
             await composeGroupsToResults(groups);
         }
 
         async function composeGroupsToResults(groups) {
             document.getElementById('pdfProgress').style.display = 'block';
             setPdfProgress(5, 'Montando molduras...');
+            // Esconde o canvas durante a composição para não confundir o usuário
+            document.getElementById('previewSection').classList.remove('active');
 
             const quality = 1.0; // máxima qualidade — o scale do PDF já controla o tamanho
 
@@ -4613,6 +4855,8 @@
             setPdfProgress(100, `Pronto! ${groups.length} moldura(s) geradas. Confira a pré-visualização.`);
             showNotification(`${groups.length} moldura(s) montadas! Confira e edite antes de baixar.`, 'success', 6000);
             showPdfResultsPreview(results, groups.length);
+            // Esconde previewSection — só aparece ao clicar em "Ajustar"
+            document.getElementById('previewSection').classList.remove('active');
             // Reseta frames para não sujar os upload boxes manuais
             frames = []; setFrameCount(1);
         }
@@ -4740,11 +4984,12 @@
         async function editPdfResult(idx) {
             const result = pdfResults[idx];
             editingPdfResultIndex = idx;
+            activeFrameIndex = 0; // começa editando a primeira imagem
 
             await setFrameCountForBatch(result.images.length);
             for (let i = 0; i < result.images.length; i++) {
                 const img = await loadImageFromDataUrl(result.images[i]);
-                loadImageIntoFrameSlot(i, img);
+                await loadImageIntoFrameSlot(i, img);
             }
             await waitForFramesReady(result.images.length);
 
@@ -4848,7 +5093,7 @@
         async function saveEditedPdfResult() {
             if (editingPdfResultIndex === null) return;
 
-            // Garante que a cor e os ajustes estão todos aplicados antes de exportar
+            // Aplica todos os ajustes e re-renderiza
             applyFrameColorToAll();
             renderFinalCanvas();
 
@@ -4863,16 +5108,20 @@
             exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
             exportCtx.drawImage(canvas, 0, 0);
 
-            const quality = 1.0; // máxima qualidade
+            const quality = 1.0;
             const blob = await new Promise(resolve => exportCanvas.toBlob(resolve, 'image/jpeg', quality));
             const dataUrl = exportCanvas.toDataURL('image/jpeg', quality);
 
+            // Salva as imagens de cada slot (com fallback para a imagem original)
             const images = [];
-            for (let i = 0; i < frameCount; i++) images.push(frames[i].uploadedImage.src);
+            for (let i = 0; i < frameCount; i++) {
+                const src = frames[i]?.uploadedImage?.src || pdfResults[editingPdfResultIndex]?.images?.[i] || '';
+                images.push(src);
+            }
 
-            pdfResults[editingPdfResultIndex].blob = blob;
+            pdfResults[editingPdfResultIndex].blob    = blob;
             pdfResults[editingPdfResultIndex].dataUrl = dataUrl;
-            pdfResults[editingPdfResultIndex].images = images;
+            pdfResults[editingPdfResultIndex].images  = images;
 
             editingPdfResultIndex = null;
             document.getElementById('pdfEditBanner').style.display = 'none';
@@ -4963,7 +5212,7 @@
                 cropBtn.style.display = (frame?.originalImage && frame?.uploadedImage !== frame?.originalImage) ? '' : 'none';
             }
             const cycleBtn = document.getElementById('ftFrameBtn');
-            if (cycleBtn) cycleBtn.style.display = frameCount > 1 ? '' : 'none';
+            if (cycleBtn) { cycleBtn.style.display = frameCount > 1 ? '' : 'none'; cycleBtn.style.background = frameCount > 1 ? 'linear-gradient(135deg,#f59e0b,#d97706)' : ''; cycleBtn.style.color = frameCount > 1 ? 'white' : ''; }
         }
 
         function cycleActiveFrame() {
