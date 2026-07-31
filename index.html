@@ -5611,20 +5611,22 @@
             showNotification(`Gerando ZIP "${title}.zip"...`, 'info', 3000);
             const zip = new JSZip();
             pdfResults.forEach(r => zip.file(`${r.name}.jpg`, r.blob));
-            // Capa: usa blob se disponível, senão tenta fetch
+            // Capa: usa blob se disponível; senão tenta buscar (direto ou via proxy de imagens)
             if (coverImage) {
                 const coverName = getCoverFileName() + '.jpg';
-                if (coverImage.blob) {
-                    zip.file(coverName, coverImage.blob);
+                let blob = coverImage.blob;
+                if (!blob && coverImage.dataUrl) {
+                    blob = await fetchImageBlob(coverImage.dataUrl);
+                    if (blob) coverImage.blob = blob;
+                }
+                if (blob) {
+                    zip.file(coverName, blob);
                 } else if (coverImage.dataUrl) {
-                    try {
-                        const r = await fetch(coverImage.dataUrl);
-                        const b = await r.blob();
-                        zip.file(coverName, b);
-                    } catch(e) {
-                        // CORS bloqueou — adiciona um arquivo txt com o link
-                        zip.file(coverName.replace('.jpg','-link.txt'), coverImage.dataUrl);
-                    }
+                    // Nem o fetch direto nem o proxy de imagens conseguiram uma cópia —
+                    // abre a imagem numa aba para o usuário salvar manualmente.
+                    zip.file(coverName.replace('.jpg', '-link.txt'), coverImage.dataUrl);
+                    window.open(coverImage.dataUrl, '_blank');
+                    showNotification('A capa não pôde ser incluída automaticamente no ZIP. Abri ela em outra aba — salve manualmente com "Salvar imagem como".', 'warning', 8000);
                 }
             }
             const zipBlob = await zip.generateAsync({ type: 'blob' });
@@ -6144,9 +6146,38 @@
             }
         }
 
+        // Alguns sites de origem (WordPress dos portais) não liberam CORS, então o navegador
+        // recusa ler os bytes da imagem via fetch() direto, mesmo ela abrindo normalmente.
+        // Para contornar, pedimos a imagem a um proxy de imagens (images.weserv.nl) — ele busca
+        // o arquivo no servidor dele (sem restrição de CORS de navegador) e devolve uma cópia
+        // já com o cabeçalho de CORS liberado, que aí sim conseguimos ler e baixar.
+        function toImageProxyUrl(url) {
+            const stripped = url.replace(/^https:\/\//i, 'ssl:').replace(/^http:\/\//i, '');
+            return `https://images.weserv.nl/?url=${encodeURIComponent(stripped)}`;
+        }
+
+        async function fetchImageBlob(url) {
+            try {
+                const r = await fetch(url);
+                if (!r.ok) throw new Error('status ' + r.status);
+                return await r.blob();
+            } catch (e) {
+                // Fetch direto falhou (provável bloqueio de CORS) — tenta via proxy de imagens,
+                // que cria uma cópia temporária da imagem com CORS liberado.
+                try {
+                    const r2 = await fetch(toImageProxyUrl(url));
+                    if (!r2.ok) throw new Error('status ' + r2.status);
+                    return await r2.blob();
+                } catch (e2) {
+                    return null;
+                }
+            }
+        }
+
         function setCoverImageFromUrl(url) {
             // Para URLs externas (WordPress, CDN) — usa diretamente sem converter para base64
-            // O blob é gerado via fetch para o ZIP; se falhar, o download individual usa a URL
+            // O blob é gerado via fetchImageBlob (com fallback de proxy) para o ZIP;
+            // se tudo falhar, o download individual usa a URL original
             const name = getCoverFileName();
             const thumb = document.getElementById('coverThumb');
             const empty = document.getElementById('coverEmpty');
@@ -6156,12 +6187,9 @@
             if (empty)  { empty.style.display = 'none'; }
             if (info)   { info.style.display = 'flex'; }
             if (fnEl)   { fnEl.textContent = name + '.jpg'; fnEl.style.display = 'block'; }
-            // Tenta buscar como blob para incluir no ZIP
-            fetch(url).then(r => r.blob()).then(blob => {
-                coverImage = { dataUrl: url, name, blob };
-            }).catch(() => {
-                // Se o fetch falhar (CORS), salva só a URL — download individual funcionará via href
-                coverImage = { dataUrl: url, name, blob: null };
+            coverImage = { dataUrl: url, name, blob: null };
+            fetchImageBlob(url).then(blob => {
+                if (coverImage && coverImage.dataUrl === url) coverImage.blob = blob;
             });
         }
 
@@ -6181,8 +6209,8 @@
                 for (let i = 0; i < byteStr.length; i++) arr[i] = byteStr.charCodeAt(i);
                 coverImage.blob = new Blob([arr], { type: 'image/jpeg' });
             } catch(e) {
-                // Se falhar (URL externa sem base64), busca como fetch
-                fetch(dataUrl).then(r => r.blob()).then(b => { if (coverImage) coverImage.blob = b; });
+                // Se falhar (URL externa sem base64), busca via fetchImageBlob (com fallback de proxy)
+                fetchImageBlob(dataUrl).then(b => { if (coverImage) coverImage.blob = b; });
             }
         }
 
@@ -6196,18 +6224,25 @@
             if (info)   { info.style.display = 'none'; }
         }
 
-        function downloadCover() {
+        async function downloadCover() {
             if (!coverImage) return;
             const name = getCoverFileName();
-            if (coverImage.blob) {
-                // Tem blob — download direto
-                const url = URL.createObjectURL(coverImage.blob);
+            let blob = coverImage.blob;
+            if (!blob && coverImage.dataUrl) {
+                showNotification('Preparando cópia da capa para download...', 'info', 2500);
+                blob = await fetchImageBlob(coverImage.dataUrl);
+                if (blob) coverImage.blob = blob;
+            }
+            if (blob) {
+                // Tem blob (direto ou via cópia do proxy) — download com nome correto
+                const url = URL.createObjectURL(blob);
                 const a = Object.assign(document.createElement('a'), { download: name + '.jpg', href: url });
                 document.body.appendChild(a); a.click(); document.body.removeChild(a);
                 URL.revokeObjectURL(url);
             } else {
-                // Só tem URL — abre em nova aba (não tem controle do nome)
+                // Não conseguiu nem direto nem via proxy — abre em nova aba (não tem controle do nome)
                 window.open(coverImage.dataUrl, '_blank');
+                showNotification('Não foi possível gerar uma cópia automática. Salve manualmente com "Salvar imagem como" na aba que abriu.', 'warning', 6000);
             }
         }
 
