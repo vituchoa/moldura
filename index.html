@@ -6,7 +6,7 @@
     <title>Beframe by Beside Media</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap');
-        
+
         * {
             margin: 0;
             padding: 0;
@@ -18,15 +18,87 @@
             background: url('https://vituchoa.github.io/moldura/src/fundo.png') center/cover no-repeat fixed;
             min-height: 100vh;
             padding: 20px;
+            overflow-x: hidden;
         }
         
-        .container {
-            max-width: 1320px;
+        /* Layout de página: o "container" branco e a coluna de ferramentas ficam
+           lado a lado, cada um com seu próprio espaço reservado — a coluna de
+           ferramentas nunca fica sobre o conteúdo do site, mesmo em telas largas.
+           Em telas estreitas (sem espaço para os dois lado a lado) ela quebra para
+           baixo do container em vez de sobrepor. */
+        .page-layout {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+            max-width: 1300px;
             margin: 0 auto;
+        }
+
+        .page-layout > .container {
+            margin: 0;
+            flex: 1 1 860px;
+            width: 100%;
+        }
+
+        /* Coluna de ferramentas: painel de personalização (largo) à esquerda,
+           barra de ferramentas + botões de ação (estreitos) à direita — largura
+           total sempre reservada, então a barra de ícones nunca se desloca quando
+           o painel de personalização aparece/desaparece. */
+        .side-tools-column {
+            position: sticky;
+            top: 20px;
+            align-self: flex-start;
+            flex: 0 0 416px;
+            width: 416px;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            align-items: flex-start;
+            gap: 12px;
+            max-height: calc(100vh - 40px);
+        }
+
+        .narrow-tools-column {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            min-height: calc(100vh - 40px);
             background: white;
             border-radius: 24px;
             padding: 40px;
             box-shadow: 0 25px 80px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .welcome-hero {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 28px 20px;
+        }
+        .welcome-hero h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #191e31;
+            margin-bottom: 10px;
+        }
+        .welcome-hero p {
+            font-size: 17px;
+            color: #667eea;
+            font-weight: 600;
         }
 
         .setup-grid {
@@ -175,12 +247,15 @@
 
         /* ===== BOTÕES DE PORTAL ===== */
         .portal-btn {
-            padding: 10px 18px; border: 2px solid #e0e7ff; border-radius: 12px;
+            padding: 10px 8px; border: 2px solid #e0e7ff; border-radius: 10px;
             background: white; cursor: pointer; font-weight: 700; font-size: 13px;
             font-family: inherit; color: #333; transition: all 0.25s;
+            white-space: normal; text-align: center; line-height: 1.25;
         }
         .portal-btn:hover { border-color: #667eea; transform: translateY(-2px); box-shadow: 0 4px 14px rgba(102,126,234,0.2); }
         .portal-btn.active { background: linear-gradient(135deg, #667eea, #5568d3); color: white; border-color: #667eea; }
+        .portal-btn.is-favorite::before { content: '★ '; color: #fbbf24; }
+        .portal-btn.active.is-favorite::before { color: #fff7cc; }
 
         .portal-selection label {
             display: block;
@@ -392,19 +467,15 @@
 
         .frame-upload-section { display: none; }
 
-        /* ===== BARRA FLUTUANTE DE EDIÇÃO ===== */
+        /* ===== BARRA DE EDIÇÃO (agora um item normal da coluna de ferramentas,
+           nunca sobrepõe o container — só ocupa espaço quando está em uso) ===== */
         .floating-toolbar {
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
-            position: fixed; right: 20px; top: 50%;
-            transform: translateY(-50%) translateX(12px);
+            display: none; flex-direction: column; align-items: center; gap: 8px;
             background: white; border-radius: 20px; padding: 14px 10px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.16); border: 2px solid #e0e7ff; z-index: 900;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.16); border: 2px solid #e0e7ff;
         }
         .floating-toolbar.visible {
-            opacity: 1; pointer-events: all;
-            transform: translateY(-50%) translateX(0);
+            display: flex;
         }
         .floating-toolbar .edit-btn {
             width: 46px; height: 46px; font-size: 16px;
@@ -440,25 +511,34 @@
         .floating-toolbar-divider { width:100%; height:2px; background:#e0e7ff; border-radius:2px; }
         .floating-toolbar-label { font-size:10px; font-weight:700; color:#aaa; text-align:center; }
 
-        /* ===== BOTÃO + FLUTUANTE ===== */
+        /* ===== BOTÕES DE AÇÃO RÁPIDA (itens normais da coluna de ferramentas) ===== */
         .fab-add {
-            position: fixed; bottom: 32px; right: 32px;
+            position: relative; flex-shrink: 0;
             width: 60px; height: 60px; border-radius: 50%;
             background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
             color: white; font-size: 28px; border: none; cursor: pointer;
             box-shadow: 0 6px 24px rgba(102,126,234,0.5);
             display: flex; align-items: center; justify-content: center;
-            z-index: 800; transition: all 0.3s;
+            transition: all 0.3s;
         }
+        .fab-add.active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .side-tools-divider { width: 100%; height: 2px; background: #e0e7ff; border-radius: 2px; }
         .fab-add:hover { transform: scale(1.12); box-shadow: 0 10px 32px rgba(102,126,234,0.6); }
-        .fab-tooltip {
-            position: fixed; bottom: 42px; right: 100px;
+        /* Tooltip individual — cada fab-add mostra a sua própria (a versão antiga usava um
+           único span compartilhado via seletor ~, então todos os botões mostravam o mesmo
+           texto fixo "Adicionar imagens" ao passar o mouse, não importa qual fosse). */
+        .fab-add::after {
+            content: attr(title);
+            position: absolute; top: 50%; right: calc(100% + 12px);
+            transform: translateY(-50%);
             background: #191e31; color: white; padding: 8px 14px;
             border-radius: 10px; font-size: 13px; font-weight: 700;
             white-space: nowrap; opacity: 0; pointer-events: none;
-            transition: opacity 0.2s; z-index: 800;
+            transition: opacity 0.2s;
         }
-        .fab-add:hover ~ .fab-tooltip { opacity: 1; }
+        .fab-add:hover::after { opacity: 1; }
 
         /* ===== SELETOR DE COR INLINE NOS RESULTADOS ===== */
         .inline-color-picker {
@@ -1457,10 +1537,11 @@
         
         .notification-container {
             position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
+            top: 20px;
+            right: 20px;
+            z-index: 3000;
+            overflow: hidden;
+            max-width: 100vw;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -1470,14 +1551,14 @@
         .notification {
             background: linear-gradient(135deg, #191e31 0%, #2d3555 100%);
             color: white !important;
-            padding: 16px 24px;
-            border-radius: 12px;
+            padding: 10px 16px;
+            border-radius: 10px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
-            gap: 12px;
-            min-width: 300px;
-            max-width: 500px;
+            gap: 10px;
+            min-width: 220px;
+            max-width: 380px;
             opacity: 0;
             transform: translateY(20px);
             transition: all 0.3s ease;
@@ -1512,14 +1593,16 @@
         }
         
         .notification-icon {
-            font-size: 20px;
+            font-size: 16px;
             flex-shrink: 0;
+            display: flex;
         }
-        
+
         .notification-message {
             flex: 1;
             font-weight: 600;
-            font-size: 15px;
+            font-size: 13px;
+            line-height: 1.35;
             color: white !important;
         }
         
@@ -1924,9 +2007,9 @@
         /* Toolbar flutuante */
         /* floating-toolbar animation now in base CSS */
 
-        /* Subpanel flutuante */
-        #floatingSubpanel {
-            transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        /* Painel de personalização da ferramenta ativa */
+        #floatingSubpanel.visible {
+            display: flex !important;
         }
 
         /* Upload boxes hover */
@@ -2022,14 +2105,21 @@
 <body>
     <div class="notification-container" id="notificationContainer"></div>
     
+    <div class="page-layout">
     <div class="container">
         <div class="logo-section">
             <img src="https://vituchoa.github.io/moldura/src/logo_beframe.png" alt="Beframe Logo" class="logo">
         </div>
 
-        <div class="section portal-selection" style="padding:20px 30px;">
-            <p style="text-align:left; font-size:15px; font-weight:700; color:#191e31; margin-bottom:14px;"><span data-icon="target"></span> Portal</p>
-            <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:16px;">
+        <div class="section portal-selection" style="padding:20px 14px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                <p style="font-size:15px; font-weight:700; color:#191e31;"><span data-icon="target"></span> Portal</p>
+                <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:#667eea; font-weight:700; cursor:pointer;">
+                    <input type="checkbox" id="showFavoritesOnly" onchange="applyFavoritesFilter()"> Mostrar favoritos
+                </label>
+            </div>
+            <p style="text-align:right; font-size:11px; color:#bbb; margin-bottom:10px;">Clique com o botão direito num portal para marcar como favorito</p>
+            <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; margin-bottom:16px;">
                 <button type="button" class="portal-btn" data-portal="bemotors" onclick="selectPortal('bemotors')">BeMotors</button>
                 <button type="button" class="portal-btn" data-portal="credhelper" onclick="selectPortal('credhelper')">Credhelper</button>
                 <button type="button" class="portal-btn" data-portal="guiadin" onclick="selectPortal('guiadin')">Guiadin</button>
@@ -2040,11 +2130,6 @@
                 <button type="button" class="portal-btn" data-portal="tuguiasocial" onclick="selectPortal('tuguiasocial')">Tu Guia Social</button>
                 <button type="button" class="portal-btn" data-portal="tutorsya" onclick="selectPortal('tutorsya')">Tutorsya</button>
                 <button type="button" class="portal-btn" data-portal="yacuenta" onclick="selectPortal('yacuenta')">Yacuenta</button>
-            </div>
-            <div style="text-align:center;">
-                <button type="button" id="toggleCustomFrameBtn" onclick="toggleCustomFrame()" style="background:none; border:none; color:#aaa; font-size:12px; cursor:pointer; text-decoration:underline; font-family:inherit;">
-                    <span data-icon="frame"></span> Usar moldura personalizada
-                </button>
             </div>
             <div id="customFramePanel" style="display:none; margin-top:14px;">
                 <div class="frame-upload-box" id="customFrameBox" style="max-width:400px; margin:0 auto;">
@@ -2061,6 +2146,11 @@
             </div>
         </div>
 
+        <div class="welcome-hero" id="welcomeHero">
+            <h1>Bem-vindo ao BeFrame</h1>
+            <p>Selecione o seu portal e use as ferramentas ao lado →</p>
+        </div>
+
         <!-- Proxies ocultos para os IDs que o JS ainda referencia (frameColor*) — sincronizados com o seletor de cor dos resultados -->
         <div style="display:none;" aria-hidden="true">
             <div id="frameColorSelector"></div>
@@ -2071,105 +2161,161 @@
             <button id="frameColorEyedropperBtn"></button>
         </div>
 
-        <div class="section pdf-import-section" id="pdfImportSection">
-            <h3 class="section-title section-title-left" style="justify-content:space-between;">
-                <span><span data-icon="file"></span> Importar PDF (Automático)</span>
-                <button type="button" class="help-icon-btn" aria-label="Como funciona a importação de PDF">
-                    <span data-icon="info" data-icon-size="15"></span>
-                    <span class="help-tooltip">
-                        Envie o PDF da matéria: o Beframe extrai as imagens automaticamente,
-                        identifica a orientação e monta as molduras sozinho — imagens verticais que
-                        aparecem sem texto entre elas são agrupadas lado a lado na mesma moldura final.
-                        Ao final, uma pré-visualização de cada montagem é exibida para você conferir
-                        antes de baixar — nada é baixado automaticamente.
-                    </span>
-                </button>
-            </h3>
-            <div id="pdfImportContent">
-                <div class="pdf-import-row">
-                    <div class="pdf-import-right">
-                        <div class="frame-upload-box compact-horizontal" id="pdfUploadBox">
-                            <div class="upload-icon"><span data-icon="file" data-icon-size="26"></span></div>
-                            <h3 class="upload-title" id="pdfUploadTitle">Arquivo PDF</h3>
-                            <p class="upload-description">Clique ou arraste o PDF aqui<br><small>Extração automática, com pré-visualização antes de baixar</small></p>
-                            <input type="file" id="pdfUploadInput" accept="application/pdf">
+        <!-- Modal: Importar PDF -->
+        <div id="pdfModalOverlay" style="
+            display:none; position:fixed; inset:0; z-index:2000;
+            background:rgba(15,20,40,0.55); backdrop-filter:blur(4px);
+            align-items:center; justify-content:center;
+        " onclick="if(event.target===this) closePdfModal()">
+            <div style="
+                background:white; border-radius:24px; padding:32px;
+                width:min(640px,95vw); max-height:90vh; overflow-y:auto;
+                box-shadow:0 24px 80px rgba(0,0,0,0.3);
+                animation:modalPop 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+            ">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+                    <span style="font-size:18px; font-weight:800; color:#191e31;"><span data-icon="file"></span> Importar PDF (Automático)</span>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <button type="button" class="help-icon-btn" aria-label="Como funciona a importação de PDF">
+                            <span data-icon="info" data-icon-size="15"></span>
+                            <span class="help-tooltip">
+                                Envie o PDF da matéria: o Beframe extrai as imagens automaticamente,
+                                identifica a orientação e monta as molduras sozinho — imagens verticais que
+                                aparecem sem texto entre elas são agrupadas lado a lado na mesma moldura final.
+                                Ao final, uma pré-visualização de cada montagem é exibida para você conferir
+                                antes de baixar — nada é baixado automaticamente.
+                            </span>
+                        </button>
+                        <button type="button" onclick="closePdfModal()"
+                            style="background:none; border:none; color:#bbb; font-size:24px; cursor:pointer; line-height:1; padding:4px 8px; border-radius:8px; transition:all .2s;"
+                            onmouseover="this.style.background='#fee2e2';this.style.color='#dc2626'"
+                            onmouseout="this.style.background='none';this.style.color='#bbb'"
+                            title="Fechar"><span data-icon="close" data-icon-size="18"></span></button>
+                    </div>
+                </div>
+                <div id="pdfImportSection">
+                    <div id="pdfImportContent">
+                        <div class="pdf-import-row">
+                            <div class="pdf-import-right">
+                                <div class="frame-upload-box compact-horizontal" id="pdfUploadBox">
+                                    <div class="upload-icon"><span data-icon="file" data-icon-size="26"></span></div>
+                                    <h3 class="upload-title" id="pdfUploadTitle">Arquivo PDF</h3>
+                                    <p class="upload-description">Clique ou arraste o PDF aqui<br><small>Extração automática, com pré-visualização antes de baixar</small></p>
+                                    <input type="file" id="pdfUploadInput" accept="application/pdf">
+                                </div>
+                                <div class="pdf-progress" id="pdfProgress">
+                                    <div class="pdf-progress-bar-track"><div class="pdf-progress-bar-fill" id="pdfProgressFill"></div></div>
+                                    <p class="pdf-progress-text" id="pdfProgressText"></p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="pdf-progress" id="pdfProgress">
-                            <div class="pdf-progress-bar-track"><div class="pdf-progress-bar-fill" id="pdfProgressFill"></div></div>
-                            <p class="pdf-progress-text" id="pdfProgressText"></p>
+                    </div>
+                    <div class="pdf-grouping-section" id="pdfGroupingSection" style="display:none; margin-top:25px;">
+                        <h3 class="section-title"><span data-icon="puzzle"></span> Confira o agrupamento das imagens</h3>
+                        <p style="text-align:center; color:#888; font-size:13px; margin-top:-8px;">
+                            Cada bloco vai virar uma moldura. Clique em <span data-icon="scissors" data-icon-size="13"></span>/<span data-icon="link" data-icon-size="13"></span> entre as imagens para unir ou separar antes de montar.
+                        </p>
+                        <div id="pdfGroupingGrid" style="display:flex; flex-wrap:wrap; align-items:center; gap:10px; justify-content:center; margin-top:16px;"></div>
+                        <button class="action-btn download-btn" style="margin:20px auto 0; display:block;" onclick="confirmPdfGrouping()"><span data-icon="check"></span> Montar Molduras</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Nomenclatura -->
+        <div id="filenameModalOverlay" style="
+            display:none; position:fixed; inset:0; z-index:2000;
+            background:rgba(15,20,40,0.55); backdrop-filter:blur(4px);
+            align-items:center; justify-content:center;
+        " onclick="if(event.target===this) closeFilenameModal()">
+            <div style="
+                background:white; border-radius:24px; padding:32px;
+                width:min(560px,95vw); max-height:90vh; overflow-y:auto;
+                box-shadow:0 24px 80px rgba(0,0,0,0.3);
+                animation:modalPop 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+            ">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+                    <span style="font-size:18px; font-weight:800; color:#191e31;"><span data-icon="edit"></span> Nomenclatura</span>
+                    <button type="button" onclick="closeFilenameModal()"
+                        style="background:none; border:none; color:#bbb; font-size:24px; cursor:pointer; line-height:1; padding:4px 8px; border-radius:8px; transition:all .2s;"
+                        onmouseover="this.style.background='#fee2e2';this.style.color='#dc2626'"
+                        onmouseout="this.style.background='none';this.style.color='#bbb'"
+                        title="Fechar"><span data-icon="close" data-icon-size="18"></span></button>
+                </div>
+                <div id="filenameSection">
+                    <div class="filename-inputs">
+                        <div class="filename-group">
+                            <label class="filename-label">Nome do Artigo<span class="filename-label-desc">nome do ZIP ao baixar tudo</span></label>
+                            <input type="text" id="articleTitle" class="filename-input" placeholder="ex: Matéria sobre galpões" oninput="updateFilenamePreview()">
+                        </div>
+                        <div class="filename-group">
+                            <label class="filename-label">Código do arquivo<span class="filename-label-desc">prefixo das imagens geradas</span></label>
+                            <input type="text" id="filePrefix" class="filename-input" placeholder="ex: IMG1345" oninput="updateFilenamePreview()">
+                        </div>
+                        <div class="filename-group">
+                            <label class="filename-label">Número inicial</label>
+                            <input type="text" id="imageNumber" class="filename-input" placeholder="ex: 01" maxlength="3" inputmode="numeric" oninput="updateFilenamePreview()">
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="pdf-grouping-section" id="pdfGroupingSection" style="display:none; margin-top:25px;">
-                <h3 class="section-title"><span data-icon="puzzle"></span> Confira o agrupamento das imagens</h3>
-                <p style="text-align:center; color:#888; font-size:13px; margin-top:-8px;">
-                    Cada bloco vai virar uma moldura. Clique em <span data-icon="scissors" data-icon-size="13"></span>/<span data-icon="link" data-icon-size="13"></span> entre as imagens para unir ou separar antes de montar.
-                </p>
-                <div id="pdfGroupingGrid" style="display:flex; flex-wrap:wrap; align-items:center; gap:10px; justify-content:center; margin-top:16px;"></div>
-                <button class="action-btn download-btn" style="margin:20px auto 0; display:block;" onclick="confirmPdfGrouping()"><span data-icon="check"></span> Montar Molduras</button>
-            </div>
-        </div>
-
-        <div class="setup-grid">
-        <div class="section filename-section" id="filenameSection">
-            <h3 class="section-title section-title-left"><span data-icon="edit"></span> Nomenclatura</h3>
-            <div class="filename-inputs">
-                <div class="filename-group">
-                    <label class="filename-label">Nome do Artigo<span class="filename-label-desc">nome do ZIP ao baixar tudo</span></label>
-                    <input type="text" id="articleTitle" class="filename-input" placeholder="ex: Matéria sobre galpões" oninput="updateFilenamePreview()">
-                </div>
-                <div class="filename-group">
-                    <label class="filename-label">Código do arquivo<span class="filename-label-desc">prefixo das imagens geradas</span></label>
-                    <input type="text" id="filePrefix" class="filename-input" placeholder="ex: IMG1345" oninput="updateFilenamePreview()">
-                </div>
-                <div class="filename-group">
-                    <label class="filename-label">Número inicial</label>
-                    <input type="text" id="imageNumber" class="filename-input" placeholder="ex: 01" maxlength="3" inputmode="numeric" oninput="updateFilenamePreview()">
-                </div>
-            </div>
-            <div class="filename-preview">
-                <span class="filename-preview-label"><span data-icon="file"></span> Exemplo do nome das imagens:</span>
-                <div class="filename-preview-text" id="filenamePreview"><span class="placeholder">Digite o código acima</span></div>
-            </div>
-        </div>
-
-        <div class="section" id="coverSection">
-            <h3 class="section-title section-title-left"><span data-icon="frame"></span> Capa do Artigo</h3>
-            <div id="coverArea" style="display:flex; flex-direction:column; align-items:center; gap:20px; text-align:center;">
-
-                <!-- Área da imagem centralizada -->
-                <div id="coverImageBox" style="position:relative; width:100%; max-width:420px; height:260px; border:2px dashed #c7d2fe; border-radius:16px; overflow:hidden; cursor:pointer; background:#f8f9ff; margin:0 auto;"
-                     onclick="document.getElementById('coverUploadInput').click()"
-                     ondrop="event.preventDefault(); handleCoverUpload(event.dataTransfer.files[0])"
-                     ondragover="event.preventDefault()">
-                    <div id="coverEmpty" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:8px; pointer-events:none;">
-                        <span style="font-size:36px;" data-icon="camera" data-icon-size="36"></span>
-                        <span style="font-size:13px; color:#aaa; font-weight:500;">Clique ou arraste uma imagem</span>
-                    </div>
-                    <img id="coverThumb" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
-                </div>
-                <input type="file" id="coverUploadInput" accept="image/*" style="display:none" onchange="handleCoverUpload(this.files[0])">
-
-                <!-- Nome do arquivo -->
-                <p id="coverFileName" style="font-family:monospace; font-size:14px; color:#667eea; font-weight:700; display:none;"></p>
-
-                <!-- Ações centralizadas -->
-                <div id="coverInfo" style="display:none; flex-direction:column; align-items:center; gap:10px;">
-                    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-                        <button class="action-btn" onclick="downloadCover()" style="margin:0;"><span data-icon="download"></span> Baixar Capa</button>
-                        <button class="action-btn" onclick="removeCover()" style="margin:0; background:#fee2e2; color:#dc2626; border-color:#fca5a5;"><span data-icon="trash"></span> Remover</button>
+                    <div class="filename-preview">
+                        <span class="filename-preview-label"><span data-icon="file"></span> Exemplo do nome das imagens:</span>
+                        <div class="filename-preview-text" id="filenamePreview"><span class="placeholder">Digite o código acima</span></div>
                     </div>
                 </div>
-
-                <!-- Botão galeria centralizado -->
-                <button class="action-btn download-btn" onclick="openGallery()" style="margin:0;">
-                    <span data-icon="folderOpen"></span> Escolher da Galeria
-                </button>
-
             </div>
         </div>
-        </div><!-- /setup-grid -->
+
+        <!-- Modal: Capa do Artigo -->
+        <div id="coverModalOverlay" style="
+            display:none; position:fixed; inset:0; z-index:2000;
+            background:rgba(15,20,40,0.55); backdrop-filter:blur(4px);
+            align-items:center; justify-content:center;
+        " onclick="if(event.target===this) closeCoverModal()">
+            <div style="
+                background:white; border-radius:24px; padding:32px;
+                width:min(520px,95vw); max-height:90vh; overflow-y:auto;
+                box-shadow:0 24px 80px rgba(0,0,0,0.3);
+                animation:modalPop 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+            ">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+                    <span style="font-size:18px; font-weight:800; color:#191e31;"><span data-icon="frame"></span> Capa do Artigo</span>
+                    <button type="button" onclick="closeCoverModal()"
+                        style="background:none; border:none; color:#bbb; font-size:24px; cursor:pointer; line-height:1; padding:4px 8px; border-radius:8px; transition:all .2s;"
+                        onmouseover="this.style.background='#fee2e2';this.style.color='#dc2626'"
+                        onmouseout="this.style.background='none';this.style.color='#bbb'"
+                        title="Fechar"><span data-icon="close" data-icon-size="18"></span></button>
+                </div>
+                <div id="coverSection">
+                    <div id="coverArea" style="display:flex; flex-direction:column; align-items:center; gap:20px; text-align:center;">
+
+                        <input type="file" id="coverUploadInput" accept="image/*" style="display:none" onchange="handleCoverUpload(this.files[0])">
+
+                        <!-- Antes de escolher: 2 botões -->
+                        <div id="coverChooseButtons" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                            <button class="action-btn download-btn" onclick="openGallery()" style="margin:0;">
+                                <span data-icon="folderOpen"></span> Galeria
+                            </button>
+                            <button class="action-btn download-btn" onclick="document.getElementById('coverUploadInput').click()" style="margin:0;">
+                                <span data-icon="camera"></span> Enviar Capa
+                            </button>
+                        </div>
+
+                        <!-- Depois de escolher: preview + salvar -->
+                        <div id="coverPreviewArea" style="display:none; flex-direction:column; align-items:center; gap:16px; width:100%;">
+                            <div style="position:relative; width:100%; max-width:360px; height:220px; border-radius:16px; overflow:hidden; background:#f8f9ff; margin:0 auto;">
+                                <img id="coverThumb" src="" style="width:100%; height:100%; object-fit:cover; display:block;">
+                            </div>
+                            <p id="coverFileName" style="font-family:monospace; font-size:14px; color:#667eea; font-weight:700;"></p>
+                            <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                                <button class="action-btn download-btn" onclick="closeCoverModal()" style="margin:0;"><span data-icon="check"></span> Salvar</button>
+                                <button class="action-btn" onclick="removeCover()" style="margin:0; background:#fee2e2; color:#dc2626; border-color:#fca5a5;"><span data-icon="trash"></span> Remover</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Modal: Adicionar Moldura Manualmente -->
         <div id="manualCreateSection" style="
@@ -2184,7 +2330,7 @@
                 animation:modalPop 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
             ">
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
-                    <span style="font-size:18px; font-weight:800; color:#191e31;"><span data-icon="plus"></span> Adicionar Moldura</span>
+                    <span style="font-size:18px; font-weight:800; color:#191e31;"><span data-icon="plus"></span> Adicionar Imagens</span>
                     <button type="button" onclick="closeManualSection()"
                         style="background:none; border:none; color:#bbb; font-size:24px; cursor:pointer; line-height:1; padding:4px 8px; border-radius:8px; transition:all .2s;"
                         onmouseover="this.style.background='#fee2e2';this.style.color='#dc2626'"
@@ -2192,8 +2338,23 @@
                         title="Fechar"><span data-icon="close" data-icon-size="18"></span></button>
                 </div>
             <div id="manualCreatePanel">
-                <div class="frame-count-selector active" id="frameCountSelector">
-                    <label class="frame-count-label"><span data-icon="barChart"></span> Quantas imagens nessa moldura?</label>
+                <div class="frame-upload-box compact-horizontal" id="manualBulkUploadBox" style="cursor:pointer;">
+                    <div class="upload-icon"><span data-icon="camera" data-icon-size="26"></span></div>
+                    <h3 class="upload-title">Selecionar Imagens</h3>
+                    <p class="upload-description">Clique ou arraste uma ou várias imagens aqui<br><small>Cada imagem vira uma moldura separada — você escolhe quais unir depois</small></p>
+                    <input type="file" id="manualBulkUploadInput" accept="image/*" multiple style="display:none">
+                </div>
+                <div id="manualGroupingSection" style="display:none; margin-top:20px;">
+                    <p style="text-align:center; color:#888; font-size:13px;">
+                        Clique em <span data-icon="scissors" data-icon-size="13"></span>/<span data-icon="link" data-icon-size="13"></span> entre as imagens para unir ou separar antes de adicionar.
+                    </p>
+                    <div id="manualGroupingGrid" style="display:flex; flex-wrap:wrap; align-items:center; gap:10px; justify-content:center; margin-top:14px;"></div>
+                    <button type="button" class="action-btn download-btn" style="margin: 20px auto 0; display: block;" onclick="confirmManualGrouping()"><span data-icon="check"></span> Salvar</button>
+                </div>
+                <!-- Uso interno: setFrameCount()/createMultipleUploadBoxes() (compartilhadas com o
+                     fluxo de edição de moldura existente) precisam desses elementos no DOM,
+                     mesmo não sendo mais exibidos aqui na criação em massa. -->
+                <div class="frame-count-selector" id="frameCountSelector" style="display:none;">
                     <div class="frame-count-buttons">
                         <button class="frame-count-btn active" onclick="setFrameCount(1)">1</button>
                         <button class="frame-count-btn" onclick="setFrameCount(2)">2</button>
@@ -2201,68 +2362,21 @@
                         <button class="frame-count-btn" onclick="setFrameCount(4)">4</button>
                     </div>
                 </div>
-                <div class="multi-image-uploads active" id="multiImageUploads"></div>
-                <button type="button" class="action-btn download-btn" style="margin: 16px auto 0; display: block;" onclick="confirmManualResult()"><span data-icon="check"></span> Adicionar aos Resultados</button>
+                <div class="multi-image-uploads" id="multiImageUploads" style="display:none;"></div>
             </div>
             </div><!-- /inner modal box -->
         </div><!-- /modal overlay -->
 
-        <!-- Barra de edição flutuante -->
-        <div class="floating-toolbar" id="floatingToolbar">
-            <span class="floating-toolbar-label">EDITAR</span>
-            <div class="floating-toolbar-divider"></div>
-            <button class="edit-btn" id="ftMoveBtn" onclick="activateMoveMode()" aria-label="Mover imagem">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M12 12h.01M3 12h18M12 3v18"/></svg>
-                <span class="tooltip">Mover</span>
-            </button>
-            <button class="edit-btn" id="ftCropBtn" onclick="activateCropMode()" aria-label="Cortar imagem">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 2v14a2 2 0 002 2h14M18 22V8a2 2 0 00-2-2H2"/></svg>
-                <span class="tooltip">Cortar</span>
-            </button>
-            <button class="edit-btn" id="ftResizeBtn" onclick="activateResizeMode()" aria-label="Redimensionar">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15l-5 5m5 0l-5-5M3 9l5-5M3 4l5 5"/><rect x="3" y="12" width="9" height="9" rx="1"/><rect x="12" y="3" width="9" height="9" rx="1"/></svg>
-                <span class="tooltip">Redimensionar</span>
-            </button>
-            <button class="edit-btn" id="ftBrushBtn" onclick="activateBrushMode()" aria-label="Pincel">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9.06 11.9l8.07-8.06a2.85 2.85 0 114.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1 1 2.48 1.02 3.5 1.02 1.66 0 3-1.34 3-3s-1.34-3.06-1.5-3.06"/></svg>
-                <span class="tooltip">Pincel</span>
-            </button>
-            <button class="edit-btn" id="ftResetCropBtn" onclick="resetCrop()" style="display:none;" aria-label="Desfazer corte">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 19 9 24"/><path d="M4 19h10.5a6.5 6.5 0 000-13H11"/><polyline points="11 6 16 1 11 6"/></svg>
-                <span class="tooltip">Desfazer Corte</span>
-            </button>
-            <div class="floating-toolbar-divider"></div>
-            <button class="edit-btn" id="ftFrameBtn" onclick="cycleActiveFrame()" style="display:none;" aria-label="Trocar frame ativo">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg>
-                <span class="tooltip">Próxima Imagem</span>
-            </button>
-            <div class="floating-toolbar-divider"></div>
-            <button class="edit-btn edit-btn-save" onclick="closeEditMode()" aria-label="Concluir edição">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                <span class="tooltip">Salvar Ajuste</span>
-            </button>
-        </div>
-
-        <!-- Botão + flutuante para adicionar moldura manual rapidamente -->
-        <button class="fab-add" id="fabAdd" onclick="fabAddManual()" title="Adicionar moldura manualmente" style="bottom:32px; right:32px;"><span data-icon="plus" data-icon-size="22"></span></button>
-        <button onclick="openHowItWorks()" title="Como funciona" style="
-            position:fixed; bottom:32px; right:104px; z-index:800;
-            width:44px; height:44px; border-radius:50%; border:none; cursor:pointer;
-            background:white; color:#667eea; font-size:20px; font-weight:800;
-            box-shadow:0 4px 16px rgba(102,126,234,0.3); border:2px solid #e0e7ff;
-            display:flex; align-items:center; justify-content:center;
-            transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);
-        " onmouseover="this.style.transform='scale(1.12)';this.style.boxShadow='0 6px 20px rgba(102,126,234,0.5)'"
-           onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 16px rgba(102,126,234,0.3)'">?</button>
-        <span class="fab-tooltip">Adicionar moldura manualmente</span>
-
         <div class="section" id="pdfResultsSection" style="display:none;">
-            <h3 class="section-title"><span data-icon="frame"></span> Molduras Geradas</h3>
+            <h3 class="section-title" style="justify-content:space-between; text-align:left;">
+                <span style="display:flex; align-items:center; gap:12px;"><span data-icon="frame"></span> Molduras Geradas</span>
+                <button type="button" class="action-btn" onclick="openFilenameModal()" style="margin:0; font-size:13px; padding:8px 14px;"><span data-icon="edit"></span> Nomenclatura</button>
+            </h3>
 
             <div id="pdfResultsGrid" style="display:flex; flex-wrap:wrap; gap:18px; justify-content:center;" ondragover="event.preventDefault();" ondrop="if(event.target===this){event.preventDefault(); const fromIdx = pdfResults.findIndex(x => x._uid === _draggedResultUid); if (fromIdx > -1) movePdfResult(fromIdx, pdfResults.length - 1);}"></div>
             <div style="display:flex; gap:16px; justify-content:center; margin-top:24px; flex-wrap:wrap;">
-                <button class="action-btn download-btn" onclick="downloadAllPdfResults()"><span data-icon="download"></span> Baixar Todas</button>
-                <button class="action-btn new-btn" onclick="resetAll()"><span data-icon="refresh"></span> Recomeçar</button>
+                <button class="action-btn download-btn" onclick="downloadAllPdfResults()"><span data-icon="download"></span> Baixar Tudo (ZIP)</button>
+                <button class="action-btn new-btn" onclick="resetAll()"><span data-icon="refresh"></span> Novo Artigo</button>
             </div>
         </div>
 
@@ -2270,98 +2384,6 @@
 
         <div class="preview-section" id="previewSection">
             <div id="frameSelector" style="text-align:center; font-weight:700; color:#191e31; margin-bottom:16px; font-size:15px;"></div>
-
-            <!-- Painel flutuante de sub-opções (aparece à esquerda) -->
-            <div id="floatingSubpanel" style="
-                position:fixed; top:50%; right:100px;
-                transform:translateY(-50%) translateX(12px);
-                display:flex; flex-direction:column; gap:12px; z-index:899;
-                background:white; border-radius:20px; padding:16px 14px;
-                box-shadow:0 8px 32px rgba(0,0,0,0.16); border:2px solid #e0e7ff;
-                width:256px;
-                opacity:0; pointer-events:none;
-                transition:opacity 0.25s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-            ">
-                <!-- Sub-opções do pincel -->
-                <div id="subBrushPanel" style="display:none;">
-                    <p style="font-size:11px; font-weight:700; color:#aaa; margin-bottom:10px; text-align:center;">PINCEL</p>
-                    <div style="display:flex; flex-direction:column; gap:10px;">
-                        <div>
-                            <label style="font-size:12px; font-weight:700; color:#191e31;">Tamanho</label>
-                            <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
-                                <input type="range" min="5" max="100" value="20" class="brush-size-slider" id="brushSizeSlider" oninput="updateBrushSize(this.value)" style="flex:1;">
-                                <span id="brushSizeValue" style="font-size:13px; font-weight:700; color:#667eea; min-width:36px;">20px</span>
-                            </div>
-                        </div>
-                        <div>
-                            <label style="font-size:12px; font-weight:700; color:#191e31;">Cor</label>
-                            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px;">
-                                <div class="brush-color-display" id="brushColorDisplay"></div>
-                                <button type="button" class="brush-tool-btn" id="brushEyedropperBtn" onclick="activateBrushEyedropper()" title="Conta-gotas"><span data-icon="palette"></span></button>
-                                <button type="button" class="brush-tool-btn" id="eraserBtn" onclick="toggleEraser()" title="Borracha"><span data-icon="eraser"></span></button>
-                                <button type="button" class="brush-tool-btn" id="undoBtn" onclick="undoBrush()" disabled title="Desfazer"><span data-icon="undo" data-icon-size="14"></span></button>
-                                <button type="button" class="brush-tool-btn" onclick="resetBrushDrawing()" title="Limpar"><span data-icon="trash"></span></button>
-                            </div>
-                        </div>
-                        <div>
-                            <label style="font-size:12px; font-weight:700; color:#191e31;">Forma</label>
-                            <div class="shape-buttons" style="margin-top:6px;">
-                                <button class="shape-btn" onclick="setShapeMode('brush')" id="shapeBrushBtn" title="Pincel">●</button>
-                                <button class="shape-btn" onclick="setShapeMode('rectangle')" id="shapeRectBtn" title="Retângulo">▭</button>
-                                <button class="shape-btn" onclick="setShapeMode('circle')" id="shapeCircleBtn" title="Círculo">○</button>
-                                <button class="shape-btn" onclick="setShapeMode('line')" id="shapeLineBtn" title="Linha">╱</button>
-                                <button class="shape-btn" onclick="toggleShapeFill()" id="shapeFillBtn" title="Preenchido/Contorno" style="font-size:11px; padding:0 6px;">■/□</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Sub-opções de redimensionar -->
-                <div id="subResizePanel" style="display:none;">
-                    <p style="font-size:11px; font-weight:700; color:#aaa; margin-bottom:10px; text-align:center;">ESCALA</p>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <input type="range" min="10" max="300" value="100" class="resize-slider" id="resizeSlider" oninput="updateResizeScale(this.value)" style="flex:1;">
-                        <span id="resizeValue" style="font-size:13px; font-weight:700; color:#667eea; min-width:40px;">100%</span>
-                    </div>
-                    <button class="resize-reset-btn" onclick="resetResize()" style="margin-top:10px; width:100%;"><span data-icon="undo" data-icon-size="14"></span> Redefinir</button>
-                </div>
-                <!-- Sub-opções de crop (hint) -->
-                <div id="subCropPanel" style="display:none;">
-                    <p style="font-size:11px; font-weight:700; color:#aaa; margin-bottom:8px; text-align:center;">CORTAR</p>
-                    <p style="font-size:12px; color:#1e40af; line-height:1.5;">Arraste sobre a imagem para selecionar a área que deseja manter.<br><br><kbd style="background:#e0e7ff; padding:2px 6px; border-radius:4px; font-family:inherit;">ESC</kbd> cancela.</p>
-                </div>
-                <!-- Sub-opções de mover (hint) -->
-                <div id="subMovePanel" style="display:none;">
-                    <p style="font-size:11px; font-weight:700; color:#aaa; margin-bottom:8px; text-align:center;">MOVER</p>
-                    <p style="font-size:12px; color:#555; line-height:1.5;">Clique e arraste a imagem para ajustar sua posição dentro da moldura.</p>
-                </div>
-                <!-- Modo de ajuste e cor de fundo -->
-                <div style="border-top:2px solid #e0e7ff; padding-top:12px; margin-top:4px;">
-                    <label style="font-size:12px; font-weight:700; color:#191e31; display:block; margin-bottom:6px;">Ajuste</label>
-                    <select id="fitMode" class="control-select" onchange="updateFrameSettings()" style="width:100%; padding:8px 10px; font-size:13px;">
-                        <option value="cover">Cobrir</option>
-                        <option value="contain" selected>Conter</option>
-                        <option value="fill">Esticar</option>
-                    </select>
-                    <label style="font-size:12px; font-weight:700; color:#191e31; display:block; margin:10px 0 6px;">Cor de fundo</label>
-                    <select id="bgMode" class="control-select" onchange="updateFrameSettings()" style="width:100%; padding:8px 10px; font-size:13px;">
-                        <option value="dominant">Automático</option>
-                        <option value="white">Branco</option>
-                        <option value="black">Preto</option>
-                        <option value="custom">Personalizado</option>
-                    </select>
-                    <div id="customColorGroup" style="display:none; margin-top:8px; gap:8px; align-items:center; flex-wrap:wrap;" class="color-picker-row">
-                        <div class="color-display" id="colorDisplay" style="width:38px; height:38px; flex-shrink:0;"></div>
-                        <input type="text" id="colorInput" class="color-input" placeholder="#FFFFFF" maxlength="7" value="#FFFFFF" style="font-size:13px; padding:8px; min-width:90px; flex:1;">
-                        <button type="button" class="eyedropper-btn" id="eyedropperBtn" onclick="activateEyedropper()" style="padding:8px 12px; font-size:13px; flex-shrink:0; white-space:nowrap;"><span data-icon="palette" data-icon-size="14"></span> Cor</button>
-                    </div>
-                </div>
-                <!-- Slot de troca de imagem (edit banner) -->
-                <div id="subSlotUploads" style="border-top:2px solid #e0e7ff; padding-top:12px; margin-top:4px;"></div>
-            </div>
-
-            <div id="pdfEditBanner" style="display:none; max-width:900px; margin:0 auto 14px; background:#fff7e0; border:2px solid #f0d68a; border-radius:14px; padding:10px 18px; text-align:center;">
-                <span style="font-weight:700; color:#8a6d1a; font-size:14px;"><span data-icon="wrench" data-icon-size="14"></span> Ajuste fino — use a barra lateral direita para editar e <span data-icon="checkCircle" data-icon-size="14"></span> para salvar</span>
-            </div>
 
             <div class="canvas-container">
                 <!-- Indicador de modo ativo — segue o mouse -->
@@ -2379,24 +2401,9 @@
                     <div class="shape-preview-overlay" id="shapePreviewOverlay"></div>
                 </div>
             </div>
-
-
-
-            <div class="preview-confirm-hint" style="text-align:center; color:#667eea; font-weight:600; margin: 10px 0 4px;">
-                <span data-icon="eye"></span> Confira o resultado acima antes de baixar. Nada é baixado automaticamente.
-            </div>
-
-            <div class="button-group">
-                <button class="action-btn download-btn" onclick="downloadImage()">
-                    <span data-icon="download"></span> Baixar Imagem (JPG)
-                </button>
-                <button class="action-btn new-btn" onclick="resetAll()">
-                    <span data-icon="refresh"></span> Gerar Nova Imagem
-                </button>
-            </div>
         </div>
 
-        <div style="text-align:center; padding:24px 0 8px; color:#aaa; font-size:13px; font-weight:600; letter-spacing:.02em;">
+        <div style="margin-top:auto; text-align:center; padding:24px 0 8px; color:#aaa; font-size:13px; font-weight:600; letter-spacing:.02em;">
             Beframe by Beside Media © 2026
         </div>
 
@@ -2450,6 +2457,147 @@
         </div>
     </div>
 
+    <!-- Coluna de ferramentas — sempre ao lado do container, nunca sobre ele -->
+    <div class="side-tools-column">
+        <!-- Painel de personalização da ferramenta ativa (largo, à esquerda) -->
+        <div id="floatingSubpanel" style="
+            display:none; flex-direction:column; gap:14px;
+            background:white; border-radius:20px; padding:20px 18px;
+            box-shadow:0 8px 32px rgba(0,0,0,0.16); border:2px solid #e0e7ff;
+            width:320px; flex-shrink:0;
+        ">
+            <!-- Sub-opções do pincel -->
+            <div id="subBrushPanel" style="display:none;">
+                <p style="font-size:11px; font-weight:700; color:#aaa; margin-bottom:10px; text-align:center;">PINCEL</p>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#191e31;">Tamanho</label>
+                        <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+                            <input type="range" min="5" max="100" value="20" class="brush-size-slider" id="brushSizeSlider" oninput="updateBrushSize(this.value)" style="flex:1;">
+                            <span id="brushSizeValue" style="font-size:13px; font-weight:700; color:#667eea; min-width:36px;">20px</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#191e31;">Cor</label>
+                        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px;">
+                            <div class="brush-color-display" id="brushColorDisplay"></div>
+                            <button type="button" class="brush-tool-btn" id="brushEyedropperBtn" onclick="activateBrushEyedropper()" title="Conta-gotas"><span data-icon="palette"></span></button>
+                            <button type="button" class="brush-tool-btn" id="eraserBtn" onclick="toggleEraser()" title="Borracha"><span data-icon="eraser"></span></button>
+                            <button type="button" class="brush-tool-btn" id="undoBtn" onclick="undoLastEditAction()" disabled title="Desfazer"><span data-icon="undo" data-icon-size="14"></span></button>
+                            <button type="button" class="brush-tool-btn" onclick="resetBrushDrawing()" title="Limpar"><span data-icon="trash"></span></button>
+                        </div>
+                    </div>
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#191e31;">Forma</label>
+                        <div class="shape-buttons" style="margin-top:6px;">
+                            <button class="shape-btn" onclick="setShapeMode('brush')" id="shapeBrushBtn" title="Pincel">●</button>
+                            <button class="shape-btn" onclick="setShapeMode('rectangle')" id="shapeRectBtn" title="Retângulo">▭</button>
+                            <button class="shape-btn" onclick="setShapeMode('circle')" id="shapeCircleBtn" title="Círculo">○</button>
+                            <button class="shape-btn" onclick="setShapeMode('line')" id="shapeLineBtn" title="Linha">╱</button>
+                            <button class="shape-btn" onclick="toggleShapeFill()" id="shapeFillBtn" title="Preenchido/Contorno" style="font-size:11px; padding:0 6px;">■/□</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Sub-opções de redimensionar -->
+            <div id="subResizePanel" style="display:none;">
+                <p style="font-size:11px; font-weight:700; color:#aaa; margin-bottom:10px; text-align:center;">ESCALA</p>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="range" min="10" max="300" value="100" class="resize-slider" id="resizeSlider" oninput="updateResizeScale(this.value)" onmousedown="pushEditHistory()" ontouchstart="pushEditHistory()" style="flex:1;">
+                    <span id="resizeValue" style="font-size:13px; font-weight:700; color:#667eea; min-width:40px;">100%</span>
+                </div>
+                <button class="resize-reset-btn" onclick="resetResize()" style="margin-top:10px; width:100%;"><span data-icon="undo" data-icon-size="14"></span> Redefinir</button>
+            </div>
+            <!-- Sub-opções de crop (hint) -->
+            <div id="subCropPanel" style="display:none;">
+                <p style="font-size:11px; font-weight:700; color:#aaa; margin-bottom:8px; text-align:center;">CORTAR</p>
+                <p style="font-size:12px; color:#1e40af; line-height:1.5;">Arraste sobre a imagem para selecionar a área que deseja manter.<br><br><kbd style="background:#e0e7ff; padding:2px 6px; border-radius:4px; font-family:inherit;">ESC</kbd> cancela.</p>
+            </div>
+            <!-- Sub-opções de mover (hint) -->
+            <div id="subMovePanel" style="display:none;">
+                <p style="font-size:11px; font-weight:700; color:#aaa; margin-bottom:8px; text-align:center;">MOVER</p>
+                <p style="font-size:12px; color:#555; line-height:1.5;">Clique e arraste a imagem para ajustar sua posição dentro da moldura.</p>
+            </div>
+            <!-- Modo de ajuste e cor de fundo -->
+            <div style="border-top:2px solid #e0e7ff; padding-top:12px; margin-top:4px;">
+                <label style="font-size:12px; font-weight:700; color:#191e31; display:block; margin-bottom:6px;">Ajuste</label>
+                <select id="fitMode" class="control-select" onchange="updateFrameSettings()" style="width:100%; padding:8px 10px; font-size:13px;">
+                    <option value="cover">Cobrir</option>
+                    <option value="contain" selected>Conter</option>
+                    <option value="fill">Esticar</option>
+                </select>
+                <label style="font-size:12px; font-weight:700; color:#191e31; display:block; margin:10px 0 6px;">Cor de fundo</label>
+                <select id="bgMode" class="control-select" onchange="updateFrameSettings()" style="width:100%; padding:8px 10px; font-size:13px;">
+                    <option value="dominant">Automático</option>
+                    <option value="white">Branco</option>
+                    <option value="black">Preto</option>
+                    <option value="custom">Personalizado</option>
+                </select>
+                <div id="customColorGroup" style="display:none; margin-top:8px; gap:8px; align-items:center; flex-wrap:wrap;" class="color-picker-row">
+                    <div class="color-display" id="colorDisplay" style="width:38px; height:38px; flex-shrink:0;"></div>
+                    <input type="text" id="colorInput" class="color-input" placeholder="#FFFFFF" maxlength="7" value="#FFFFFF" style="font-size:13px; padding:8px; min-width:90px; flex:1;">
+                    <button type="button" class="eyedropper-btn" id="eyedropperBtn" onclick="activateEyedropper()" style="padding:8px 12px; font-size:13px; flex-shrink:0; white-space:nowrap;"><span data-icon="palette" data-icon-size="14"></span> Cor</button>
+                </div>
+            </div>
+            <!-- Slot de troca de imagem (edit banner) -->
+            <div id="subSlotUploads" style="border-top:2px solid #e0e7ff; padding-top:12px; margin-top:4px;"></div>
+            <div style="border-top:2px solid #e0e7ff; padding-top:14px; margin-top:4px; display:flex; flex-direction:column; gap:10px;">
+                <button class="action-btn download-btn" onclick="closeEditMode()" style="margin:0;">
+                    <span data-icon="check"></span> Salvar
+                </button>
+                <button class="action-btn new-btn" onclick="cancelEditPdfResult()" style="margin:0;">
+                    <span data-icon="close"></span> Cancelar
+                </button>
+            </div>
+        </div>
+
+        <!-- Coluna estreita: barra de ferramentas + botões de ação, à direita do painel -->
+        <div class="narrow-tools-column">
+        <!-- Barra de edição flutuante (só aparece durante o "Ajustar") -->
+        <div class="floating-toolbar" id="floatingToolbar">
+            <span class="floating-toolbar-label">EDITAR</span>
+            <button class="edit-btn" id="ftMoveBtn" onclick="activateMoveMode()" aria-label="Mover imagem">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M12 12h.01M3 12h18M12 3v18"/></svg>
+                <span class="tooltip">Mover</span>
+            </button>
+            <button class="edit-btn" id="ftCropBtn" onclick="activateCropMode()" aria-label="Cortar imagem">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 2v14a2 2 0 002 2h14M18 22V8a2 2 0 00-2-2H2"/></svg>
+                <span class="tooltip">Cortar</span>
+            </button>
+            <button class="edit-btn" id="ftResizeBtn" onclick="activateResizeMode()" aria-label="Redimensionar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15l-5 5m5 0l-5-5M3 9l5-5M3 4l5 5"/><rect x="3" y="12" width="9" height="9" rx="1"/><rect x="12" y="3" width="9" height="9" rx="1"/></svg>
+                <span class="tooltip">Redimensionar</span>
+            </button>
+            <button class="edit-btn" id="ftBrushBtn" onclick="activateBrushMode()" aria-label="Pincel">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9.06 11.9l8.07-8.06a2.85 2.85 0 114.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1 1 2.48 1.02 3.5 1.02 1.66 0 3-1.34 3-3s-1.34-3.06-1.5-3.06"/></svg>
+                <span class="tooltip">Pincel</span>
+            </button>
+            <div class="floating-toolbar-divider"></div>
+            <button class="edit-btn" id="ftUndoBtn" onclick="undoLastEditAction()" disabled aria-label="Desfazer última ação (Ctrl+Z)">
+                <span data-icon="undo" data-icon-size="20"></span>
+                <span class="tooltip">Desfazer (Ctrl+Z)</span>
+            </button>
+            <button class="edit-btn" id="ftFrameBtn" onclick="cycleActiveFrame()" style="display:none;" aria-label="Trocar frame ativo">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg>
+                <span class="tooltip">Próxima Imagem</span>
+            </button>
+        </div>
+
+        <!-- Ações rápidas -->
+        <button class="fab-add" id="fabAdd" onclick="fabAddManual()" title="Adicionar imagens"><span data-icon="plus" data-icon-size="22"></span></button>
+        <button class="fab-add" onclick="openPdfModal()" title="Adicionar PDF"><span data-icon="file" data-icon-size="20"></span></button>
+        <button class="fab-add" onclick="openCoverModal()" title="Escolha da Capa"><span data-icon="frame" data-icon-size="20"></span></button>
+        <button class="fab-add" id="toggleCustomFrameBtn" onclick="toggleCustomFrame()" title="Moldura Personalizada"><span data-icon="folder" data-icon-size="20"></span></button>
+        <button class="fab-add" onclick="openHowItWorks()" title="Como funciona" style="width:44px; height:44px;">?</button>
+    </div><!-- /narrow-tools-column -->
+    </div><!-- /side-tools-column -->
+    </div><!-- /page-layout -->
+
+    <!-- Menu de contexto (botão direito) dos portais favoritos -->
+    <div id="portalContextMenu" style="display:none; position:fixed; z-index:3000; background:white; border:2px solid #e0e7ff; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.2); padding:5px; min-width:210px;">
+        <button type="button" id="portalContextMenuItem" style="width:100%; text-align:left; background:none; border:none; padding:9px 12px; font-size:13px; font-weight:700; cursor:pointer; border-radius:6px; font-family:inherit; color:#191e31; display:flex; align-items:center; gap:8px;" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background='none'"></button>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
@@ -2459,6 +2607,7 @@
 
         // ===== ÍCONES SVG (substituem emojis em toda a interface) =====
         const ICONS = {
+            star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
             target: '<path d="M12 22a10 10 0 100-20 10 10 0 000 20z"/><path d="M12 17a5 5 0 100-10 5 5 0 000 10z"/><path d="M12 12h.01"/>',
             frame: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>',
             folder: '<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>',
@@ -2535,6 +2684,70 @@
         let activePortal = 'manualweb'; // portal selecionado
 
 
+        // ===== PORTAIS FAVORITOS (botão direito + filtro), salvo em localStorage =====
+        const FAVORITE_PORTALS_KEY = 'beframe_favorite_portals';
+        const SHOW_FAVORITES_ONLY_KEY = 'beframe_show_favorites_only';
+
+        function getFavoritePortals() {
+            try { return JSON.parse(localStorage.getItem(FAVORITE_PORTALS_KEY)) || []; }
+            catch (e) { return []; }
+        }
+        function saveFavoritePortals(list) {
+            try { localStorage.setItem(FAVORITE_PORTALS_KEY, JSON.stringify(list)); } catch (e) {}
+        }
+        function toggleFavoritePortal(portalId) {
+            const favs = getFavoritePortals();
+            const idx = favs.indexOf(portalId);
+            if (idx > -1) { favs.splice(idx, 1); showNotification('Removido dos favoritos.', 'info', 1800); }
+            else { favs.push(portalId); showNotification('Adicionado aos favoritos!', 'success', 1800); }
+            saveFavoritePortals(favs);
+            renderPortalFavoriteMarks();
+            applyFavoritesFilter();
+        }
+        function renderPortalFavoriteMarks() {
+            const favs = getFavoritePortals();
+            document.querySelectorAll('.portal-btn').forEach(btn => {
+                btn.classList.toggle('is-favorite', favs.includes(btn.dataset.portal));
+            });
+        }
+        function applyFavoritesFilter() {
+            const checkbox = document.getElementById('showFavoritesOnly');
+            const onlyFavs = checkbox.checked;
+            try { localStorage.setItem(SHOW_FAVORITES_ONLY_KEY, onlyFavs ? '1' : '0'); } catch (e) {}
+            const favs = getFavoritePortals();
+            document.querySelectorAll('.portal-btn').forEach(btn => {
+                btn.style.display = (!onlyFavs || favs.includes(btn.dataset.portal)) ? '' : 'none';
+            });
+        }
+        function initFavoritePortals() {
+            renderPortalFavoriteMarks();
+            let onlyFavs = false;
+            try { onlyFavs = localStorage.getItem(SHOW_FAVORITES_ONLY_KEY) === '1'; } catch (e) {}
+            document.getElementById('showFavoritesOnly').checked = onlyFavs;
+            applyFavoritesFilter();
+
+            document.querySelectorAll('.portal-btn').forEach(btn => {
+                btn.addEventListener('contextmenu', (e) => showPortalContextMenu(e, btn.dataset.portal));
+            });
+        }
+
+        let _contextMenuPortalId = null;
+        function showPortalContextMenu(e, portalId) {
+            e.preventDefault();
+            _contextMenuPortalId = portalId;
+            const isFav = getFavoritePortals().includes(portalId);
+            document.getElementById('portalContextMenuItem').innerHTML =
+                isFav ? `${ICON('star', 15)} Remover dos favoritos` : `${ICON('star', 15)} Marcar como favorito`;
+            const menu = document.getElementById('portalContextMenu');
+            menu.style.left = e.clientX + 'px';
+            menu.style.top = e.clientY + 'px';
+            menu.style.display = 'block';
+        }
+        function hidePortalContextMenu() {
+            document.getElementById('portalContextMenu').style.display = 'none';
+            _contextMenuPortalId = null;
+        }
+
         function selectPortal(key) {
             activePortal = key;
             document.querySelectorAll('.portal-btn').forEach(b =>
@@ -2605,7 +2818,9 @@
             const btn = document.getElementById('toggleCustomFrameBtn');
             const open = panel.style.display === 'none';
             panel.style.display = open ? 'block' : 'none';
-            btn.innerHTML = open ? `${ICON('close')} Fechar moldura personalizada` : `${ICON('frame')} Usar moldura personalizada`;
+            btn.classList.toggle('active', open);
+            btn.title = open ? 'Fechar moldura personalizada' : 'Moldura Personalizada';
+            if (open) panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         function clearCustomFrame() {
@@ -2622,6 +2837,10 @@
                     loadDefaultFrameForSlot(i, url);
                 }
             }
+            document.getElementById('customFramePanel').style.display = 'none';
+            const btn = document.getElementById('toggleCustomFrameBtn');
+            btn.classList.remove('active');
+            btn.title = 'Moldura Personalizada';
             showNotification('Voltou à moldura padrão.', 'info', 2000);
         }
 
@@ -2661,7 +2880,7 @@
             else if (type === 'info') iconName = 'info';
 
             notification.innerHTML = `
-                <div class="notification-icon">${ICON(iconName, 20)}</div>
+                <div class="notification-icon">${ICON(iconName, 16)}</div>
                 <div class="notification-message">${message}</div>
             `;
             
@@ -3448,7 +3667,8 @@
             selector.style.display = 'block';
 
             if (frameCount <= 1) {
-                selector.innerHTML = `${ICON('edit')} Ajuste a imagem usando a barra lateral`;
+                selector.style.display = 'none';
+                selector.innerHTML = '';
             } else {
                 selector.innerHTML = `<span style="font-size:13px; color:#667eea; font-weight:700; display:block; margin-bottom:8px;">${ICON('edit')} Selecione qual imagem ajustar:</span>`;
                 const btnRow = document.createElement('div');
@@ -3493,10 +3713,7 @@
             document.getElementById('colorDisplay').style.backgroundColor = customColor;
             
             updateColorPickerVisibility();
-            
-            document.getElementById('ftResetCropBtn').style.display = 
-                (frame.originalImage && frame.uploadedImage !== frame.originalImage) ? 'inline-flex' : 'none';
-            
+
             document.getElementById('brushColorDisplay').style.backgroundColor = brushColor;
             
             const scale = frame.imageScale || 1.0;
@@ -3509,7 +3726,8 @@
         function updateFrameSettings() {
             const frame = frames[activeFrameIndex];
             if (!frame) return;
-            
+
+            pushEditHistory();
             frame.fitMode = document.getElementById('fitMode').value;
             frame.bgMode = document.getElementById('bgMode').value;
             frame.customColor = customColor;
@@ -3630,6 +3848,7 @@
             if (!isMoveModeActive) return;
             document.getElementById('canvas').classList.add('dragging');
             e.preventDefault();
+            pushEditHistory();
             isDragging = true;
             const canvas = document.getElementById('canvas');
             const rect = canvas.getBoundingClientRect();
@@ -3789,7 +4008,8 @@
         function applyCrop(canvasX, canvasY, canvasWidth, canvasHeight) {
             const frame = frames[activeFrameIndex];
             if (!frame.uploadedImage) return;
-            
+
+            pushEditHistory();
             const frameOffset = getFrameOffset(activeFrameIndex);
             const drawInfo = calculateImageDrawInfo(frame, frameOffset.x, frameOffset.y);
             
@@ -3851,11 +4071,10 @@
                 
                 frame.brushCanvas = newBrushCanvas;
                 frame.brushHistory = [];
-                
-                document.getElementById('ftResetCropBtn').style.display = 'inline-flex';
+
                 document.getElementById('resizeSlider').value = 100;
                 document.getElementById('resizeValue').textContent = '100%';
-                
+
                 renderFinalCanvas();
                 updateUndoButtonState();
                 
@@ -3882,11 +4101,10 @@
                 newBrushCanvas.height = restoredImage.naturalHeight;
                 frame.brushCanvas = newBrushCanvas;
                 frame.brushHistory = [];
-                
-                document.getElementById('ftResetCropBtn').style.display = 'none';
+
                 document.getElementById('resizeSlider').value = 100;
                 document.getElementById('resizeValue').textContent = '100%';
-                
+
                 renderFinalCanvas();
                 updateUndoButtonState();
                 
@@ -4021,56 +4239,100 @@
             }
         }
 
-        function saveBrushState() {
-            const frame = frames[activeFrameIndex];
-            if (!frame.brushCanvas) return;
-            
-            const state = frame.brushCanvas.toDataURL();
-            frame.brushHistory.push(state);
-            
-            if (frame.brushHistory.length > 20) {
-                frame.brushHistory.shift();
-            }
-            
+        // ===== DESFAZER UNIFICADO (mover, cortar, redimensionar, pincel/formas, ajuste/cor) =====
+        // Guarda até 5 estados anteriores da imagem sendo editada. Cada ferramenta chama
+        // pushEditHistory() logo ANTES de aplicar sua mudança, então desfazer sempre volta
+        // um passo por vez — não a arte inteira ao estado original (isso é o botão "Cancelar").
+        const MAX_EDIT_HISTORY = 5;
+        let editActionHistory = [];
+
+        function snapshotFrameState(index) {
+            const f = frames[index];
+            if (!f) return null;
+            return {
+                frameIndex: index,
+                uploadedImageSrc: f.uploadedImage ? f.uploadedImage.src : null,
+                offset: f.imageOffset ? { ...f.imageOffset } : { x: 0, y: 0 },
+                scale: f.imageScale,
+                fitMode: f.fitMode,
+                bgMode: f.bgMode,
+                customColor: f.customColor,
+                brushDataUrl: f.brushCanvas ? f.brushCanvas.toDataURL('image/png') : null
+            };
+        }
+
+        function pushEditHistory() {
+            const snap = snapshotFrameState(activeFrameIndex);
+            if (!snap) return;
+            editActionHistory.push(snap);
+            if (editActionHistory.length > MAX_EDIT_HISTORY) editActionHistory.shift();
             updateUndoButtonState();
         }
 
-        function undoBrush() {
-            const frame = frames[activeFrameIndex];
-            if (!frame.brushCanvas || frame.brushHistory.length === 0) {
-                showNotification('Nada para desfazer', 'info', 2000);
-                return;
-            }
-            
-            frame.brushHistory.pop();
-            
-            const brushCtx = frame.brushCanvas.getContext('2d');
-            brushCtx.clearRect(0, 0, frame.brushCanvas.width, frame.brushCanvas.height);
-            
-            if (frame.brushHistory.length > 0) {
-                const img = new Image();
-                img.onload = function() {
-                    brushCtx.drawImage(img, 0, 0);
-                    renderFinalCanvas();
-                    updateUndoButtonState();
-                    showNotification('Ação desfeita', 'success');
-                };
-                img.src = frame.brushHistory[frame.brushHistory.length - 1];
-            } else {
+        function resetEditHistory() {
+            editActionHistory = [];
+            updateUndoButtonState();
+        }
+
+        function restoreFrameSnapshot(snap) {
+            const f = frames[snap.frameIndex];
+            if (!f) return;
+            f.imageOffset = { ...snap.offset };
+            f.imageScale = snap.scale;
+            f.fitMode = snap.fitMode;
+            f.bgMode = snap.bgMode;
+            f.customColor = snap.customColor;
+
+            function finish() {
                 renderFinalCanvas();
-                updateUndoButtonState();
-                showNotification('Todas as ações desfeitas', 'success');
+                if (snap.frameIndex === activeFrameIndex) loadFrameSettings();
+            }
+            function restoreBrush() {
+                if (f.brushCanvas && snap.brushDataUrl) {
+                    const bctx = f.brushCanvas.getContext('2d');
+                    bctx.clearRect(0, 0, f.brushCanvas.width, f.brushCanvas.height);
+                    const bimg = new Image();
+                    bimg.onload = () => { bctx.drawImage(bimg, 0, 0); finish(); };
+                    bimg.onerror = finish;
+                    bimg.src = snap.brushDataUrl;
+                } else if (f.brushCanvas) {
+                    f.brushCanvas.getContext('2d').clearRect(0, 0, f.brushCanvas.width, f.brushCanvas.height);
+                    finish();
+                } else {
+                    finish();
+                }
+            }
+
+            if (f.uploadedImage && snap.uploadedImageSrc && f.uploadedImage.src !== snap.uploadedImageSrc) {
+                const img = new Image();
+                img.onload = () => { f.uploadedImage = img; restoreBrush(); };
+                img.onerror = restoreBrush;
+                img.src = snap.uploadedImageSrc;
+            } else {
+                restoreBrush();
             }
         }
 
+        function undoLastEditAction() {
+            if (!editActionHistory.length) {
+                showNotification('Nada para desfazer', 'info', 1800);
+                return;
+            }
+            const snap = editActionHistory.pop();
+            restoreFrameSnapshot(snap);
+            updateUndoButtonState();
+            showNotification(`Ação desfeita! (${editActionHistory.length} no histórico)`, 'success', 1800);
+        }
+
         function updateUndoButtonState() {
-            const frame = frames[activeFrameIndex];
-            const undoBtn = document.getElementById('undoBtn');
-            const hasHistory = frame && frame.brushHistory && frame.brushHistory.length > 0;
-            
-            undoBtn.disabled = !hasHistory;
-            undoBtn.style.opacity = hasHistory ? '1' : '0.5';
-            undoBtn.style.cursor = hasHistory ? 'pointer' : 'not-allowed';
+            const hasHistory = editActionHistory.length > 0;
+            ['undoBtn', 'ftUndoBtn'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (!btn) return;
+                btn.disabled = !hasHistory;
+                btn.style.opacity = hasHistory ? '1' : '0.5';
+                btn.style.cursor = hasHistory ? 'pointer' : 'not-allowed';
+            });
         }
 
         function getBrushCoordinates(e) {
@@ -4116,7 +4378,7 @@
             shapeStartPoint = point;
             
             if (shapeMode === 'brush') {
-                saveBrushState();
+                pushEditHistory();
                 drawBrushPoint(point.x, point.y);
                 lastBrushPoint = point;
             } else {
@@ -4155,12 +4417,11 @@
             if (shapeMode !== 'brush' && point) {
                 const endPoint = getBrushCoordinates(e) || shapePreviewEndPoint || point;
                 if (endPoint) {
-                    saveBrushState();
+                    pushEditHistory();
                     drawShape(point.x, point.y, endPoint.x, endPoint.y);
                     showNotification('Forma desenhada com sucesso!', 'success');
                 }
             } else if (shapeMode === 'brush') {
-                saveBrushState();
                 showNotification('Desenho concluído!', 'success', 2000);
             }
             
@@ -4903,6 +5164,7 @@
 
         async function processPdfFile(file) {
             if (isProcessingPdf) return;
+            if (editingPdfResultIndex !== null) cancelEditPdfResult();
             isProcessingPdf = true;
             stashCustomFrame();
 
@@ -4924,7 +5186,11 @@
                 for (let p = 1; p <= pdf.numPages; p++) {
                     setPdfProgress(Math.round((p - 1) / pdf.numPages * 90) + 2, `Analisando página ${p} de ${pdf.numPages}...`);
                     const page = await pdf.getPage(p);
-                    const { allBlocks, pageCanvas } = await extractPageBlocks(page, 3.5);
+                    // Escala de renderização da página para extração dos blocos de imagem.
+                    // Quanto maior, mais nítido o recorte final (a foto embutida no PDF é
+                    // rasterizada nessa resolução antes de ser cortada — não dá pra recuperar
+                    // detalhe perdido aqui depois). 6.0 ≈ 432 DPI, suficiente até pra impressão.
+                    const { allBlocks, pageCanvas } = await extractPageBlocks(page, 6.0);
                     const groups = groupImageBlocks(allBlocks);
                     groups.forEach(group => {
                         group.forEach((block, gi) => {
@@ -5076,6 +5342,7 @@
 
         async function confirmPdfGrouping() {
             // Primeiro expande as imagens que foram marcadas para divisão
+            closePdfModal();
             document.getElementById('pdfGroupingSection').style.display = 'none';
             document.getElementById('previewSection').classList.remove('active');
             setPdfProgress(2, 'Processando divisões de imagem...');
@@ -5116,7 +5383,7 @@
             await composeGroupsToResults(groups);
         }
 
-        async function composeGroupsToResults(groups) {
+        async function composeGroupsToResults(groups, opts = {}) {
             document.getElementById('pdfProgress').style.display = 'block';
             setPdfProgress(5, 'Montando molduras...');
             // Esconde o canvas durante a composição para não confundir o usuário
@@ -5159,7 +5426,17 @@
 
             setPdfProgress(100, `Pronto! ${groups.length} moldura(s) geradas. Confira a pré-visualização.`);
             showNotification(`${groups.length} moldura(s) montadas! Confira e edite antes de baixar.`, 'success', 6000);
-            showPdfResultsPreview(results, groups.length);
+            if (opts.append) {
+                pdfResults.push(...results);
+                updateFilenamePreview();
+                renderPdfResultsGrid();
+                const resultsSection = document.getElementById('pdfResultsSection');
+                resultsSection.style.display = 'block';
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                document.getElementById('pdfProgress').style.display = 'none';
+            } else {
+                showPdfResultsPreview(results, groups.length);
+            }
             // Esconde previewSection — só aparece ao clicar em "Ajustar"
             document.getElementById('previewSection').classList.remove('active');
             // Reseta frames para não sujar os upload boxes manuais
@@ -5253,7 +5530,70 @@
             });
         }
 
+        // Card fixo da capa do artigo — sempre a primeira, não é arrastável nem tem
+        // setas de reordenar (a capa precisa ficar sempre na frente das molduras).
+        function renderCoverResultCard() {
+            if (!coverImage) return null;
+
+            const card = document.createElement('div');
+            card.className = 'results-card';
+            card.style.cursor = 'default';
+            card.title = 'Capa do artigo — fixa na primeira posição';
+
+            const imgWrap = document.createElement('div');
+            imgWrap.className = 'results-card-img-wrap';
+            const img = document.createElement('img');
+            img.src = coverImage.dataUrl;
+            img.style.cssText = 'width:100%; border-radius:8px; display:block; pointer-events:none;';
+            imgWrap.appendChild(img);
+
+            const badge = document.createElement('div');
+            badge.textContent = 'CAPA';
+            badge.style.cssText = 'position:absolute; top:8px; left:8px; background:#667eea; color:white; font-size:10px; font-weight:800; letter-spacing:.04em; padding:3px 8px; border-radius:999px; box-shadow:0 2px 8px rgba(0,0,0,0.25); pointer-events:none;';
+            imgWrap.appendChild(badge);
+            card.appendChild(imgWrap);
+
+            const name = document.createElement('p');
+            name.className = 'results-card-name';
+            name.textContent = (coverImage.name || getCoverFileName()) + '.jpg';
+            card.appendChild(name);
+
+            const actions = document.createElement('div');
+            actions.className = 'results-card-actions';
+
+            const swapBtn = document.createElement('button');
+            swapBtn.type = 'button'; swapBtn.className = 'image-slot-btn results-btn';
+            swapBtn.title = 'Trocar capa';
+            swapBtn.innerHTML = `${ICON('refresh', 14)}<span>Trocar</span>`;
+            swapBtn.onclick = () => openCoverModal();
+            actions.appendChild(swapBtn);
+
+            const dlBtn = document.createElement('button');
+            dlBtn.type = 'button'; dlBtn.className = 'image-slot-btn results-btn';
+            dlBtn.title = 'Baixar capa';
+            dlBtn.innerHTML = `${ICON('download', 14)}<span>Baixar</span>`;
+            dlBtn.onclick = () => downloadCover();
+            actions.appendChild(dlBtn);
+
+            card.appendChild(actions);
+            return card;
+        }
+
+        // Some assim que houver qualquer trabalho em andamento (upload, capa, PDF importado)
+        function updateWelcomeHeroVisibility() {
+            const hero = document.getElementById('welcomeHero');
+            if (!hero) return;
+            hero.style.display = (pdfResults.length || coverImage) ? 'none' : 'flex';
+        }
+
         function renderPdfResultsGrid() {
+            updateWelcomeHeroVisibility();
+            // Some o painel inteiro quando não sobra nenhuma moldura nem capa (ex: apagou a última) —
+            // sem isso o painel ficava visível e vazio.
+            const resultsSection = document.getElementById('pdfResultsSection');
+            if (resultsSection && editingPdfResultIndex === null) {
+                resultsSection.style.display = (pdfResults.length || coverImage) ? 'block' : 'none';
+            }
             renamePdfResults();
             const grid = document.getElementById('pdfResultsGrid');
 
@@ -5264,6 +5604,8 @@
             });
 
             grid.innerHTML = '';
+            const coverCard = renderCoverResultCard();
+            if (coverCard) grid.appendChild(coverCard);
             pdfResults.forEach((r, idx) => {
                 if (!r._uid) r._uid = 'r' + (_pdfResultUidSeq++);
 
@@ -5417,11 +5759,35 @@
             const result = pdfResults[idx];
             editingPdfResultIndex = idx;
             activeFrameIndex = 0; // começa editando a primeira imagem
+            resetEditHistory();
 
             await setFrameCountForBatch(result.images.length);
             for (let i = 0; i < result.images.length; i++) {
                 const img = await loadImageFromDataUrl(result.images[i]);
                 await loadImageIntoFrameSlot(i, img);
+
+                // Restaura posição/zoom/ajuste/pincel salvos no ajuste anterior — sem isso,
+                // reabrir uma moldura já ajustada voltava tudo ao estado original (o
+                // slot era recriado do zero a cada abertura).
+                const state = result.slotStates && result.slotStates[i];
+                if (state) {
+                    frames[i].imageOffset = { ...state.offset };
+                    frames[i].imageScale = state.scale;
+                    frames[i].fitMode = state.fitMode;
+                    frames[i].bgMode = state.bgMode;
+                    frames[i].customColor = state.customColor;
+                    if (state.brushDataUrl && frames[i].brushCanvas) {
+                        await new Promise(resolve => {
+                            const bImg = new Image();
+                            bImg.onload = () => {
+                                frames[i].brushCanvas.getContext('2d').drawImage(bImg, 0, 0);
+                                resolve();
+                            };
+                            bImg.onerror = resolve;
+                            bImg.src = state.brushDataUrl;
+                        });
+                    }
+                }
             }
             await waitForFramesReady(result.images.length);
 
@@ -5430,10 +5796,9 @@
             loadFrameSettings();
             renderFinalCanvas();
             renderEditSlotUploads();
-            showFloatingToolbar();
-            syncFloatingToolbar();
+            activateMoveMode(); // ferramenta padrão ao entrar no ajuste
 
-            document.getElementById('pdfEditBanner').style.display = 'block';
+            document.getElementById('pdfResultsSection').style.display = 'none';
             document.querySelector('.canvas-container').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
@@ -5578,28 +5943,45 @@
 
             // Salva as imagens de cada slot (com fallback para a imagem original)
             const images = [];
+            const slotStates = [];
             for (let i = 0; i < frameCount; i++) {
                 const src = frames[i]?.uploadedImage?.src || pdfResults[editingPdfResultIndex]?.images?.[i] || '';
                 images.push(src);
+                // Persiste posição/zoom/ajuste/pincel — sem isso, reabrir o "Ajustar" mais
+                // tarde recriava os slots do zero e perdia tudo que não fosse o corte.
+                const f = frames[i];
+                slotStates.push({
+                    offset: f?.imageOffset ? { ...f.imageOffset } : { x: 0, y: 0 },
+                    scale: f?.imageScale ?? 1.0,
+                    fitMode: f?.fitMode || 'contain',
+                    bgMode: f?.bgMode || 'dominant',
+                    customColor: f?.customColor || '#FFFFFF',
+                    brushDataUrl: f?.brushCanvas ? f.brushCanvas.toDataURL('image/png') : null
+                });
             }
 
-            pdfResults[editingPdfResultIndex].blob    = blob;
-            pdfResults[editingPdfResultIndex].dataUrl = dataUrl;
-            pdfResults[editingPdfResultIndex].images  = images;
+            pdfResults[editingPdfResultIndex].blob       = blob;
+            pdfResults[editingPdfResultIndex].dataUrl    = dataUrl;
+            pdfResults[editingPdfResultIndex].images     = images;
+            pdfResults[editingPdfResultIndex].slotStates = slotStates;
 
             editingPdfResultIndex = null;
-            document.getElementById('pdfEditBanner').style.display = 'none';
+            resetEditHistory();
             document.getElementById('previewSection').classList.remove('active');
             hideFloatingToolbar();
             renderPdfResultsGrid();
+            document.getElementById('pdfResultsSection').style.display = 'block';
             showNotification('Ajuste salvo!', 'success');
         }
 
         function cancelEditPdfResult() {
             editingPdfResultIndex = null;
-            document.getElementById('pdfEditBanner').style.display = 'none';
+            resetEditHistory();
+            deactivateAllModes();
             document.getElementById('previewSection').classList.remove('active');
             hideFloatingToolbar();
+            document.getElementById('pdfResultsSection').style.display = 'block';
+            showNotification('Ajuste cancelado.', 'info', 2000);
         }
 
         async function downloadAllPdfResults() {
@@ -5645,17 +6027,11 @@
         // ===== BARRA FLUTUANTE DE EDIÇÃO =====
         function showFloatingToolbar() {
             document.getElementById('floatingToolbar').classList.add('visible');
-            const sp = document.getElementById('floatingSubpanel');
-            sp.style.opacity = '1';
-            sp.style.pointerEvents = 'all';
-            sp.style.transform = 'translateY(-50%) translateX(0)';
+            document.getElementById('floatingSubpanel').classList.add('visible');
         }
         function hideFloatingToolbar() {
             document.getElementById('floatingToolbar').classList.remove('visible');
-            const sp = document.getElementById('floatingSubpanel');
-            sp.style.opacity = '0';
-            sp.style.pointerEvents = 'none';
-            sp.style.transform = 'translateY(-50%) translateX(12px)';
+            document.getElementById('floatingSubpanel').classList.remove('visible');
             ['subBrushPanel','subResizePanel','subCropPanel','subMovePanel'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = 'none';
@@ -5687,11 +6063,6 @@
             Object.entries(map).forEach(([id, active]) => {
                 document.getElementById(id)?.classList.toggle('active', active);
             });
-            const cropBtn = document.getElementById('ftResetCropBtn');
-            if (cropBtn) {
-                const frame = frames[activeFrameIndex];
-                cropBtn.style.display = (frame?.originalImage && frame?.uploadedImage !== frame?.originalImage) ? '' : 'none';
-            }
             const cycleBtn = document.getElementById('ftFrameBtn');
             if (cycleBtn) { cycleBtn.style.display = frameCount > 1 ? '' : 'none'; cycleBtn.style.background = frameCount > 1 ? 'linear-gradient(135deg,#f59e0b,#d97706)' : ''; cycleBtn.style.color = frameCount > 1 ? 'white' : ''; }
         }
@@ -5714,9 +6085,28 @@
             }
         }
 
-        // ===== BOTÃO + FLUTUANTE =====
+        // ===== BOTÕES FLUTUANTES =====
         function closeManualSection() {
             document.getElementById('manualCreateSection').style.display = 'none';
+        }
+        function openPdfModal() {
+            document.getElementById('pdfModalOverlay').style.display = 'flex';
+        }
+        function closePdfModal() {
+            document.getElementById('pdfModalOverlay').style.display = 'none';
+        }
+        function openFilenameModal() {
+            document.getElementById('filenameModalOverlay').style.display = 'flex';
+        }
+        function closeFilenameModal() {
+            document.getElementById('filenameModalOverlay').style.display = 'none';
+        }
+        function openCoverModal() {
+            updateCoverModalUI();
+            document.getElementById('coverModalOverlay').style.display = 'flex';
+        }
+        function closeCoverModal() {
+            document.getElementById('coverModalOverlay').style.display = 'none';
         }
         function openHowItWorks() {
             document.getElementById('howItWorksModal').style.display = 'flex';
@@ -5727,15 +6117,17 @@
         function toggleManualCreate() { closeManualSection(); }
 
         function fabAddManual() {
+            if (editingPdfResultIndex !== null) cancelEditPdfResult();
             // Abre a seção manual (não faz scroll automático)
             const details = document.getElementById('manualCreateSection');
             if (details) details.style.display = 'flex';
-            // Reseta os campos de upload manual
-            frames = []; frameCount = 1;
-            initializeFrames(1);
-            createMultipleUploadBoxes();
-            document.querySelectorAll('.frame-count-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
-            showNotification('Seção manual aberta — envie a(s) imagem(ns) para montar a moldura.', 'info', 3000);
+            // Reseta o upload em massa
+            manualFlatImages = [];
+            manualJoinWithNext = [];
+            const grid = document.getElementById('manualGroupingGrid');
+            if (grid) grid.innerHTML = '';
+            document.getElementById('manualGroupingSection').style.display = 'none';
+            showNotification('Selecione uma ou várias imagens — cada uma vira uma moldura separada. Você escolhe quais unir depois.', 'info', 4000);
         }
 
         // ===== SELETOR DE CORES DUPLICADO NOS RESULTADOS =====
@@ -5834,54 +6226,126 @@
             fabAddManual();
         }
 
-        async function confirmManualResult() {
-            for (let i = 0; i < frameCount; i++) {
-                if (!frames[i]?.uploadedImage) {
-                    showNotification('Preencha todas as imagens antes de adicionar.', 'warning');
+        // ===== UPLOAD EM MASSA (botão +) =====
+        // Cada imagem enviada vira uma entrada separada; o usuário decide, na grade de
+        // conferência abaixo, quais ficam unidas na mesma moldura (mesmo sistema usado
+        // na importação de PDF).
+        let manualFlatImages = [];
+        let manualJoinWithNext = [];
+
+        function handleManualBulkUpload(fileList) {
+            const files = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+            if (!files.length) {
+                showNotification('Por favor, envie apenas arquivos de imagem.', 'error');
+                return;
+            }
+            const loaded = new Array(files.length);
+            let remaining = files.length;
+            files.forEach((file, idx) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    loaded[idx] = e.target.result;
+                    remaining--;
+                    if (remaining === 0) {
+                        loaded.forEach(dataUrl => {
+                            manualFlatImages.push({ dataUrl });
+                            manualJoinWithNext.push(false);
+                        });
+                        renderManualGroupingGrid();
+                        document.getElementById('manualGroupingSection').style.display = 'block';
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderManualGroupingGrid() {
+            const grid = document.getElementById('manualGroupingGrid');
+            grid.innerHTML = '';
+
+            manualFlatImages.forEach((imgObj, i) => {
+                const wrapper = document.createElement('div');
+                wrapper.style.cssText = 'display:flex; flex-direction:column; align-items:center; gap:6px;';
+
+                const card = document.createElement('div');
+                card.style.cssText = 'width:110px; text-align:center; background:white; border:2px solid #e0e7ff; border-radius:12px; padding:6px; position:relative;';
+
+                const img = document.createElement('img');
+                img.src = imgObj.dataUrl;
+                img.style.cssText = 'width:100%; border-radius:6px; display:block;';
+                card.appendChild(img);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.title = 'Remover';
+                removeBtn.innerHTML = ICON('trash', 12);
+                removeBtn.style.cssText = 'position:absolute; top:2px; right:2px; width:20px; height:20px; border-radius:50%; border:none; background:rgba(220,38,38,0.9); color:white; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;';
+                removeBtn.onclick = () => {
+                    manualFlatImages.splice(i, 1);
+                    manualJoinWithNext.splice(i, 1);
+                    renderManualGroupingGrid();
+                    if (!manualFlatImages.length) document.getElementById('manualGroupingSection').style.display = 'none';
+                };
+                card.appendChild(removeBtn);
+                wrapper.appendChild(card);
+
+                const label = document.createElement('p');
+                label.style.cssText = 'font-size:10px; color:#999; margin-top:2px;';
+                label.textContent = `imagem ${i + 1}`;
+                wrapper.appendChild(label);
+
+                grid.appendChild(wrapper);
+
+                if (i < manualFlatImages.length - 1) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'image-slot-btn';
+                    const joined = manualJoinWithNext[i];
+                    btn.title = joined ? 'Separar em molduras diferentes' : 'Unir na mesma moldura';
+                    btn.innerHTML = joined ? ICON('link') : ICON('scissors');
+                    btn.onclick = () => toggleManualJoin(i);
+                    grid.appendChild(btn);
+                }
+            });
+        }
+
+        function toggleManualJoin(i) {
+            if (!manualJoinWithNext[i]) {
+                let leftStart = i;
+                while (leftStart > 0 && manualJoinWithNext[leftStart - 1]) leftStart--;
+                let rightEnd = i + 1;
+                while (rightEnd < manualJoinWithNext.length - 1 && manualJoinWithNext[rightEnd]) rightEnd++;
+                const totalSize = (i - leftStart + 1) + (rightEnd - i);
+                if (totalSize > MAX_IMAGE_SLOTS) {
+                    showNotification(`Máximo de ${MAX_IMAGE_SLOTS} imagens por moldura.`, 'info');
                     return;
                 }
             }
+            manualJoinWithNext[i] = !manualJoinWithNext[i];
+            renderManualGroupingGrid();
+        }
 
-            renderFinalCanvas();
-            const canvas = document.getElementById('canvas');
-            const quality = 1.0;
+        async function confirmManualGrouping() {
+            if (!manualFlatImages.length) return;
 
-            const exportCanvas = document.createElement('canvas');
-            exportCanvas.width = canvas.width;
-            exportCanvas.height = canvas.height;
-            const exportCtx = exportCanvas.getContext('2d');
-            exportCtx.imageSmoothingEnabled = true;
-            exportCtx.imageSmoothingQuality = 'high';
-            exportCtx.fillStyle = '#FFFFFF';
-            exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-            exportCtx.drawImage(canvas, 0, 0);
+            const groups = [];
+            let current = [];
+            manualFlatImages.forEach((imgObj, i) => {
+                current.push(imgObj);
+                if (!manualJoinWithNext[i]) {
+                    groups.push(current);
+                    current = [];
+                }
+            });
+            if (current.length) groups.push(current);
 
-            const blob = await new Promise(resolve => exportCanvas.toBlob(resolve, 'image/jpeg', quality));
-            const dataUrl = exportCanvas.toDataURL('image/jpeg', quality);
-
-            const code = (document.getElementById('filePrefix').value.trim() || 'IMG')
-                .replace(/[^a-zA-Z0-9-_]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').toUpperCase();
-            let seq = parseInt(document.getElementById('imageNumber').value, 10);
-            if (isNaN(seq)) seq = pdfResults.length + 1;
-            const num = String(seq).padStart(2, '0');
-            const name = `#${code}-${num}`;
-
-            const images = [];
-            for (let i = 0; i < frameCount; i++) images.push(frames[i].uploadedImage.src);
-
-            pdfResults.push({ name, blob, dataUrl, images });
-
-            document.getElementById('imageNumber').value = String(seq + 1).padStart(2, '0');
-            updateFilenamePreview();
-            renderPdfResultsGrid();
-            document.getElementById('pdfResultsSection').style.display = 'block';
-
-            // Reseta os upload boxes para estado vazio
-            frames = []; setFrameCount(1);
-
-            // Fecha a seção manual
             closeManualSection();
-            showNotification('Moldura adicionada aos resultados!', 'success');
+            await composeGroupsToResults(groups, { append: true });
+
+            manualFlatImages = [];
+            manualJoinWithNext = [];
+            document.getElementById('manualGroupingGrid').innerHTML = '';
+            document.getElementById('manualGroupingSection').style.display = 'none';
         }
 
         function resetAll() {
@@ -5909,11 +6373,11 @@
             pdfFlatImages = [];
             pdfJoinWithNext = [];
             editingPdfResultIndex = null;
+            updateWelcomeHeroVisibility();
             document.getElementById('pdfResultsSection').style.display = 'none';
             document.getElementById('pdfResultsGrid').innerHTML = '';
             document.getElementById('pdfGroupingSection').style.display = 'none';
             document.getElementById('pdfGroupingGrid').innerHTML = '';
-            document.getElementById('pdfEditBanner').style.display = 'none';
             document.getElementById('colorInput').value = customColor;
             document.getElementById('colorDisplay').style.backgroundColor = customColor;
             document.getElementById('customFrameUploadInput').value = '';
@@ -5921,7 +6385,8 @@
             document.getElementById('customFrameBox').classList.remove('drag-over');
             document.getElementById('customFrameBoxTitle').textContent = 'Moldura Personalizada (PNG)';
             document.getElementById('customFramePanel').style.display = 'none';
-            document.getElementById('toggleCustomFrameBtn').innerHTML = `${ICON('frame')} Usar moldura personalizada`;
+            document.getElementById('toggleCustomFrameBtn').classList.remove('active');
+            document.getElementById('toggleCustomFrameBtn').title = 'Moldura Personalizada';
             document.getElementById('brushSizeSlider').value = 20;
             document.getElementById('brushSizeValue').textContent = '20px';
             document.getElementById('brushColorDisplay').style.backgroundColor = brushColor;
@@ -5939,8 +6404,7 @@
             document.getElementById('fitMode').value = 'contain';
             document.getElementById('bgMode').value = 'dominant';
             document.getElementById('customColorGroup').style.display = 'none';
-            document.getElementById('ftResetCropBtn').style.display = 'none';
-            
+
             deactivateAllModes();
 
             isProcessingPdf = false;
@@ -6049,12 +6513,24 @@
                 const isTyping = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
                 if (isTyping) return;
 
-                if (frames.length > 0 && frames[activeFrameIndex]) {
+                // Ctrl+Z desfaz a última ação (mover/cortar/redimensionar/pincel/ajuste),
+                // não a edição inteira — para isso existe o botão "Cancelar"
+                if (editingPdfResultIndex !== null) {
                     e.preventDefault();
-                    undoBrush();
+                    undoLastEditAction();
                 }
             }
         });
+
+        document.getElementById('portalContextMenuItem').addEventListener('click', function() {
+            if (_contextMenuPortalId) toggleFavoritePortal(_contextMenuPortalId);
+            hidePortalContextMenu();
+        });
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('portalContextMenu');
+            if (menu.style.display === 'block' && !menu.contains(e.target)) hidePortalContextMenu();
+        });
+        document.addEventListener('scroll', hidePortalContextMenu, true);
 
         document.getElementById('customFrameBox').addEventListener('click', function() {
             document.getElementById('customFrameUploadInput').click();
@@ -6128,6 +6604,34 @@
             processPdfFile(file);
         });
 
+        document.getElementById('manualBulkUploadBox').addEventListener('click', function() {
+            document.getElementById('manualBulkUploadInput').click();
+        });
+
+        document.getElementById('manualBulkUploadInput').addEventListener('change', function(e) {
+            if (!e.target.files.length) return;
+            handleManualBulkUpload(e.target.files);
+            this.value = '';
+        });
+
+        document.getElementById('manualBulkUploadBox').addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.add('drag-over');
+        });
+
+        document.getElementById('manualBulkUploadBox').addEventListener('dragleave', function() {
+            this.classList.remove('drag-over');
+        });
+
+        document.getElementById('manualBulkUploadBox').addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('drag-over');
+            if (!e.dataTransfer.files.length) return;
+            handleManualBulkUpload(e.dataTransfer.files);
+        });
+
 
         // ===== CAPA DO ARTIGO =====
         let coverImage = null; // { dataUrl, blob, name }
@@ -6174,33 +6678,43 @@
             }
         }
 
+        // Alterna entre os 2 botões de escolha (Galeria/Enviar Capa) e a área de
+        // pré-visualização (imagem + Salvar/Remover), de acordo com se já há uma capa.
+        function updateCoverModalUI() {
+            const chooseButtons = document.getElementById('coverChooseButtons');
+            const previewArea = document.getElementById('coverPreviewArea');
+            if (!chooseButtons || !previewArea) return;
+            if (coverImage) {
+                chooseButtons.style.display = 'none';
+                previewArea.style.display = 'flex';
+            } else {
+                chooseButtons.style.display = 'flex';
+                previewArea.style.display = 'none';
+            }
+        }
+
         function setCoverImageFromUrl(url) {
             // Para URLs externas (WordPress, CDN) — usa diretamente sem converter para base64
             // O blob é gerado via fetchImageBlob (com fallback de proxy) para o ZIP;
             // se tudo falhar, o download individual usa a URL original
             const name = getCoverFileName();
             const thumb = document.getElementById('coverThumb');
-            const empty = document.getElementById('coverEmpty');
-            const info  = document.getElementById('coverInfo');
             const fnEl  = document.getElementById('coverFileName');
-            if (thumb)  { thumb.src = url; thumb.style.display = 'block'; }
-            if (empty)  { empty.style.display = 'none'; }
-            if (info)   { info.style.display = 'flex'; }
-            if (fnEl)   { fnEl.textContent = name + '.jpg'; fnEl.style.display = 'block'; }
+            if (thumb)  thumb.src = url;
+            if (fnEl)   fnEl.textContent = name + '.jpg';
             coverImage = { dataUrl: url, name, blob: null };
+            updateCoverModalUI();
             fetchImageBlob(url).then(blob => {
                 if (coverImage && coverImage.dataUrl === url) coverImage.blob = blob;
             });
+            refreshCoverInResultsGrid();
         }
 
         function setCoverImage(dataUrl) {
             coverImage = { dataUrl, name: getCoverFileName() };
             const thumb = document.getElementById('coverThumb');
-            const empty = document.getElementById('coverEmpty');
-            const info  = document.getElementById('coverInfo');
-            if (thumb)  { thumb.src = dataUrl; thumb.style.display = 'block'; }
-            if (empty)  { empty.style.display = 'none'; }
-            if (info)   { info.style.display = 'flex'; }
+            if (thumb) thumb.src = dataUrl;
+            updateCoverModalUI();
             updateCoverName();
             // Converte dataUrl → Blob para incluir no ZIP
             try {
@@ -6212,16 +6726,28 @@
                 // Se falhar (URL externa sem base64), busca via fetchImageBlob (com fallback de proxy)
                 fetchImageBlob(dataUrl).then(b => { if (coverImage) coverImage.blob = b; });
             }
+            refreshCoverInResultsGrid();
         }
 
         function removeCover() {
             coverImage = null;
             const thumb = document.getElementById('coverThumb');
-            const empty = document.getElementById('coverEmpty');
-            const info  = document.getElementById('coverInfo');
-            if (thumb)  { thumb.style.display = 'none'; thumb.src = ''; }
-            if (empty)  { empty.style.display = 'flex'; }
-            if (info)   { info.style.display = 'none'; }
+            if (thumb) { thumb.src = ''; }
+            updateCoverModalUI();
+            refreshCoverInResultsGrid();
+        }
+
+        // Mantém o card da capa em "Molduras Geradas" sincronizado com o estado atual
+        // da capa, e garante que a seção apareça mesmo se ainda não houver molduras.
+        function refreshCoverInResultsGrid() {
+            const section = document.getElementById('pdfResultsSection');
+            if (!section) return;
+            if (pdfResults.length || coverImage) {
+                renderPdfResultsGrid();
+                if (editingPdfResultIndex === null) section.style.display = 'block';
+            } else if (editingPdfResultIndex === null) {
+                section.style.display = 'none';
+            }
         }
 
         async function downloadCover() {
@@ -6650,14 +7176,22 @@
             },
             yacuenta: {
                 categories: [
-                { id: 'economia', name: 'Economia' },
-                { id: 'financas', name: 'Finanças' },
-                { id: 'turismo', name: 'Turismo' },
+                    { id: 'apoyos-sociales', name: 'Apoyos Sociales' },
+                    { id: 'consejos-y-tutoriales', name: 'Consejos y tutoriales' },
+                    { id: 'derechos-laborales', name: 'Derechos Laborales' },
+                    { id: 'documentacion', name: 'Documentación' },
+                    { id: 'finanzas-personales', name: 'Finanzas Personales' },
+                    { id: 'sem-categoria', name: 'Sem categoria' },
+                    { id: 'subsidios', name: 'Subsidios' },
                 ],
                 images: {
-                economia: ['https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600', 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=600'],
-                financas: ['https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600', 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600'],
-                turismo: ['https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=600', 'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=600'],
+                    'apoyos-sociales': [{ url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6344-capa.jpg', title: 'CHIP para hijos con ingresos altos: aunque ganes bien' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6454-capa.jpg', title: 'Cómo conseguir medicamentos gratis o baratos: 3 formas reales' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6326-capa.jpg', title: 'Seguro médico gratis para niños: verifica si califican' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6347-capa.jpg', title: 'Tarjeta de descuento medicamentos gratis: ahorra hasta 80%' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6329-capa.jpg', title: 'Bancos de comida gratis cerca de mí: encuéntralos hoy' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6327-capa.jpg', title: 'Seguro CHIP para niños cubre dentista, vacunas y emergencias' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6325-capa.jpg', title: 'Banco de comida gratis para inmigrantes: llevas hoy' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6343-capa.jpg', title: 'Medi-Cal para niños: seguro gratis aunque tú trabajes' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6323-capa.jpg', title: 'Qué incluye el almuerzo escolar gratis: desayuno, verano y más' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6324-capa.jpg', title: 'Comida escolar gratis: no preguntan estatus migratorio' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6322-capa.jpg', title: 'Zonas elegibles USDA vivienda: consulta el mapa gratis' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6321-capa.jpg', title: 'Préstamo USDA vivienda rural: cómo comprar sin entrada' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6125-capa-1.jpg', title: 'Seguro de desempleo horas reducidas o despido: aplica' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6122-capa-1.jpg', title: 'Programa wic cómo aplicar: guía paso a paso gratis' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6154-capa-1.jpg', title: 'Cómo solicitar el seguro de desempleo en tu estado hoy' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6153-capa-1.jpg', title: 'Tarjeta WIC California: sin cupones, sin vergüenza en caja' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6155-capa-1.jpg', title: 'Alimentos gratis del WIC cada mes: leche y fórmula' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6123-capa-1.jpg', title: 'Seguro de desempleo semanal: cuánto recibes según tu sueldo' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6126-capa-1.jpg', title: 'Seguro de desempleo en Texas: solicítalo en línea paso a paso' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6283-capa-1.jpg', title: 'Nuevos beneficios de WIC en Texas: pescado y frutas' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6262-capa.jpg', title: 'WIC California beneficios: frutas gratis hasta $48 al mes' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6207-capa.jpg', title: 'Seguro de desempleo en California: cómo pedir tu beneficio' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6131-capa-1.jpg', title: 'Una solicitud: almuerzo gratis para todos tus hijos' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6113-capa.png', title: 'Renta de vivienda pública: solo el 30% de lo que ganas' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6115-capa.png', title: 'Vivienda pública sin revisar crédito: puedes calificar hoy' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6111-capa.png', title: 'Almuerzo escolar gratis para tus hijos: mira si calificas' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6117-capa.png', title: 'Vivienda pública en Florida: listas abiertas y cómo aplicar' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6116-capa.png', title: 'Vivienda pública en Nueva York: cómo entrar a NYCHA' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6120-capa.png', title: 'Almuerzo escolar gratis con empleo: el límite es más alto' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6118-capa.png', title: 'Vivienda pública renta reducida: cómo calificar en EE.UU.' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6021-capa.jpg', title: 'Beneficios sin cobrar: qué dinero del gobierno te pertenece' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6053-capa.jpg', title: 'A cuántos beneficios califico: consulta gratis en línea' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6051-capa.jpg', title: 'Crédito tributario por hijos con itin: cómo solicitarlo gratis' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6058-capa.jpg', title: 'Beneficios en Texas: ayudas que la mayoría no reclama' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6064-capa.jpg', title: 'EITC bajos ingresos: dinero que pierdes si no lo declaras' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6037-capa.jpg', title: 'Teléfono gratis si recibes SNAP o Medicaid: cómo activarlo' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6075-capa.jpg', title: 'CalWORKs efectivo mensual: cuidado de niños y trabajo incluidos' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5995-CAPA.jpg', title: 'Teléfono celular gratis del gobierno: cómo pedirlo' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5951-CAPA.jpg', title: 'California LifeLine celular gratis: programa propio del estado' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6031-capa.jpg', title: 'Efectivo mensual para familias con hijos del gobierno' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5955-CAPA.jpg', title: 'Celular gratis con datos para buscar trabajo: Lifeline te da uno' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6054-capa-.jpg', title: 'Reembolso IRS dónde está: rastrea tu dinero y por qué se demora' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6010-capa.jpg', title: 'Internet gratis del gobierno para bajos ingresos: cómo pedir' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6020-capa.jpg', title: 'Beneficios en California: calificas a más de lo que crees' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6052-capa.jpg', title: 'Crédito por ingreso del trabajo eitc: solicítalo gratis' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6050-capa.jpg', title: 'VITA impuestos gratis: certificados IRS te hacen la declaración' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6001-capa.jpg', title: 'Asistencia en efectivo del gobierno: cómo solicitarla' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5895-CAPA.png', title: 'Medi-Cal para niños en California: gratis sin importar estatus' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5892-CAPA.png', title: 'Jubilación del Seguro Social: lo que ya ganaste y no cobras' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5898-CAPA.png', title: 'Beneficio conyugal del Seguro Social para quien nunca trabajó' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5891-CAPA.png', title: 'Incapacidad del Seguro Social SSDI: verifica si calificas' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6019-capa.jpg', title: 'Beneficios del gobierno: descubre todos los que te corresponden' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5832-CAPA.png', title: 'Clínica sin seguro: pagas solo lo que ganas en el FQHC' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5859-CAPA.jpg', title: 'Ayuda con la renta en Texas: cómo solicitarla sin esperar' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5861-CAPA.jpg', title: 'Cómo obtener ayuda para pagar la renta atrasada ya' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5856-CAPA.jpg', title: 'Safety Net Assistance Nueva York: efectivo sin hijos también' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5881-CAPA.jpg', title: 'Consulta médica gratis sin seguro: cómo encontrarla' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5882-CAPA.jpg', title: 'Beneficios de sobrevivientes del Seguro Social: viudas e hijos' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5885-CAPA.jpg', title: 'Estimado de jubilación del Seguro Social: tu cifra real' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5887-CAPA.jpg', title: 'Clínica sin Medicaid en Texas: quién te atiende y cuánto pagas' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5809-CAPA.png', title: 'Ayuda para la renta atrasada: ve si pagan a tu casero' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5834-CAPA.png', title: 'Medicaid embarazada: cubre el parto aunque apliques hoy' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5806-CAPA.png', title: 'Efectivo de emergencia en Texas: hasta $1,000 en crisis' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5857-CAPA.jpg', title: 'Ayuda con la renta en California: programas activos 2026' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5559-capa.jpg', title: 'Subsidio de vivienda Section 8: verifica si calificas' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5575-capa.jpg', title: 'Licencia de conducir en California sin estatus legal: guía AB60' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5600-CAPA.png', title: 'Section 8 Florida: listas abren entre 106 autoridades' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5542-capa.jpg', title: 'Deja de pagar renta: ten tu casa propia en el campo con el USDA' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5541-capa.jpg', title: 'El USDA pide menos de lo que crees para darte un préstamo de casa' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5602-CAPA.png', title: 'Section 8 Texas vivienda: busca tu lista abierta ahora' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5681-CAPA.png', title: 'Section 8 renta: el gobierno paga directo al dueño' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5599-CAPA-2.png', title: 'Licencia de conducir en Nueva York para indocumentados: guía GTDL' }],
+                    'consejos-y-tutoriales': [{ url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5997-CAPA.jpg', title: 'Examen de manejo en español gratis: cómo practicar y aprobarlo' }],
+                    'derechos-laborales': [{ url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5789-capa.jpg', title: 'Qué hacer si no me pagaron mi sueldo: reclamo oficial gratis' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5571-capa.jpg', title: 'Salario robado en California: recupéralo sin abogado' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5518-capa.jpg', title: 'El gobierno guarda tu salario no reclamado: búscalo gratis' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5601-CAPA.png', title: 'Salario no pagado Texas: reclámalo gratis ante el estado' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5597-CAPA.png', title: 'Salarios no reclamados: busca si te deben dinero gratis' }],
+                    documentacion: [{ url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6129-capa.png', title: 'Acta de nacimiento para licencia, trabajo y beneficios' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-6114-capa.png', title: 'Acta de nacimiento Texas: pídela en línea en 20 días por $22' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5952-CAPA.jpg', title: 'Licencia de conducir en Illinois sin seguro social: trámite TVDL' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5811-CAPA.png', title: 'Cómo reemplazar un acta de nacimiento perdida paso a paso' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5858-CAPA.jpg', title: 'Acta de nacimiento en línea: pídela desde cualquier estado' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5838-CAPA.png', title: 'Acta de nacimiento California: condado más rápido que el estado' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5555-capa.jpg', title: 'Licencia de conducir sin seguro social: cómo sacarla' }],
+                    'finanzas-personales': [{ url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5578-capa.jpg', title: 'Puedo sacar mi 401k si me despiden: lo que dice el IRS' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5543-capa.jpg', title: 'Cómo transferir mi 401k a otra cuenta sin perder dinero' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5554-capa.jpg', title: 'Cómo sacar dinero del 401k: guía completa paso a paso' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5632-CAPA.png', title: '401k de trabajo anterior: busca el dinero que olvidaste' }, { url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5631-CAPA.png', title: 'Cómo sacar dinero del 401k por emergencia: guía 2026' }],
+                    'sem-categoria': [{ url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5860-CAPA-2.jpg', title: 'Qué hacer si me quieren desalojar: pasos urgentes hoy' }],
+                    subsidios: [{ url: 'https://yacuenta.com/wp-content/uploads/sites/11/2026/07/IMG-5680-CAPA.png', title: 'Section 8 California: inscríbete en la lista por sorteo' }],
                 },
             },
         };
@@ -6909,6 +7443,7 @@
         window.addEventListener('DOMContentLoaded', function() {
             renderStaticIcons();
             setupDragAndDrop();
+            initFavoritePortals();
             selectPortal('manualweb'); // ativa Manual da Web por padrão
             // Garante que a seção manual começa fechada
             closeManualSection();
